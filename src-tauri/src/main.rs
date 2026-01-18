@@ -4,9 +4,9 @@
     windows_subsystem = "windows"
 )]
 
+use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::process::Command;
 use std::sync::Mutex;
 use tauri::{Manager, State};
 use tauri_plugin_autostart::MacosLauncher;
@@ -91,6 +91,10 @@ pub struct Settings {
     pub always_on_top: bool,
     pub refresh_interval: u64,
     pub position: Option<Position>,
+    #[serde(default)]
+    pub autostart_prompted: bool,
+    #[serde(default)]
+    pub autostart_enabled: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -105,6 +109,8 @@ impl Default for Settings {
             always_on_top: true,
             refresh_interval: 60,
             position: None,
+            autostart_prompted: false,
+            autostart_enabled: false,
         }
     }
 }
@@ -115,7 +121,7 @@ impl Default for Settings {
 
 pub struct AppState {
     pub settings: Mutex<Settings>,
-    pub cached_token: Mutex<Option<String>>,
+    pub cached_token: Mutex<Option<SecretString>>,
 }
 
 impl Default for AppState {
@@ -131,21 +137,31 @@ impl Default for AppState {
 // Keychain Access
 // ============================================================================
 
-/// Extract OAuth token from macOS Keychain
+/// Extract OAuth token from macOS Keychain using native Security framework
+#[cfg(target_os = "macos")]
 fn get_oauth_token_from_keychain() -> Result<String, String> {
-    let output = Command::new("security")
-        .args(["find-generic-password", "-s", "Claude Code-credentials", "-w"])
-        .output()
-        .map_err(|e| format!("Failed to execute security command: {}", e))?;
+    use security_framework::passwords::get_generic_password;
 
-    if !output.status.success() {
-        return Err("No credentials found in Keychain. Please sign in to Claude Code first.".to_string());
-    }
+    // Get current username for the account parameter
+    let username = std::env::var("USER")
+        .or_else(|_| std::env::var("LOGNAME"))
+        .unwrap_or_default();
 
-    let json_str = String::from_utf8(output.stdout)
-        .map_err(|e| format!("Invalid UTF-8 in keychain data: {}", e))?
-        .trim()
-        .to_string();
+    // Query keychain for the credential using native API
+    let password_bytes = get_generic_password("Claude Code-credentials", &username)
+        .map_err(|e| {
+            // Map security framework errors to user-friendly messages
+            match e.code() {
+                -25300 => "No credentials found in Keychain. Please sign in to Claude Code first.".to_string(),
+                -128 => "User cancelled Keychain access.".to_string(),
+                -25308 => "Keychain item access requires permission.".to_string(),
+                _ => format!("Failed to access Keychain: {} (error code: {})", e.message().unwrap_or_default(), e.code()),
+            }
+        })?;
+
+    // Convert bytes to UTF-8 string
+    let json_str = String::from_utf8(password_bytes)
+        .map_err(|e| format!("Invalid UTF-8 in keychain data: {}", e))?;
 
     // Parse the JSON to extract claudeAiOauth.accessToken
     let creds: serde_json::Value = serde_json::from_str(&json_str)
@@ -155,6 +171,12 @@ fn get_oauth_token_from_keychain() -> Result<String, String> {
         .as_str()
         .map(|s| s.to_string())
         .ok_or_else(|| "No OAuth token found in credentials".to_string())
+}
+
+/// Fallback implementation for non-macOS platforms
+#[cfg(not(target_os = "macos"))]
+fn get_oauth_token_from_keychain() -> Result<String, String> {
+    Err("Keychain access is only supported on macOS".to_string())
 }
 
 // ============================================================================
@@ -263,13 +285,14 @@ fn calculate_token_stats(cache: &StatsCache) -> TokenStats {
 
 #[tauri::command]
 async fn get_usage_data(state: State<'_, AppState>) -> Result<WidgetData, String> {
-    // Get or refresh OAuth token
+    // Get or refresh OAuth token (using SecretString for secure memory handling)
     let token = {
         let mut cached = state.cached_token.lock().unwrap();
         if cached.is_none() {
-            *cached = Some(get_oauth_token_from_keychain()?);
+            *cached = Some(SecretString::from(get_oauth_token_from_keychain()?));
         }
-        cached.clone().unwrap()
+        // Clone the inner String to pass to API (short-lived copy)
+        cached.as_ref().unwrap().expose_secret().to_string()
     };
 
     // Fetch API data
@@ -308,7 +331,7 @@ async fn get_usage_data(state: State<'_, AppState>) -> Result<WidgetData, String
             error: None,
         }),
         Err(e) => {
-            // Clear cached token if auth failed
+            // Clear cached token if auth failed (Secret auto-zeroizes on drop)
             if e.contains("401") || e.contains("403") {
                 let mut cached = state.cached_token.lock().unwrap();
                 *cached = None;
@@ -375,9 +398,59 @@ async fn set_always_on_top(window: tauri::Window, value: bool) -> Result<(), Str
         .map_err(|e| format!("Failed to set always on top: {}", e))
 }
 
+#[tauri::command]
+fn toggle_autostart(
+    app: tauri::AppHandle,
+    state: State<'_, AppState>,
+    enabled: bool,
+) -> Result<(), String> {
+    use tauri_plugin_autostart::ManagerExt;
+
+    let autostart_manager = app.autolaunch();
+
+    if enabled {
+        autostart_manager
+            .enable()
+            .map_err(|e| format!("Failed to enable autostart: {}", e))?;
+    } else {
+        autostart_manager
+            .disable()
+            .map_err(|e| format!("Failed to disable autostart: {}", e))?;
+    }
+
+    // Update settings
+    let mut settings = state.settings.lock().unwrap();
+    settings.autostart_enabled = enabled;
+    settings.autostart_prompted = true;
+
+    let settings_clone = settings.clone();
+    drop(settings);
+
+    save_settings_to_file(&settings_clone)?;
+
+    Ok(())
+}
+
 // ============================================================================
 // App Setup
 // ============================================================================
+
+/// Helper function to save settings to disk
+fn save_settings_to_file(settings: &Settings) -> Result<(), String> {
+    let home = dirs::home_dir().ok_or("Could not find home directory")?;
+    let settings_dir = home.join(".claude-widget");
+    std::fs::create_dir_all(&settings_dir)
+        .map_err(|e| format!("Failed to create settings directory: {}", e))?;
+
+    let settings_path = settings_dir.join("settings.json");
+    let content = serde_json::to_string_pretty(&settings)
+        .map_err(|e| format!("Failed to serialize settings: {}", e))?;
+
+    std::fs::write(&settings_path, content)
+        .map_err(|e| format!("Failed to write settings: {}", e))?;
+
+    Ok(())
+}
 
 fn load_settings() -> Settings {
     let home = match dirs::home_dir() {
@@ -401,6 +474,7 @@ fn main() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
             Some(vec!["--autostarted"]),
@@ -410,10 +484,52 @@ fn main() {
             cached_token: Mutex::new(None),
         })
         .setup(|app| {
-            // Enable autostart on first launch
             use tauri_plugin_autostart::ManagerExt;
+
+            let state: State<AppState> = app.state();
+            let settings = state.settings.lock().unwrap();
+            let autostart_prompted = settings.autostart_prompted;
+            let autostart_enabled = settings.autostart_enabled;
+            drop(settings);
+
             let autostart_manager = app.autolaunch();
-            if !autostart_manager.is_enabled().unwrap_or(false) {
+
+            if !autostart_prompted {
+                // First launch - ask user for consent
+                let app_handle = app.handle().clone();
+
+                tauri::async_runtime::spawn(async move {
+                    use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
+
+                    let result = app_handle
+                        .dialog()
+                        .message("Would you like Claude Usage Widget to start automatically when you log in?")
+                        .title("Launch at Login")
+                        .kind(MessageDialogKind::Info)
+                        .buttons(MessageDialogButtons::YesNo)
+                        .blocking_show();
+
+                    let enable_autostart = result;
+
+                    // Apply user's decision
+                    use tauri_plugin_autostart::ManagerExt;
+                    let autostart_mgr = app_handle.autolaunch();
+                    if enable_autostart {
+                        let _ = autostart_mgr.enable();
+                    }
+
+                    // Persist decision to settings
+                    let state: State<AppState> = app_handle.state();
+                    let mut settings = state.settings.lock().unwrap();
+                    settings.autostart_prompted = true;
+                    settings.autostart_enabled = enable_autostart;
+                    let settings_clone = settings.clone();
+                    drop(settings);
+
+                    let _ = save_settings_to_file(&settings_clone);
+                });
+            } else if autostart_enabled && !autostart_manager.is_enabled().unwrap_or(false) {
+                // Restore user's saved preference
                 let _ = autostart_manager.enable();
             }
 
@@ -439,6 +555,7 @@ fn main() {
             save_settings,
             save_window_position,
             set_always_on_top,
+            toggle_autostart,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

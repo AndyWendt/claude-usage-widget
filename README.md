@@ -12,6 +12,9 @@ A lightweight macOS desktop widget that displays your Claude Code usage metrics 
 - **Draggable** - Position anywhere on screen
 - **Launch at Login** - Starts automatically with macOS
 
+<img width="239" height="373" alt="image" src="https://github.com/user-attachments/assets/67c0a7bb-92c7-4f4a-8af4-b2cd66fb49d3" />
+
+
 ## Requirements
 
 - macOS 10.15+

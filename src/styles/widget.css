@@ -1,0 +1,387 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+   Anthropic-Themed Widget Styles
+   ============================================================================ */
+
+:root {
+  /* Anthropic Brand Colors */
+  --anthropic-tan: #D4A574;
+  --anthropic-tan-light: #E8D4BC;
+  --anthropic-tan-dark: #B8956A;
+  --anthropic-coral: #E07A5F;
+  --anthropic-coral-light: #F0A090;
+  --anthropic-cream: #FAF7F2;
+  --anthropic-parchment: #F5F0E8;
+  --anthropic-charcoal: #2D2A26;
+  --anthropic-charcoal-light: #3D3A36;
+
+  /* Widget Specific */
+  --widget-bg: rgba(45, 42, 38, 0.88);
+  --widget-border: rgba(212, 165, 116, 0.25);
+  --widget-text: #FAF7F2;
+  --widget-text-muted: rgba(250, 247, 242, 0.6);
+  --widget-shadow: rgba(0, 0, 0, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  font-family: "Söhne", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================================
+   Widget Container
+   ============================================================================ */
+
+.widget-container {
+  width: 100vw;
+  height: 100vh;
+  padding: 8px;
+  background: transparent;
+}
+
+.widget {
+  width: 100%;
+  height: 100%;
+  background: var(--widget-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--widget-border);
+  border-radius: 14px;
+  box-shadow:
+    0 8px 32px var(--widget-shadow),
+    0 0 0 1px rgba(212, 165, 116, 0.1) inset;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+  cursor: grab;
+}
+
+.widget:active {
+  cursor: grabbing;
+}
+
+.widget.dragging {
+  transform: scale(1.02);
+  box-shadow:
+    0 12px 40px var(--widget-shadow),
+    0 0 0 1px rgba(212, 165, 116, 0.15) inset;
+}
+
+/* ============================================================================
+   Header
+   ============================================================================ */
+
+.widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px 8px;
+  cursor: grab;
+  border-bottom: 1px solid rgba(212, 165, 116, 0.1);
+}
+
+.widget-header:active {
+  cursor: grabbing;
+}
+
+.widget-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--anthropic-tan);
+  letter-spacing: -0.01em;
+}
+
+.refresh-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: rgba(212, 165, 116, 0.1);
+  border-radius: 6px;
+  cursor: pointer !important;
+  color: var(--anthropic-tan);
+  transition: all 0.15s ease;
+}
+
+.refresh-button:hover {
+  background: rgba(212, 165, 116, 0.2);
+  color: var(--anthropic-tan-light);
+}
+
+.refresh-button:active {
+  transform: scale(0.95);
+}
+
+.refresh-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.refresh-icon {
+  transition: transform 0.3s ease;
+}
+
+.refresh-icon.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================================
+   Content
+   ============================================================================ */
+
+.widget-content {
+  flex: 1;
+  padding: 10px 14px 14px;
+  overflow-y: hidden;
+}
+
+.widget-loading,
+.widget-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+}
+
+.loading-text {
+  color: var(--widget-text-muted);
+  font-size: 12px;
+}
+
+.error-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(224, 122, 95, 0.2);
+  border-radius: 50%;
+  color: var(--anthropic-coral);
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.error-text {
+  color: var(--anthropic-coral-light);
+  font-size: 11px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ============================================================================
+   Usage Sections
+   ============================================================================ */
+
+.usage-section {
+  margin-bottom: 12px;
+}
+
+.usage-section:last-of-type {
+  margin-bottom: 0;
+}
+
+.usage-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--widget-text-muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ============================================================================
+   Progress Bar
+   ============================================================================ */
+
+.usage-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.usage-bar-track {
+  flex: 1;
+  height: 8px;
+  background: rgba(212, 165, 116, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.usage-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease-out, background 0.3s ease;
+}
+
+.usage-bar-fill.bar-accent {
+  background: linear-gradient(90deg, var(--anthropic-tan-dark), var(--anthropic-tan));
+}
+
+.usage-bar-fill.bar-opus {
+  background: linear-gradient(90deg, #8B7355, var(--anthropic-tan-light));
+}
+
+.usage-bar-fill.bar-warning {
+  background: linear-gradient(90deg, var(--anthropic-coral-dark), var(--anthropic-coral));
+}
+
+.usage-bar-fill.bar-danger {
+  background: linear-gradient(90deg, #A85040, var(--anthropic-coral));
+  animation: pulse-danger 2s ease-in-out infinite;
+}
+
+@keyframes pulse-danger {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.usage-bar-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--widget-text);
+  min-width: 36px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+   Reset Timer
+   ============================================================================ */
+
+.reset-timer {
+  font-size: 10px;
+  color: var(--widget-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+   Divider
+   ============================================================================ */
+
+.widget-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(212, 165, 116, 0.3),
+    transparent
+  );
+  margin: 12px 0;
+}
+
+/* ============================================================================
+   Token Stats
+   ============================================================================ */
+
+.token-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.token-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.token-label {
+  font-size: 11px;
+  color: var(--widget-text-muted);
+}
+
+.token-value {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--widget-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+   API Error Banner
+   ============================================================================ */
+
+.api-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: rgba(224, 122, 95, 0.15);
+  border-radius: 6px;
+  border: 1px solid rgba(224, 122, 95, 0.2);
+}
+
+.api-error-icon {
+  font-size: 12px;
+}
+
+.api-error-text {
+  font-size: 10px;
+  color: var(--anthropic-coral-light);
+  line-height: 1.3;
+}
+
+/* ============================================================================
+   Scrollbar Styling
+   ============================================================================ */
+
+.widget-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.widget-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.widget-content::-webkit-scrollbar-thumb {
+  background: rgba(212, 165, 116, 0.3);
+  border-radius: 3px;
+}
+
+.widget-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 165, 116, 0.5);
+}
+
+/* ============================================================================
+   Anthropic Logo Watermark (Optional subtle branding)
+   ============================================================================ */
+
+.widget::after {
+  content: "";
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  width: 16px;
+  height: 16px;
+  background: radial-gradient(
+    circle at center,
+    rgba(212, 165, 116, 0.15) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  pointer-events: none;
+}

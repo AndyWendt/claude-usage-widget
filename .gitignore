@@ -27,3 +27,7 @@ npm-debug.log*
 # Tauri
 src-tauri/WixTools/
 src-tauri/Cargo.lock
+
+# Utility scripts
+claude-usage*.sh
+create_icons.py

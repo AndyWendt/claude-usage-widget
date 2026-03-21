@@ -4,8 +4,8 @@ import XCTest
 final class UsageMetricTests: XCTestCase {
     func testEncodeDecode() throws {
         let metric = UsageMetric(percent: 45.5, resetsAt: Date(timeIntervalSince1970: 1711000000))
-        let data = try JSONEncoder().encode(metric)
-        let decoded = try JSONDecoder().decode(UsageMetric.self, from: data)
+        let data = try UsageSnapshot.makeEncoder().encode(metric)
+        let decoded = try UsageSnapshot.makeDecoder().decode(UsageMetric.self, from: data)
         XCTAssertEqual(decoded.percent, 45.5)
         XCTAssertEqual(decoded.resetsAt, metric.resetsAt)
     }
@@ -25,8 +25,8 @@ final class UsageMetricTests: XCTestCase {
 final class TokenStatsTests: XCTestCase {
     func testEncodeDecode() throws {
         let stats = TokenStats(todayTokens: 15000, weekTokens: 85000, todayMessages: 42, weekMessages: 210)
-        let data = try JSONEncoder().encode(stats)
-        let decoded = try JSONDecoder().decode(TokenStats.self, from: data)
+        let data = try UsageSnapshot.makeEncoder().encode(stats)
+        let decoded = try UsageSnapshot.makeDecoder().decode(TokenStats.self, from: data)
         XCTAssertEqual(decoded.todayTokens, 15000)
         XCTAssertEqual(decoded.weekTokens, 85000)
         XCTAssertEqual(decoded.todayMessages, 42)
@@ -57,8 +57,8 @@ final class UsageSnapshotTests: XCTestCase {
             lastUpdated: Date(timeIntervalSince1970: 1711000000),
             error: nil
         )
-        let data = try JSONEncoder().encode(snapshot)
-        let decoded = try JSONDecoder().decode(UsageSnapshot.self, from: data)
+        let data = try UsageSnapshot.makeEncoder().encode(snapshot)
+        let decoded = try UsageSnapshot.makeDecoder().decode(UsageSnapshot.self, from: data)
         XCTAssertEqual(decoded.fiveHour?.percent, 45.0)
         XCTAssertNil(decoded.sevenDaySonnet)
         XCTAssertEqual(decoded.sevenDayOpus?.percent, 88.0)
@@ -72,8 +72,8 @@ final class UsageSnapshotTests: XCTestCase {
             lastUpdated: Date(),
             error: "API error 401: Unauthorized"
         )
-        let data = try JSONEncoder().encode(snapshot)
-        let decoded = try JSONDecoder().decode(UsageSnapshot.self, from: data)
+        let data = try UsageSnapshot.makeEncoder().encode(snapshot)
+        let decoded = try UsageSnapshot.makeDecoder().decode(UsageSnapshot.self, from: data)
         XCTAssertEqual(decoded.error, "API error 401: Unauthorized")
         XCTAssertNil(decoded.fiveHour)
     }

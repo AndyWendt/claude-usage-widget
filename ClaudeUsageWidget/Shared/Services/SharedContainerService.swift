@@ -26,16 +26,14 @@ final class SharedContainerService: SharedContainerServiceProtocol {
         let dir = snapshotURL.deletingLastPathComponent()
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
 
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
+        let encoder = UsageSnapshot.makeEncoder()
         let data = try encoder.encode(snapshot)
         try data.write(to: snapshotURL, options: .atomic)
     }
 
     func readSnapshot() -> UsageSnapshot? {
         guard let data = try? Data(contentsOf: snapshotURL) else { return nil }
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        let decoder = UsageSnapshot.makeDecoder()
         return try? decoder.decode(UsageSnapshot.self, from: data)
     }
 }

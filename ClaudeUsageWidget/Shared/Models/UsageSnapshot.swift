@@ -45,4 +45,20 @@ struct UsageSnapshot: Codable, Equatable {
     var isStale: Bool {
         Date().timeIntervalSince(lastUpdated) > 30 * 60
     }
+
+    /// Canonical encoder — always uses iso8601 dates for interoperability
+    /// between the main app and the widget extension.
+    static func makeEncoder() -> JSONEncoder {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        return encoder
+    }
+
+    /// Canonical decoder — always uses iso8601 dates for interoperability
+    /// between the main app and the widget extension.
+    static func makeDecoder() -> JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
+    }
 }

@@ -9,9 +9,12 @@
 /* Begin PBXBuildFile section */
 		1B4549DCF73A428AB9D30F3E /* ClaudeUsageWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B71813093F86943308852F96 /* ClaudeUsageWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2038F2A6CA24831644BF434C /* PlaceholderTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E60918A3CF2609E4192EC96 /* PlaceholderTest.swift */; };
+		40F7158B748B08521C9445EC /* UsageSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46952864015DEF0688EFD641 /* UsageSnapshotTests.swift */; };
 		7FDE9E2294F81903B849BE5B /* ClaudeUsageWidgetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0DC54E79339225480FF687 /* ClaudeUsageWidgetApp.swift */; };
+		93A918147C89BAB592F93597 /* UsageSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239C231DD3A14A125EEC343 /* UsageSnapshot.swift */; };
 		C855B6A66319B86C87894CC2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C41E3CD0CFE2517D9AF42449 /* Assets.xcassets */; };
 		CE1EEC1DB4CE4676F6AA61C4 /* ClaudeUsageWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 263B79D4150B25A657B1848E /* ClaudeUsageWidgetBundle.swift */; };
+		E795D629B7FDE1B6BAC61AF3 /* UsageSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239C231DD3A14A125EEC343 /* UsageSnapshot.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +51,7 @@
 /* Begin PBXFileReference section */
 		0C0DC54E79339225480FF687 /* ClaudeUsageWidgetApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeUsageWidgetApp.swift; sourceTree = "<group>"; };
 		263B79D4150B25A657B1848E /* ClaudeUsageWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeUsageWidgetBundle.swift; sourceTree = "<group>"; };
+		46952864015DEF0688EFD641 /* UsageSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageSnapshotTests.swift; sourceTree = "<group>"; };
 		58B722BBD73039680155A5B4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		5A2FF6035875BE21D69DD7FD /* Widget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Widget.entitlements; sourceTree = "<group>"; };
 		8E60918A3CF2609E4192EC96 /* PlaceholderTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTest.swift; sourceTree = "<group>"; };
@@ -56,6 +60,7 @@
 		A689E324C8FB1D63AF114D18 /* ClaudeUsageWidgetTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClaudeUsageWidgetTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B71813093F86943308852F96 /* ClaudeUsageWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ClaudeUsageWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C41E3CD0CFE2517D9AF42449 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E239C231DD3A14A125EEC343 /* UsageSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageSnapshot.swift; sourceTree = "<group>"; };
 		E7461ED52B3E3AAD8992BF27 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -76,6 +81,7 @@
 			isa = PBXGroup;
 			children = (
 				8E60918A3CF2609E4192EC96 /* PlaceholderTest.swift */,
+				46952864015DEF0688EFD641 /* UsageSnapshotTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -93,8 +99,17 @@
 		C90F0966D88AE92C9B94658C /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				D23162CBC55FA718AB851C77 /* Models */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		D23162CBC55FA718AB851C77 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				E239C231DD3A14A125EEC343 /* UsageSnapshot.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		F25912942BEC7B50A350D4D1 /* App */ = {
@@ -233,6 +248,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7FDE9E2294F81903B849BE5B /* ClaudeUsageWidgetApp.swift in Sources */,
+				E795D629B7FDE1B6BAC61AF3 /* UsageSnapshot.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -241,6 +257,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2038F2A6CA24831644BF434C /* PlaceholderTest.swift in Sources */,
+				40F7158B748B08521C9445EC /* UsageSnapshotTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -249,6 +266,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE1EEC1DB4CE4676F6AA61C4 /* ClaudeUsageWidgetBundle.swift in Sources */,
+				93A918147C89BAB592F93597 /* UsageSnapshot.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -385,6 +403,7 @@
 					"@executable_path/../Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.andywendt.claude-usage-widget";
+				PRODUCT_MODULE_NAME = ClaudeUsageWidget;
 				PRODUCT_NAME = "Claude Usage Widget";
 				SDKROOT = macosx;
 			};
@@ -413,6 +432,7 @@
 					"@executable_path/../Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.andywendt.claude-usage-widget";
+				PRODUCT_MODULE_NAME = ClaudeUsageWidget;
 				PRODUCT_NAME = "Claude Usage Widget";
 				SDKROOT = macosx;
 			};

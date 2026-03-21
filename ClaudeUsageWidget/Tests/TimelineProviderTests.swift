@@ -32,6 +32,8 @@ final class TimelineProviderTests: XCTestCase {
 
         XCTAssertEqual(entries.count, 1)
         XCTAssertNil(entries.first?.snapshot.fiveHour)
+        XCTAssertNotNil(entries.first?.snapshot.error, "Nil snapshot should produce an error message for the widget")
+        XCTAssertTrue(entries.first!.snapshot.error!.contains("No data"))
     }
 
     func testEntryIsStale() {

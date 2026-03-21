@@ -30,6 +30,7 @@
 		9F0774D6EF5554D446688FD5 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BEAFF9D1BF1D16D051E2CD8 /* KeychainService.swift */; };
 		A155DE7CA56979A05382E762 /* UsageManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A886BBB5B3CC85D6BB4645CF /* UsageManagerTests.swift */; };
 		A8CFA711242AD60A1D1B5366 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB767F230ACE496D02D795E5 /* APIService.swift */; };
+		BCA6AB50558D69435D744871 /* PopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2909CCB00340701142EF9B8B /* PopoverView.swift */; };
 		C361E4589119A8A7592463F3 /* KeychainServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39691948860FB314644562B2 /* KeychainServiceTests.swift */; };
 		C855B6A66319B86C87894CC2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C41E3CD0CFE2517D9AF42449 /* Assets.xcassets */; };
 		CE1EEC1DB4CE4676F6AA61C4 /* ClaudeUsageWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 263B79D4150B25A657B1848E /* ClaudeUsageWidgetBundle.swift */; };
@@ -79,6 +80,7 @@
 		108647D905683B425F33DC3B /* stats-cache.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "stats-cache.json"; sourceTree = "<group>"; };
 		11D7791C1839BE5B42B9E9BD /* SharedContainerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedContainerService.swift; sourceTree = "<group>"; };
 		263B79D4150B25A657B1848E /* ClaudeUsageWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeUsageWidgetBundle.swift; sourceTree = "<group>"; };
+		2909CCB00340701142EF9B8B /* PopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverView.swift; sourceTree = "<group>"; };
 		32DA4A5DA2D7F5F5F1EB55C7 /* APIModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIModelsTests.swift; sourceTree = "<group>"; };
 		39691948860FB314644562B2 /* KeychainServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceTests.swift; sourceTree = "<group>"; };
 		46952864015DEF0688EFD641 /* UsageSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageSnapshotTests.swift; sourceTree = "<group>"; };
@@ -199,6 +201,7 @@
 		EB1B9DF7017AE054376762A2 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				2909CCB00340701142EF9B8B /* PopoverView.swift */,
 				A5F0B21FA1E73B52BCD7AE3B /* ResetTimerView.swift */,
 				DF33EA624DE227AF13301E9A /* TokenStatsView.swift */,
 				D1991566E5B49B2729762AFF /* UsageBarView.swift */,
@@ -357,6 +360,7 @@
 				828F0380F652910F7566FA64 /* AnthropicColors.swift in Sources */,
 				7FDE9E2294F81903B849BE5B /* ClaudeUsageWidgetApp.swift in Sources */,
 				9F0774D6EF5554D446688FD5 /* KeychainService.swift in Sources */,
+				BCA6AB50558D69435D744871 /* PopoverView.swift in Sources */,
 				991365EB8D9B099E75247731 /* ResetTimerView.swift in Sources */,
 				80E8B06ADD163A079B97BB90 /* ServiceProtocols.swift in Sources */,
 				E1F61FF8D79ACCD51E308926 /* SharedContainerService.swift in Sources */,

@@ -86,6 +86,24 @@ final class APIServiceTests: XCTestCase {
         }
     }
 
+    func testFetchUsageMalformedJSON() async {
+        let badJSON = "{ not valid json at all".data(using: .utf8)!
+
+        MockURLProtocol.requestHandler = { request in
+            let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (response, badJSON)
+        }
+
+        do {
+            _ = try await service.fetchUsage(token: "test-token")
+            XCTFail("Expected decoding error")
+        } catch APIError.decodingError(let message) {
+            XCTAssertFalse(message.isEmpty, "Decoding error should include a description")
+        } catch {
+            XCTFail("Unexpected error type: \(error)")
+        }
+    }
+
     func testFetchUsage500ThrowsServerError() async {
         MockURLProtocol.requestHandler = { request in
             let response = HTTPURLResponse(url: request.url!, statusCode: 500, httpVersion: nil, headerFields: nil)!

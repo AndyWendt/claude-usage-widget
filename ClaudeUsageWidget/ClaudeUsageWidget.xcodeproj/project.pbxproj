@@ -10,7 +10,10 @@
 		1B4549DCF73A428AB9D30F3E /* ClaudeUsageWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B71813093F86943308852F96 /* ClaudeUsageWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2038F2A6CA24831644BF434C /* PlaceholderTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E60918A3CF2609E4192EC96 /* PlaceholderTest.swift */; };
 		40F7158B748B08521C9445EC /* UsageSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46952864015DEF0688EFD641 /* UsageSnapshotTests.swift */; };
+		5D0F8974DE3B9D83417A133A /* APIModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32DA4A5DA2D7F5F5F1EB55C7 /* APIModelsTests.swift */; };
+		5D92DEFB6AB8F7A8C26AA86A /* APIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916CE4B0DBC547FEA56FEC7F /* APIModels.swift */; };
 		7FDE9E2294F81903B849BE5B /* ClaudeUsageWidgetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0DC54E79339225480FF687 /* ClaudeUsageWidgetApp.swift */; };
+		8066DAEE2128C19EA6415FD8 /* APIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916CE4B0DBC547FEA56FEC7F /* APIModels.swift */; };
 		93A918147C89BAB592F93597 /* UsageSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239C231DD3A14A125EEC343 /* UsageSnapshot.swift */; };
 		C855B6A66319B86C87894CC2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C41E3CD0CFE2517D9AF42449 /* Assets.xcassets */; };
 		CE1EEC1DB4CE4676F6AA61C4 /* ClaudeUsageWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 263B79D4150B25A657B1848E /* ClaudeUsageWidgetBundle.swift */; };
@@ -51,10 +54,12 @@
 /* Begin PBXFileReference section */
 		0C0DC54E79339225480FF687 /* ClaudeUsageWidgetApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeUsageWidgetApp.swift; sourceTree = "<group>"; };
 		263B79D4150B25A657B1848E /* ClaudeUsageWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeUsageWidgetBundle.swift; sourceTree = "<group>"; };
+		32DA4A5DA2D7F5F5F1EB55C7 /* APIModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIModelsTests.swift; sourceTree = "<group>"; };
 		46952864015DEF0688EFD641 /* UsageSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageSnapshotTests.swift; sourceTree = "<group>"; };
 		58B722BBD73039680155A5B4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		5A2FF6035875BE21D69DD7FD /* Widget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Widget.entitlements; sourceTree = "<group>"; };
 		8E60918A3CF2609E4192EC96 /* PlaceholderTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTest.swift; sourceTree = "<group>"; };
+		916CE4B0DBC547FEA56FEC7F /* APIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIModels.swift; sourceTree = "<group>"; };
 		95E8267EA642B1F0C7330D95 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		9E01D3701A2C82768E4A7BDD /* ClaudeUsageWidget.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClaudeUsageWidget.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A689E324C8FB1D63AF114D18 /* ClaudeUsageWidgetTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClaudeUsageWidgetTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -80,6 +85,7 @@
 		71D6E5913C7DA8C69F6BCA07 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				32DA4A5DA2D7F5F5F1EB55C7 /* APIModelsTests.swift */,
 				8E60918A3CF2609E4192EC96 /* PlaceholderTest.swift */,
 				46952864015DEF0688EFD641 /* UsageSnapshotTests.swift */,
 			);
@@ -107,6 +113,7 @@
 		D23162CBC55FA718AB851C77 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				916CE4B0DBC547FEA56FEC7F /* APIModels.swift */,
 				E239C231DD3A14A125EEC343 /* UsageSnapshot.swift */,
 			);
 			path = Models;
@@ -247,6 +254,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8066DAEE2128C19EA6415FD8 /* APIModels.swift in Sources */,
 				7FDE9E2294F81903B849BE5B /* ClaudeUsageWidgetApp.swift in Sources */,
 				E795D629B7FDE1B6BAC61AF3 /* UsageSnapshot.swift in Sources */,
 			);
@@ -256,6 +264,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5D0F8974DE3B9D83417A133A /* APIModelsTests.swift in Sources */,
 				2038F2A6CA24831644BF434C /* PlaceholderTest.swift in Sources */,
 				40F7158B748B08521C9445EC /* UsageSnapshotTests.swift in Sources */,
 			);
@@ -265,6 +274,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5D92DEFB6AB8F7A8C26AA86A /* APIModels.swift in Sources */,
 				CE1EEC1DB4CE4676F6AA61C4 /* ClaudeUsageWidgetBundle.swift in Sources */,
 				93A918147C89BAB592F93597 /* UsageSnapshot.swift in Sources */,
 			);

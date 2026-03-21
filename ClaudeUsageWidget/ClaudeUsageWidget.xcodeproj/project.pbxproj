@@ -12,6 +12,7 @@
 		14551B3536C5A1E7063D80C4 /* stats-cache.json in Resources */ = {isa = PBXBuildFile; fileRef = 108647D905683B425F33DC3B /* stats-cache.json */; };
 		1B4549DCF73A428AB9D30F3E /* ClaudeUsageWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B71813093F86943308852F96 /* ClaudeUsageWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2038F2A6CA24831644BF434C /* PlaceholderTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E60918A3CF2609E4192EC96 /* PlaceholderTest.swift */; };
+		3B0E4C5AE538DC2507D948BD /* UsageBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1991566E5B49B2729762AFF /* UsageBarView.swift */; };
 		3ED7B6DE237CCEC7F15CB38C /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = D805DBCCBAC05A829DD71372 /* ServiceProtocols.swift */; };
 		40F7158B748B08521C9445EC /* UsageSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46952864015DEF0688EFD641 /* UsageSnapshotTests.swift */; };
 		41C78217B88D0B91538CB7A7 /* AnthropicColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 819C2C0936EEE40BAB0A6A72 /* AnthropicColors.swift */; };
@@ -25,12 +26,14 @@
 		889086AE70EF0A59616176D5 /* UsageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C01A8427B69F1450A624566 /* UsageManager.swift */; };
 		8D004F47087E89B28EAF1C4C /* StatsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8C0D48CD788BE7D24F29D44 /* StatsService.swift */; };
 		93A918147C89BAB592F93597 /* UsageSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239C231DD3A14A125EEC343 /* UsageSnapshot.swift */; };
+		991365EB8D9B099E75247731 /* ResetTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F0B21FA1E73B52BCD7AE3B /* ResetTimerView.swift */; };
 		9F0774D6EF5554D446688FD5 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BEAFF9D1BF1D16D051E2CD8 /* KeychainService.swift */; };
 		A155DE7CA56979A05382E762 /* UsageManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A886BBB5B3CC85D6BB4645CF /* UsageManagerTests.swift */; };
 		A8CFA711242AD60A1D1B5366 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB767F230ACE496D02D795E5 /* APIService.swift */; };
 		C361E4589119A8A7592463F3 /* KeychainServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39691948860FB314644562B2 /* KeychainServiceTests.swift */; };
 		C855B6A66319B86C87894CC2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C41E3CD0CFE2517D9AF42449 /* Assets.xcassets */; };
 		CE1EEC1DB4CE4676F6AA61C4 /* ClaudeUsageWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 263B79D4150B25A657B1848E /* ClaudeUsageWidgetBundle.swift */; };
+		CFB75FEBC188DD95BD057C15 /* TokenStatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33EA624DE227AF13301E9A /* TokenStatsView.swift */; };
 		D135B9C3E583F495E5E5A6FB /* SharedContainerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11D7791C1839BE5B42B9E9BD /* SharedContainerService.swift */; };
 		D33E2FFE75776747532316E5 /* Mocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36F7104D027BDD059D586CE /* Mocks.swift */; };
 		DA96F5237C3E1AF62F71348B /* SharedContainerServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3DCB71A17E06BF23F28D7AB /* SharedContainerServiceTests.swift */; };
@@ -90,13 +93,16 @@
 		9C01A8427B69F1450A624566 /* UsageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageManager.swift; sourceTree = "<group>"; };
 		9E01D3701A2C82768E4A7BDD /* ClaudeUsageWidget.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClaudeUsageWidget.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1E8C679942B065488A6D30B /* APIServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIServiceTests.swift; sourceTree = "<group>"; };
+		A5F0B21FA1E73B52BCD7AE3B /* ResetTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetTimerView.swift; sourceTree = "<group>"; };
 		A689E324C8FB1D63AF114D18 /* ClaudeUsageWidgetTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClaudeUsageWidgetTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A886BBB5B3CC85D6BB4645CF /* UsageManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageManagerTests.swift; sourceTree = "<group>"; };
 		B36F7104D027BDD059D586CE /* Mocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mocks.swift; sourceTree = "<group>"; };
 		B71813093F86943308852F96 /* ClaudeUsageWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ClaudeUsageWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C41E3CD0CFE2517D9AF42449 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D1991566E5B49B2729762AFF /* UsageBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageBarView.swift; sourceTree = "<group>"; };
 		D3DCB71A17E06BF23F28D7AB /* SharedContainerServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedContainerServiceTests.swift; sourceTree = "<group>"; };
 		D805DBCCBAC05A829DD71372 /* ServiceProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceProtocols.swift; sourceTree = "<group>"; };
+		DF33EA624DE227AF13301E9A /* TokenStatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStatsView.swift; sourceTree = "<group>"; };
 		E239C231DD3A14A125EEC343 /* UsageSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageSnapshot.swift; sourceTree = "<group>"; };
 		E7461ED52B3E3AAD8992BF27 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E8C0D48CD788BE7D24F29D44 /* StatsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsService.swift; sourceTree = "<group>"; };
@@ -190,6 +196,16 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		EB1B9DF7017AE054376762A2 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A5F0B21FA1E73B52BCD7AE3B /* ResetTimerView.swift */,
+				DF33EA624DE227AF13301E9A /* TokenStatsView.swift */,
+				D1991566E5B49B2729762AFF /* UsageBarView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		F25912942BEC7B50A350D4D1 /* App */ = {
 			isa = PBXGroup;
 			children = (
@@ -197,6 +213,7 @@
 				0C0DC54E79339225480FF687 /* ClaudeUsageWidgetApp.swift */,
 				58B722BBD73039680155A5B4 /* Info.plist */,
 				9C01A8427B69F1450A624566 /* UsageManager.swift */,
+				EB1B9DF7017AE054376762A2 /* Views */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -340,9 +357,12 @@
 				828F0380F652910F7566FA64 /* AnthropicColors.swift in Sources */,
 				7FDE9E2294F81903B849BE5B /* ClaudeUsageWidgetApp.swift in Sources */,
 				9F0774D6EF5554D446688FD5 /* KeychainService.swift in Sources */,
+				991365EB8D9B099E75247731 /* ResetTimerView.swift in Sources */,
 				80E8B06ADD163A079B97BB90 /* ServiceProtocols.swift in Sources */,
 				E1F61FF8D79ACCD51E308926 /* SharedContainerService.swift in Sources */,
 				DC742440D77C479F89069960 /* StatsService.swift in Sources */,
+				CFB75FEBC188DD95BD057C15 /* TokenStatsView.swift in Sources */,
+				3B0E4C5AE538DC2507D948BD /* UsageBarView.swift in Sources */,
 				889086AE70EF0A59616176D5 /* UsageManager.swift in Sources */,
 				E795D629B7FDE1B6BAC61AF3 /* UsageSnapshot.swift in Sources */,
 			);

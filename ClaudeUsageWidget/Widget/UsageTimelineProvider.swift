@@ -1,5 +1,8 @@
 import Foundation
 import WidgetKit
+import os.log
+
+private let timelineLog = Logger(subsystem: "com.andywendt.claude-usage-widget.widget", category: "Timeline")
 
 struct UsageTimelineProvider: TimelineProvider {
     func placeholder(in context: Context) -> UsageTimelineEntry {
@@ -16,7 +19,10 @@ struct UsageTimelineProvider: TimelineProvider {
 
     func getSnapshot(in context: Context, completion: @escaping (UsageTimelineEntry) -> Void) {
         let container = SharedContainerService()
+        let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: SharedContainerService.appGroupID)
+        timelineLog.error("[Timeline] getSnapshot containerURL: \(containerURL?.path ?? "nil", privacy: .public)")
         let snapshot = container.readSnapshot()
+        timelineLog.error("[Timeline] getSnapshot readSnapshot returned: \(snapshot != nil ? "data" : "nil", privacy: .public)")
         let entry = UsageTimelineEntry(
             date: Date(),
             snapshot: snapshot ?? placeholder(in: context).snapshot
@@ -26,8 +32,16 @@ struct UsageTimelineProvider: TimelineProvider {
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<UsageTimelineEntry>) -> Void) {
         let container = SharedContainerService()
+        let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: SharedContainerService.appGroupID)
+        timelineLog.error("[Timeline] getTimeline containerURL: \(containerURL?.path ?? "nil", privacy: .public)")
         let snapshot = container.readSnapshot()
+        timelineLog.error("[Timeline] getTimeline readSnapshot returned: \(snapshot != nil ? "data" : "nil", privacy: .public)")
         let entries = UsageTimelineEntry.buildTimeline(from: snapshot)
-        completion(Timeline(entries: entries, policy: .atEnd))
+
+        let policy: TimelineReloadPolicy = snapshot == nil
+            ? .after(Date().addingTimeInterval(5 * 60))
+            : .atEnd
+
+        completion(Timeline(entries: entries, policy: policy))
     }
 }

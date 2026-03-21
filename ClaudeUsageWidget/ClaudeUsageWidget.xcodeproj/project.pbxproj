@@ -16,6 +16,7 @@
 		3ED7B6DE237CCEC7F15CB38C /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = D805DBCCBAC05A829DD71372 /* ServiceProtocols.swift */; };
 		40F7158B748B08521C9445EC /* UsageSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46952864015DEF0688EFD641 /* UsageSnapshotTests.swift */; };
 		41C78217B88D0B91538CB7A7 /* AnthropicColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 819C2C0936EEE40BAB0A6A72 /* AnthropicColors.swift */; };
+		45E6EEA4655BCCF690BD7CDE /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFABD321FC73997C1E96703 /* SettingsView.swift */; };
 		5D0F8974DE3B9D83417A133A /* APIModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32DA4A5DA2D7F5F5F1EB55C7 /* APIModelsTests.swift */; };
 		5D92DEFB6AB8F7A8C26AA86A /* APIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916CE4B0DBC547FEA56FEC7F /* APIModels.swift */; };
 		7C7AB18DBEB5F7759DD68DBF /* StatsServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895805F81F51FE14695C35C7 /* StatsServiceTests.swift */; };
@@ -88,6 +89,7 @@
 		5A2FF6035875BE21D69DD7FD /* Widget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Widget.entitlements; sourceTree = "<group>"; };
 		819C2C0936EEE40BAB0A6A72 /* AnthropicColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnthropicColors.swift; sourceTree = "<group>"; };
 		895805F81F51FE14695C35C7 /* StatsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsServiceTests.swift; sourceTree = "<group>"; };
+		8AFABD321FC73997C1E96703 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		8BEAFF9D1BF1D16D051E2CD8 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
 		8E60918A3CF2609E4192EC96 /* PlaceholderTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTest.swift; sourceTree = "<group>"; };
 		916CE4B0DBC547FEA56FEC7F /* APIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIModels.swift; sourceTree = "<group>"; };
@@ -203,6 +205,7 @@
 			children = (
 				2909CCB00340701142EF9B8B /* PopoverView.swift */,
 				A5F0B21FA1E73B52BCD7AE3B /* ResetTimerView.swift */,
+				8AFABD321FC73997C1E96703 /* SettingsView.swift */,
 				DF33EA624DE227AF13301E9A /* TokenStatsView.swift */,
 				D1991566E5B49B2729762AFF /* UsageBarView.swift */,
 			);
@@ -363,6 +366,7 @@
 				BCA6AB50558D69435D744871 /* PopoverView.swift in Sources */,
 				991365EB8D9B099E75247731 /* ResetTimerView.swift in Sources */,
 				80E8B06ADD163A079B97BB90 /* ServiceProtocols.swift in Sources */,
+				45E6EEA4655BCCF690BD7CDE /* SettingsView.swift in Sources */,
 				E1F61FF8D79ACCD51E308926 /* SharedContainerService.swift in Sources */,
 				DC742440D77C479F89069960 /* StatsService.swift in Sources */,
 				CFB75FEBC188DD95BD057C15 /* TokenStatsView.swift in Sources */,

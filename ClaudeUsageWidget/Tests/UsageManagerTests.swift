@@ -138,6 +138,21 @@ final class UsageManagerTests: XCTestCase {
     }
 
     @MainActor
+    func testTokenIsCachedBetweenRefreshes() async {
+        mockKeychain.tokenToReturn = "test-token"
+        mockAPI.responseToReturn = UsageApiResponse(fiveHour: nil, sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil)
+
+        await manager.refresh()
+        XCTAssertEqual(mockKeychain.readTokenCallCount, 1, "First refresh reads from keychain")
+
+        await manager.refresh()
+        XCTAssertEqual(mockKeychain.readTokenCallCount, 1, "Second refresh uses cached token, no keychain read")
+
+        await manager.refresh()
+        XCTAssertEqual(mockKeychain.readTokenCallCount, 1, "Third refresh still uses cached token")
+    }
+
+    @MainActor
     func testIsLoadingDuringRefresh() async {
         mockKeychain.tokenToReturn = "test-token"
         mockAPI.responseToReturn = UsageApiResponse(fiveHour: nil, sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil)

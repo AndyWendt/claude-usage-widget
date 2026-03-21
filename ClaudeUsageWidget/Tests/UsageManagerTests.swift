@@ -41,6 +41,7 @@ final class UsageManagerTests: XCTestCase {
         XCTAssertEqual(manager.snapshot?.tokenStats.todayTokens, 5000)
         XCTAssertNil(manager.snapshot?.error)
         XCTAssertFalse(manager.isLoading)
+        XCTAssertEqual(mockReloader.reloadCount, 1, "Widget should be reloaded on successful fetch")
     }
 
     @MainActor
@@ -65,6 +66,7 @@ final class UsageManagerTests: XCTestCase {
 
         XCTAssertNotNil(manager.snapshot?.error)
         XCTAssertTrue(manager.snapshot!.error!.contains("not found") || manager.snapshot!.error!.contains("credentials") || manager.snapshot!.error!.contains("Keychain") || manager.snapshot!.error!.contains("sign in"))
+        XCTAssertEqual(mockReloader.reloadCount, 0, "Widget should NOT be reloaded on keychain error")
     }
 
     @MainActor
@@ -77,6 +79,7 @@ final class UsageManagerTests: XCTestCase {
 
         XCTAssertNotNil(manager.snapshot?.error)
         XCTAssertEqual(manager.snapshot?.tokenStats.todayTokens, 3000) // stats still populated
+        XCTAssertEqual(mockReloader.reloadCount, 0, "Widget should NOT be reloaded on API error")
     }
 
     @MainActor

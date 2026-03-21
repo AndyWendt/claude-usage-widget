@@ -99,6 +99,26 @@ final class UsageManagerTests: XCTestCase {
     }
 
     @MainActor
+    func testForbiddenClearsTokenCache() async {
+        mockKeychain.tokenToReturn = "test-token"
+        mockAPI.errorToThrow = APIError.forbidden
+
+        await manager.refresh()
+
+        XCTAssertEqual(mockKeychain.readTokenCallCount, 1, "First refresh reads from keychain")
+        XCTAssertNotNil(manager.snapshot?.error)
+
+        // Second call should re-read from keychain (token cache was cleared)
+        mockAPI.errorToThrow = nil
+        mockAPI.responseToReturn = UsageApiResponse(fiveHour: nil, sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil)
+
+        await manager.refresh()
+
+        XCTAssertEqual(mockKeychain.readTokenCallCount, 2, "Token cache was cleared on forbidden, so keychain was re-read")
+        XCTAssertNil(manager.snapshot?.error)
+    }
+
+    @MainActor
     func testContainerWriteFailureStillSetsSnapshot() async {
         mockKeychain.tokenToReturn = "test-token"
         mockAPI.responseToReturn = UsageApiResponse(

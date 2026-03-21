@@ -18,11 +18,6 @@ struct PopoverView: View {
         }
         .frame(width: 260, height: 400)
         .background(AnthropicColors.charcoal.opacity(0.95))
-        .task {
-            if manager.snapshot == nil {
-                await onRefresh()
-            }
-        }
     }
 
     private var headerView: some View {

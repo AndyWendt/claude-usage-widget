@@ -99,6 +99,25 @@ final class UsageManagerTests: XCTestCase {
     }
 
     @MainActor
+    func testContainerWriteFailureStillSetsSnapshot() async {
+        mockKeychain.tokenToReturn = "test-token"
+        mockAPI.responseToReturn = UsageApiResponse(
+            fiveHour: UsageWindow(utilization: 50.0, resetsAt: "2026-03-21T18:00:00Z"),
+            sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil
+        )
+        mockContainer.writeError = NSError(domain: "test", code: 1, userInfo: nil)
+
+        await manager.refresh()
+
+        // Snapshot should still be set despite write failure
+        XCTAssertNotNil(manager.snapshot)
+        XCTAssertEqual(manager.snapshot?.fiveHour?.percent, 50.0)
+        XCTAssertNil(manager.snapshot?.error)
+        // Widget should still be reloaded
+        XCTAssertEqual(mockReloader.reloadCount, 1)
+    }
+
+    @MainActor
     func testIsLoadingDuringRefresh() async {
         mockKeychain.tokenToReturn = "test-token"
         mockAPI.responseToReturn = UsageApiResponse(fiveHour: nil, sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil)

@@ -72,7 +72,11 @@ final class UsageManager: ObservableObject {
             let response = try await apiService.fetchUsage(token: token)
             let newSnapshot = response.toSnapshot(tokenStats: stats)
             snapshot = newSnapshot
-            try? containerService.writeSnapshot(newSnapshot)
+            do {
+                try containerService.writeSnapshot(newSnapshot)
+            } catch {
+                print("[ClaudeUsageWidget] Warning: failed to write snapshot to shared container: \(error.localizedDescription)")
+            }
             widgetReloader()
         } catch {
             if case APIError.unauthorized = error { cachedToken = nil }

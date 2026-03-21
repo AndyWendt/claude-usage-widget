@@ -20,9 +20,11 @@
 		7FDE9E2294F81903B849BE5B /* ClaudeUsageWidgetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0DC54E79339225480FF687 /* ClaudeUsageWidgetApp.swift */; };
 		8066DAEE2128C19EA6415FD8 /* APIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916CE4B0DBC547FEA56FEC7F /* APIModels.swift */; };
 		80E8B06ADD163A079B97BB90 /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = D805DBCCBAC05A829DD71372 /* ServiceProtocols.swift */; };
+		889086AE70EF0A59616176D5 /* UsageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C01A8427B69F1450A624566 /* UsageManager.swift */; };
 		8D004F47087E89B28EAF1C4C /* StatsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8C0D48CD788BE7D24F29D44 /* StatsService.swift */; };
 		93A918147C89BAB592F93597 /* UsageSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239C231DD3A14A125EEC343 /* UsageSnapshot.swift */; };
 		9F0774D6EF5554D446688FD5 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BEAFF9D1BF1D16D051E2CD8 /* KeychainService.swift */; };
+		A155DE7CA56979A05382E762 /* UsageManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A886BBB5B3CC85D6BB4645CF /* UsageManagerTests.swift */; };
 		A8CFA711242AD60A1D1B5366 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB767F230ACE496D02D795E5 /* APIService.swift */; };
 		C361E4589119A8A7592463F3 /* KeychainServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39691948860FB314644562B2 /* KeychainServiceTests.swift */; };
 		C855B6A66319B86C87894CC2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C41E3CD0CFE2517D9AF42449 /* Assets.xcassets */; };
@@ -82,9 +84,11 @@
 		8E60918A3CF2609E4192EC96 /* PlaceholderTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTest.swift; sourceTree = "<group>"; };
 		916CE4B0DBC547FEA56FEC7F /* APIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIModels.swift; sourceTree = "<group>"; };
 		95E8267EA642B1F0C7330D95 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
+		9C01A8427B69F1450A624566 /* UsageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageManager.swift; sourceTree = "<group>"; };
 		9E01D3701A2C82768E4A7BDD /* ClaudeUsageWidget.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClaudeUsageWidget.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1E8C679942B065488A6D30B /* APIServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIServiceTests.swift; sourceTree = "<group>"; };
 		A689E324C8FB1D63AF114D18 /* ClaudeUsageWidgetTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClaudeUsageWidgetTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A886BBB5B3CC85D6BB4645CF /* UsageManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageManagerTests.swift; sourceTree = "<group>"; };
 		B36F7104D027BDD059D586CE /* Mocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mocks.swift; sourceTree = "<group>"; };
 		B71813093F86943308852F96 /* ClaudeUsageWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ClaudeUsageWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C41E3CD0CFE2517D9AF42449 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -131,6 +135,7 @@
 				8E60918A3CF2609E4192EC96 /* PlaceholderTest.swift */,
 				D3DCB71A17E06BF23F28D7AB /* SharedContainerServiceTests.swift */,
 				895805F81F51FE14695C35C7 /* StatsServiceTests.swift */,
+				A886BBB5B3CC85D6BB4645CF /* UsageManagerTests.swift */,
 				46952864015DEF0688EFD641 /* UsageSnapshotTests.swift */,
 				BD4693C529D7F6E7203B435B /* Fixtures */,
 			);
@@ -179,6 +184,7 @@
 				95E8267EA642B1F0C7330D95 /* App.entitlements */,
 				0C0DC54E79339225480FF687 /* ClaudeUsageWidgetApp.swift */,
 				58B722BBD73039680155A5B4 /* Info.plist */,
+				9C01A8427B69F1450A624566 /* UsageManager.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -324,6 +330,7 @@
 				80E8B06ADD163A079B97BB90 /* ServiceProtocols.swift in Sources */,
 				E1F61FF8D79ACCD51E308926 /* SharedContainerService.swift in Sources */,
 				DC742440D77C479F89069960 /* StatsService.swift in Sources */,
+				889086AE70EF0A59616176D5 /* UsageManager.swift in Sources */,
 				E795D629B7FDE1B6BAC61AF3 /* UsageSnapshot.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -339,6 +346,7 @@
 				2038F2A6CA24831644BF434C /* PlaceholderTest.swift in Sources */,
 				DA96F5237C3E1AF62F71348B /* SharedContainerServiceTests.swift in Sources */,
 				7C7AB18DBEB5F7759DD68DBF /* StatsServiceTests.swift in Sources */,
+				A155DE7CA56979A05382E762 /* UsageManagerTests.swift in Sources */,
 				40F7158B748B08521C9445EC /* UsageSnapshotTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

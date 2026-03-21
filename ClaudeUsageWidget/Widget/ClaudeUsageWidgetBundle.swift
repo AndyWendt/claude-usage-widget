@@ -2,7 +2,7 @@ import SwiftUI
 import WidgetKit
 
 @main
-struct ClaudeUsageWidgetBundle: WidgetBundle {
+struct ClaudeUsageWidgetExtensionBundle: WidgetBundle {
     var body: some Widget {
         UsageWidget()
     }
@@ -12,8 +12,16 @@ struct UsageWidget: Widget {
     let kind = "ClaudeUsageWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: PlaceholderProvider()) { entry in
-            Text("Claude Usage")
+        StaticConfiguration(kind: kind, provider: UsageTimelineProvider()) { entry in
+            Group {
+                if entry.snapshot.error != nil && entry.snapshot.fiveHour == nil {
+                    WidgetErrorView(message: entry.snapshot.error)
+                } else {
+                    WidgetContentView(entry: entry)
+                }
+            }
+            .containerBackground(.fill.tertiary, for: .widget)
+            .widgetURL(URL(string: "claudeusage://open"))
         }
         .configurationDisplayName("Claude Usage")
         .description("Monitor your Claude Code usage.")
@@ -21,20 +29,20 @@ struct UsageWidget: Widget {
     }
 }
 
-struct SimpleEntry: TimelineEntry {
-    let date: Date
-}
+struct WidgetContentView: View {
+    @Environment(\.widgetFamily) var family
+    let entry: UsageTimelineEntry
 
-struct PlaceholderProvider: TimelineProvider {
-    func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date())
-    }
-
-    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> Void) {
-        completion(SimpleEntry(date: Date()))
-    }
-
-    func getTimeline(in context: Context, completion: @escaping (Timeline<SimpleEntry>) -> Void) {
-        completion(Timeline(entries: [SimpleEntry(date: Date())], policy: .atEnd))
+    var body: some View {
+        switch family {
+        case .systemSmall:
+            SmallWidgetView(snapshot: entry.snapshot)
+        case .systemMedium:
+            MediumWidgetView(snapshot: entry.snapshot)
+        case .systemLarge:
+            LargeWidgetView(snapshot: entry.snapshot)
+        default:
+            SmallWidgetView(snapshot: entry.snapshot)
+        }
     }
 }

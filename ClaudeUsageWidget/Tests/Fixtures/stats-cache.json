@@ -1,0 +1,13 @@
+{
+    "dailyActivity": [
+        {"date": "TODAY_PLACEHOLDER", "messageCount": 42, "sessionCount": 5, "toolCallCount": 120},
+        {"date": "YESTERDAY_PLACEHOLDER", "messageCount": 30, "sessionCount": 3, "toolCallCount": 80},
+        {"date": "OLD_PLACEHOLDER", "messageCount": 100, "sessionCount": 10, "toolCallCount": 300}
+    ],
+    "dailyModelTokens": [
+        {"date": "TODAY_PLACEHOLDER", "tokensByModel": {"claude-sonnet": 10000, "claude-opus": 5000}},
+        {"date": "YESTERDAY_PLACEHOLDER", "tokensByModel": {"claude-sonnet": 8000}},
+        {"date": "OLD_PLACEHOLDER", "tokensByModel": {"claude-sonnet": 50000}}
+    ],
+    "lastComputedDate": "TODAY_PLACEHOLDER"
+}

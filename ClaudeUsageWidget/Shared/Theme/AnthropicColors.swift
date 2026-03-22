@@ -98,7 +98,16 @@ enum MenuBarIconTier: Equatable {
         }
 
         let config = NSImage.SymbolConfiguration(paletteColors: [tintNSColor])
-        let tinted = baseImage.withSymbolConfiguration(config) ?? (baseImage.copy() as! NSImage)
+        let tinted: NSImage
+        if let configured = baseImage.withSymbolConfiguration(config) {
+            tinted = configured
+        } else {
+            DebugLogger.shared.log(
+                "withSymbolConfiguration returned nil for \(symbolName) — falling back to untinted",
+                source: "MenuBarIcon"
+            )
+            tinted = (baseImage.copy() as? NSImage) ?? baseImage
+        }
         tinted.isTemplate = false
         return tinted
     }

@@ -68,7 +68,7 @@ Add a `MenuBarIconTier` enum. Using an enum gives natural `Equatable`/`Hashable`
 
 ```swift
 enum MenuBarIconTier: Equatable {
-    case `default`
+    case idle
     case low
     case moderate
     case high
@@ -76,7 +76,7 @@ enum MenuBarIconTier: Equatable {
 
     var symbolName: String {
         switch self {
-        case .default:  return "gauge.medium"
+        case .idle:  return "gauge.medium"
         case .low:      return "gauge.open.with.lines.needle.33percent"
         case .moderate: return "gauge.open.with.lines.needle.50percent"
         case .high:     return "gauge.open.with.lines.needle.67percent"
@@ -86,7 +86,7 @@ enum MenuBarIconTier: Equatable {
 
     var tintNSColor: NSColor {
         switch self {
-        case .default:  return .labelColor
+        case .idle:  return .labelColor
         case .low:      return NSColor(AnthropicColors.iconGreen)
         case .moderate: return NSColor(AnthropicColors.tan)
         case .high:     return NSColor(AnthropicColors.coral)
@@ -96,7 +96,7 @@ enum MenuBarIconTier: Equatable {
 
     var accessibilityLabel: String {
         switch self {
-        case .default:  return "Claude Usage"
+        case .idle:  return "Claude Usage"
         case .low:      return "Claude Usage: Low"
         case .moderate: return "Claude Usage: Moderate"
         case .high:     return "Claude Usage: High"
@@ -114,6 +114,9 @@ enum MenuBarIconTier: Equatable {
     }
 
     /// Renders the SF Symbol as a tinted NSImage suitable for the menu bar.
+    /// For the `.idle` case, returns a template image so macOS handles
+    /// dark/light mode automatically. For all other tiers, returns a
+    /// non-template image with the tier color baked in.
     func menuBarImage() -> NSImage {
         guard let baseImage = NSImage(
             systemSymbolName: symbolName,
@@ -122,8 +125,14 @@ enum MenuBarIconTier: Equatable {
             return NSImage(systemSymbolName: "gauge.medium", accessibilityDescription: "Claude Usage")!
         }
 
+        // Idle tier: let macOS handle appearance (template = true)
+        if self == .idle {
+            baseImage.isTemplate = true
+            return baseImage
+        }
+
         let config = NSImage.SymbolConfiguration(paletteColors: [tintNSColor])
-        let tinted = baseImage.withSymbolConfiguration(config) ?? baseImage
+        let tinted = baseImage.withSymbolConfiguration(config) ?? (baseImage.copy() as! NSImage)
         tinted.isTemplate = false
         return tinted
     }
@@ -135,7 +144,7 @@ enum MenuBarIconTier: Equatable {
 Use `didSet` on `snapshot` to derive the icon tier. This ensures the tier updates on both the success and error paths of `refresh()`:
 
 ```swift
-@Published var iconTier: MenuBarIconTier = .default
+@Published var iconTier: MenuBarIconTier = .idle
 
 @Published var snapshot: UsageSnapshot? {
     didSet {
@@ -181,6 +190,6 @@ The icon updates every time the snapshot refreshes — on the existing configura
 
 - `MenuBarIconTier.from(percent:)` is a pure function — unit test the threshold boundaries (0, 39, 40, 69, 70, 89, 90, 100)
 - `UsageSnapshot.maxUsagePercent` — test with combinations of nil/non-nil metrics, verify Sonnet is excluded, verify negative values and values >100 are clamped
-- Verify fallback to `.default` when snapshot is nil or has no metrics
+- Verify fallback to `.idle` when snapshot is nil or has no metrics
 - Manual verification: confirm the SF Symbol names render correctly on macOS 14+ in the SF Symbols app
 - Manual verification: confirm colored icon renders in menu bar (not forced to monochrome)

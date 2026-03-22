@@ -16,6 +16,7 @@
 		32525ABE4305ABB606140C52 /* MenuBarIconTierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A28A3A0D112B5DAA8B30EBC /* MenuBarIconTierTests.swift */; };
 		3B0E4C5AE538DC2507D948BD /* UsageBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1991566E5B49B2729762AFF /* UsageBarView.swift */; };
 		3ED7B6DE237CCEC7F15CB38C /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = D805DBCCBAC05A829DD71372 /* ServiceProtocols.swift */; };
+		3F13DEF718FF2725FBBAEA50 /* MenuBarIconTier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A16315EAB299ECFC93E576 /* MenuBarIconTier.swift */; };
 		40F7158B748B08521C9445EC /* UsageSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46952864015DEF0688EFD641 /* UsageSnapshotTests.swift */; };
 		41C78217B88D0B91538CB7A7 /* AnthropicColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 819C2C0936EEE40BAB0A6A72 /* AnthropicColors.swift */; };
 		45E6EEA4655BCCF690BD7CDE /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFABD321FC73997C1E96703 /* SettingsView.swift */; };
@@ -33,6 +34,7 @@
 		8D004F47087E89B28EAF1C4C /* StatsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8C0D48CD788BE7D24F29D44 /* StatsService.swift */; };
 		8ECE25E9C0A9951418F4F216 /* DebugLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C6D63E07C580F7CA5E7A3C9 /* DebugLogger.swift */; };
 		93A918147C89BAB592F93597 /* UsageSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239C231DD3A14A125EEC343 /* UsageSnapshot.swift */; };
+		98E613315A875F7C25F3C1EE /* MenuBarIconTier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A16315EAB299ECFC93E576 /* MenuBarIconTier.swift */; };
 		991365EB8D9B099E75247731 /* ResetTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F0B21FA1E73B52BCD7AE3B /* ResetTimerView.swift */; };
 		9F0774D6EF5554D446688FD5 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BEAFF9D1BF1D16D051E2CD8 /* KeychainService.swift */; };
 		A155DE7CA56979A05382E762 /* UsageManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A886BBB5B3CC85D6BB4645CF /* UsageManagerTests.swift */; };
@@ -90,6 +92,7 @@
 
 /* Begin PBXFileReference section */
 		0832319B01CA125D40343235 /* SmallWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallWidgetView.swift; sourceTree = "<group>"; };
+		09A16315EAB299ECFC93E576 /* MenuBarIconTier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarIconTier.swift; sourceTree = "<group>"; };
 		0A28A3A0D112B5DAA8B30EBC /* MenuBarIconTierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarIconTierTests.swift; sourceTree = "<group>"; };
 		0C0DC54E79339225480FF687 /* ClaudeUsageWidgetApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeUsageWidgetApp.swift; sourceTree = "<group>"; };
 		108647D905683B425F33DC3B /* stats-cache.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "stats-cache.json"; sourceTree = "<group>"; };
@@ -183,6 +186,7 @@
 			isa = PBXGroup;
 			children = (
 				819C2C0936EEE40BAB0A6A72 /* AnthropicColors.swift */,
+				09A16315EAB299ECFC93E576 /* MenuBarIconTier.swift */,
 			);
 			path = Theme;
 			sourceTree = "<group>";
@@ -407,6 +411,7 @@
 				7FDE9E2294F81903B849BE5B /* ClaudeUsageWidgetApp.swift in Sources */,
 				B86093B68A5434C564046E62 /* DebugLogger.swift in Sources */,
 				9F0774D6EF5554D446688FD5 /* KeychainService.swift in Sources */,
+				98E613315A875F7C25F3C1EE /* MenuBarIconTier.swift in Sources */,
 				BCA6AB50558D69435D744871 /* PopoverView.swift in Sources */,
 				991365EB8D9B099E75247731 /* ResetTimerView.swift in Sources */,
 				80E8B06ADD163A079B97BB90 /* ServiceProtocols.swift in Sources */,
@@ -451,6 +456,7 @@
 				0654965772D8E01ED04C5BF9 /* KeychainService.swift in Sources */,
 				DDA24C561FA8281CA0B1F5F8 /* LargeWidgetView.swift in Sources */,
 				18EB25E7494EC85E3788006C /* MediumWidgetView.swift in Sources */,
+				3F13DEF718FF2725FBBAEA50 /* MenuBarIconTier.swift in Sources */,
 				B6D1129F8977BBF7BFFE57C5 /* PlaceholderView.swift in Sources */,
 				3ED7B6DE237CCEC7F15CB38C /* ServiceProtocols.swift in Sources */,
 				D135B9C3E583F495E5E5A6FB /* SharedContainerService.swift in Sources */,

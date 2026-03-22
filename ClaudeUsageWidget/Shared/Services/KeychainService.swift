@@ -4,6 +4,20 @@ import Security
 final class KeychainService: KeychainServiceProtocol {
 
     func readToken() throws -> String {
+        // Try macOS Keychain first
+        if let token = try? readFromKeychain() {
+            return token
+        }
+
+        // Fall back to credentials file
+        if let token = try? readFromCredentialsFile() {
+            return token
+        }
+
+        throw KeychainError.notFound
+    }
+
+    private func readFromKeychain() throws -> String {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: "Claude Code-credentials",
@@ -27,6 +41,13 @@ final class KeychainService: KeychainServiceProtocol {
         default:
             throw KeychainError.invalidData("Keychain error: \(status)")
         }
+    }
+
+    private func readFromCredentialsFile() throws -> String {
+        let home = FileManager.default.homeDirectoryForCurrentUser
+        let credPath = home.appendingPathComponent(".claude/.credentials.json")
+        let data = try Data(contentsOf: credPath)
+        return try Self.extractToken(from: data)
     }
 
     static func extractToken(from data: Data) throws -> String {

@@ -85,7 +85,11 @@ enum MenuBarIconTier: Equatable {
             systemSymbolName: symbolName,
             accessibilityDescription: accessibilityLabel
         ) else {
-            return NSImage(systemSymbolName: "gauge.medium", accessibilityDescription: "Claude Usage")!
+            if let fallback = NSImage(systemSymbolName: "gauge.medium", accessibilityDescription: "Claude Usage") {
+                fallback.isTemplate = true
+                return fallback
+            }
+            return NSImage(size: NSSize(width: 18, height: 18))
         }
 
         if self == .idle {

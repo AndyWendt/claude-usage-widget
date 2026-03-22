@@ -18,11 +18,14 @@ struct UsageTimelineProvider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (UsageTimelineEntry) -> Void) {
+        let debug = DebugLogger.shared
+        debug.log("getSnapshot called (isPreview: \(context.isPreview))", source: "Widget")
+        debug.dumpContainerDiagnostics(source: "Widget-getSnapshot")
+
         let container = SharedContainerService()
-        let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: SharedContainerService.appGroupID)
-        timelineLog.error("[Timeline] getSnapshot containerURL: \(containerURL?.path ?? "nil", privacy: .public)")
         let snapshot = container.readSnapshot()
-        timelineLog.error("[Timeline] getSnapshot readSnapshot returned: \(snapshot != nil ? "data" : "nil", privacy: .public)")
+        debug.log("getSnapshot result: \(snapshot != nil ? "got data" : "nil → using placeholder")", source: "Widget")
+
         let entry = UsageTimelineEntry(
             date: Date(),
             snapshot: snapshot ?? placeholder(in: context).snapshot
@@ -31,17 +34,21 @@ struct UsageTimelineProvider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<UsageTimelineEntry>) -> Void) {
+        let debug = DebugLogger.shared
+        debug.log("getTimeline called", source: "Widget")
+        debug.dumpContainerDiagnostics(source: "Widget-getTimeline")
+
         let container = SharedContainerService()
-        let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: SharedContainerService.appGroupID)
-        timelineLog.error("[Timeline] getTimeline containerURL: \(containerURL?.path ?? "nil", privacy: .public)")
         let snapshot = container.readSnapshot()
-        timelineLog.error("[Timeline] getTimeline readSnapshot returned: \(snapshot != nil ? "data" : "nil", privacy: .public)")
+
         let entries = UsageTimelineEntry.buildTimeline(from: snapshot)
+        debug.log("getTimeline: \(entries.count) entries, snapshot=\(snapshot != nil ? "present" : "nil")", source: "Widget")
 
         let policy: TimelineReloadPolicy = snapshot == nil
             ? .after(Date().addingTimeInterval(5 * 60))
             : .atEnd
 
+        debug.log("getTimeline reload policy: \(snapshot == nil ? "retry in 5min" : "atEnd")", source: "Widget")
         completion(Timeline(entries: entries, policy: policy))
     }
 }

@@ -145,6 +145,17 @@ final class UsageSnapshotTests: XCTestCase {
         XCTAssertEqual(snapshot.maxUsagePercent, 20.0)
     }
 
+    func testMaxUsagePercentSonnetOnlyReturnsNil() {
+        let snapshot = UsageSnapshot(
+            fiveHour: nil, sevenDay: nil,
+            sevenDaySonnet: UsageMetric(percent: 80.0, resetsAt: Date()),
+            sevenDayOpus: nil,
+            tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
+            lastUpdated: Date(), error: nil
+        )
+        XCTAssertNil(snapshot.maxUsagePercent)
+    }
+
     func testMaxUsagePercentClampsValues() {
         let snapshot = UsageSnapshot(
             fiveHour: UsageMetric(percent: 150.0, resetsAt: Date()),

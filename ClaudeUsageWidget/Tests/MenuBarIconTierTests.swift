@@ -34,6 +34,10 @@ final class MenuBarIconTierFromPercentTests: XCTestCase {
     func testOneHundredPercentIsCritical() {
         XCTAssertEqual(MenuBarIconTier.from(percent: 100), .critical)
     }
+
+    func testFromNegativePercent() {
+        XCTAssertEqual(MenuBarIconTier.from(percent: -5), .low)
+    }
 }
 
 final class MenuBarIconTierPropertiesTests: XCTestCase {
@@ -71,5 +75,13 @@ final class MenuBarIconTierPropertiesTests: XCTestCase {
 
     func testCriticalAccessibilityLabel() {
         XCTAssertEqual(MenuBarIconTier.critical.accessibilityLabel, "Claude Usage: Critical")
+    }
+
+    func testMenuBarImageReturnsImageForAllTiers() {
+        let tiers: [MenuBarIconTier] = [.idle, .low, .moderate, .high, .critical]
+        for tier in tiers {
+            let image = tier.menuBarImage()
+            XCTAssertGreaterThan(image.size.width, 0, "menuBarImage() for \(tier) should have non-zero width")
+        }
     }
 }

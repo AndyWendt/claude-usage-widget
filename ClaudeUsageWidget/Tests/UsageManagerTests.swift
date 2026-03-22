@@ -199,6 +199,23 @@ final class UsageManagerTests: XCTestCase {
     }
 
     @MainActor
+    func testIconTierResetsToIdleAfterSuccessThenError() async {
+        mockKeychain.tokenToReturn = "test-token"
+        mockAPI.responseToReturn = UsageApiResponse(
+            fiveHour: UsageWindow(utilization: 85.0, resetsAt: "2026-03-21T18:00:00Z"),
+            sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil
+        )
+        await manager.refresh()
+        XCTAssertEqual(manager.iconTier, .high)
+
+        // Now error
+        mockAPI.responseToReturn = nil
+        mockAPI.errorToThrow = APIError.serverError(500)
+        await manager.refresh()
+        XCTAssertEqual(manager.iconTier, .idle)
+    }
+
+    @MainActor
     func testIconTierReflectsMaxMetric() async {
         mockKeychain.tokenToReturn = "test-token"
         mockAPI.responseToReturn = UsageApiResponse(

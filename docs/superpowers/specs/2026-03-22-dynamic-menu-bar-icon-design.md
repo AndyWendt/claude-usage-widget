@@ -151,7 +151,7 @@ Use `didSet` on `snapshot` to derive the icon tier. This ensures the tier update
         if let percent = snapshot?.maxUsagePercent {
             iconTier = MenuBarIconTier.from(percent: percent)
         } else {
-            iconTier = .default
+            iconTier = .idle
         }
     }
 }

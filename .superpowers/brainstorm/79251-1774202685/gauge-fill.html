@@ -1,0 +1,140 @@
+<h2>Dynamic Gauge: Needle + Fill</h2>
+<p class="subtitle">The gauge needle rotates and the arc fills based on usage percentage. Color shifts as usage increases.</p>
+
+<div style="display:flex; gap:24px; justify-content:center; flex-wrap:wrap; margin:32px 0;">
+
+  <!-- 15% usage -->
+  <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+    <div style="background:#2a2a2a; border-radius:12px; padding:16px 20px; display:flex; align-items:center; gap:8px;">
+      <svg width="22" height="22" viewBox="0 0 100 100">
+        <!-- Background arc -->
+        <path d="M 15 75 A 42 42 0 1 1 85 75" fill="none" stroke="#444" stroke-width="10" stroke-linecap="round"/>
+        <!-- Filled arc - 15% -->
+        <path d="M 15 75 A 42 42 0 0 1 23.5 38" fill="none" stroke="#4ade80" stroke-width="10" stroke-linecap="round"/>
+        <!-- Needle -->
+        <line x1="50" y1="50" x2="27" y2="40" stroke="#4ade80" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="50" cy="50" r="4" fill="#4ade80"/>
+      </svg>
+    </div>
+    <span style="font-size:13px; color:#4ade80; font-weight:600;">15%</span>
+    <span style="font-size:11px; color:#888;">Low</span>
+  </div>
+
+  <!-- 40% usage -->
+  <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+    <div style="background:#2a2a2a; border-radius:12px; padding:16px 20px; display:flex; align-items:center; gap:8px;">
+      <svg width="22" height="22" viewBox="0 0 100 100">
+        <path d="M 15 75 A 42 42 0 1 1 85 75" fill="none" stroke="#444" stroke-width="10" stroke-linecap="round"/>
+        <!-- Filled arc - 40% -->
+        <path d="M 15 75 A 42 42 0 0 1 12 45" fill="none" stroke="#D4A574" stroke-width="10" stroke-linecap="round"/>
+        <!-- Needle pointing ~40% -->
+        <line x1="50" y1="50" x2="18" y2="52" stroke="#D4A574" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="50" cy="50" r="4" fill="#D4A574"/>
+      </svg>
+    </div>
+    <span style="font-size:13px; color:#D4A574; font-weight:600;">40%</span>
+    <span style="font-size:11px; color:#888;">Moderate</span>
+  </div>
+
+  <!-- 72% usage -->
+  <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+    <div style="background:#2a2a2a; border-radius:12px; padding:16px 20px; display:flex; align-items:center; gap:8px;">
+      <svg width="22" height="22" viewBox="0 0 100 100">
+        <path d="M 15 75 A 42 42 0 1 1 85 75" fill="none" stroke="#444" stroke-width="10" stroke-linecap="round"/>
+        <!-- Filled arc - 72% -->
+        <path d="M 15 75 A 42 42 0 1 1 65 12" fill="none" stroke="#E07A5F" stroke-width="10" stroke-linecap="round"/>
+        <!-- Needle pointing ~72% -->
+        <line x1="50" y1="50" x2="68" y2="20" stroke="#E07A5F" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="50" cy="50" r="4" fill="#E07A5F"/>
+      </svg>
+    </div>
+    <span style="font-size:13px; color:#E07A5F; font-weight:600;">72%</span>
+    <span style="font-size:11px; color:#888;">High</span>
+  </div>
+
+  <!-- 95% usage -->
+  <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+    <div style="background:#2a2a2a; border-radius:12px; padding:16px 20px; display:flex; align-items:center; gap:8px;">
+      <svg width="22" height="22" viewBox="0 0 100 100">
+        <path d="M 15 75 A 42 42 0 1 1 85 75" fill="none" stroke="#444" stroke-width="10" stroke-linecap="round"/>
+        <!-- Filled arc - 95% -->
+        <path d="M 15 75 A 42 42 0 1 1 82 70" fill="none" stroke="#ef4444" stroke-width="10" stroke-linecap="round"/>
+        <!-- Needle pointing ~95% -->
+        <line x1="50" y1="50" x2="80" y2="62" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="50" cy="50" r="4" fill="#ef4444"/>
+      </svg>
+    </div>
+    <span style="font-size:13px; color:#ef4444; font-weight:600;">95%</span>
+    <span style="font-size:11px; color:#888;">Critical</span>
+  </div>
+</div>
+
+<p class="subtitle" style="text-align:center; margin-top:8px;">↑ Simulated at menu bar icon size (22×22pt)</p>
+
+<h3 style="margin-top:40px;">Zoomed In (detail view)</h3>
+<p class="subtitle">Here's the same gauge at larger scale so you can see the detail.</p>
+
+<div style="display:flex; gap:40px; justify-content:center; flex-wrap:wrap; margin:32px 0;">
+
+  <!-- 15% zoomed -->
+  <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <path d="M 15 75 A 42 42 0 1 1 85 75" fill="none" stroke="#444" stroke-width="8" stroke-linecap="round"/>
+      <path d="M 15 75 A 42 42 0 0 1 23.5 38" fill="none" stroke="#4ade80" stroke-width="8" stroke-linecap="round"/>
+      <line x1="50" y1="50" x2="27" y2="40" stroke="#4ade80" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="50" cy="50" r="4" fill="#4ade80"/>
+    </svg>
+    <span style="font-size:14px; color:#4ade80; font-weight:600;">15%</span>
+  </div>
+
+  <!-- 40% zoomed -->
+  <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <path d="M 15 75 A 42 42 0 1 1 85 75" fill="none" stroke="#444" stroke-width="8" stroke-linecap="round"/>
+      <path d="M 15 75 A 42 42 0 0 1 12 45" fill="none" stroke="#D4A574" stroke-width="8" stroke-linecap="round"/>
+      <line x1="50" y1="50" x2="18" y2="52" stroke="#D4A574" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="50" cy="50" r="4" fill="#D4A574"/>
+    </svg>
+    <span style="font-size:14px; color:#D4A574; font-weight:600;">40%</span>
+  </div>
+
+  <!-- 72% zoomed -->
+  <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <path d="M 15 75 A 42 42 0 1 1 85 75" fill="none" stroke="#444" stroke-width="8" stroke-linecap="round"/>
+      <path d="M 15 75 A 42 42 0 1 1 65 12" fill="none" stroke="#E07A5F" stroke-width="8" stroke-linecap="round"/>
+      <line x1="50" y1="50" x2="68" y2="20" stroke="#E07A5F" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="50" cy="50" r="4" fill="#E07A5F"/>
+    </svg>
+    <span style="font-size:14px; color:#E07A5F; font-weight:600;">72%</span>
+  </div>
+
+  <!-- 95% zoomed -->
+  <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <path d="M 15 75 A 42 42 0 1 1 85 75" fill="none" stroke="#444" stroke-width="8" stroke-linecap="round"/>
+      <path d="M 15 75 A 42 42 0 1 1 82 70" fill="none" stroke="#ef4444" stroke-width="8" stroke-linecap="round"/>
+      <line x1="50" y1="50" x2="80" y2="62" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="50" cy="50" r="4" fill="#ef4444"/>
+    </svg>
+    <span style="font-size:14px; color:#ef4444; font-weight:600;">95%</span>
+  </div>
+</div>
+
+<h3 style="margin-top:40px;">Implementation Approach</h3>
+<div class="options">
+  <div class="option" data-choice="custom-image" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Custom NSImage (Recommended)</h3>
+      <p>Programmatically draw the gauge into an NSImage at each refresh. Full control over arc, needle, and color. Renders crisp at any display scale. This is how apps like iStat Menus do it.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="sf-symbol" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>SF Symbol Palette Rendering</h3>
+      <p>Use gauge.open.with.lines.needle.* SF Symbols with hierarchical or palette rendering to tint layers. Simpler code but limited — can't control fill level or needle position independently.</p>
+    </div>
+  </div>
+</div>

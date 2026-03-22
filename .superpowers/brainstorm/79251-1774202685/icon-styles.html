@@ -1,0 +1,120 @@
+<h2>Menu Bar Icon Style</h2>
+<p class="subtitle">How should the icon communicate usage level? Each option shows low → medium → high → critical states.</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a1a; padding:24px; display:flex; gap:32px; justify-content:center; align-items:center;">
+      <!-- Colored SF Symbol gauge -->
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="font-size:28px; color:#4ade80;">⏲</div>
+        <span style="font-size:10px; color:#888;">Low</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="font-size:28px; color:#D4A574;">⏲</div>
+        <span style="font-size:10px; color:#888;">Medium</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="font-size:28px; color:#E07A5F;">⏲</div>
+        <span style="font-size:10px; color:#888;">High</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="font-size:28px; color:#ef4444;">⏲</div>
+        <span style="font-size:10px; color:#888;">Critical</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Tinted Gauge Symbol</h3>
+      <p>Keep the current gauge icon but tint it based on usage. Simple, native feel. Uses SF Symbol rendering palette to color the icon.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a1a; padding:24px; display:flex; gap:32px; justify-content:center; align-items:center;">
+      <!-- Colored dot next to icon -->
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="display:flex; align-items:center; gap:4px;">
+          <span style="font-size:24px; color:#ccc;">⏲</span>
+          <span style="width:8px; height:8px; border-radius:50%; background:#4ade80; display:inline-block;"></span>
+        </div>
+        <span style="font-size:10px; color:#888;">Low</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="display:flex; align-items:center; gap:4px;">
+          <span style="font-size:24px; color:#ccc;">⏲</span>
+          <span style="width:8px; height:8px; border-radius:50%; background:#D4A574; display:inline-block;"></span>
+        </div>
+        <span style="font-size:10px; color:#888;">Medium</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="display:flex; align-items:center; gap:4px;">
+          <span style="font-size:24px; color:#ccc;">⏲</span>
+          <span style="width:8px; height:8px; border-radius:50%; background:#E07A5F; display:inline-block;"></span>
+        </div>
+        <span style="font-size:10px; color:#888;">High</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="display:flex; align-items:center; gap:4px;">
+          <span style="font-size:24px; color:#ccc;">⏲</span>
+          <span style="width:8px; height:8px; border-radius:50%; background:#ef4444; display:inline-block;"></span>
+        </div>
+        <span style="font-size:10px; color:#888;">Critical</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Gauge + Status Dot</h3>
+      <p>Keep the gauge icon monochrome and add a small colored dot indicator beside it. Feels more like a native macOS notification badge.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a1a; padding:24px; display:flex; gap:32px; justify-content:center; align-items:center;">
+      <!-- Different SF symbols per level -->
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="font-size:28px; color:#4ade80;">◔</div>
+        <span style="font-size:10px; color:#888;">Low</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="font-size:28px; color:#D4A574;">◑</div>
+        <span style="font-size:10px; color:#888;">Medium</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="font-size:28px; color:#E07A5F;">◕</div>
+        <span style="font-size:10px; color:#888;">High</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="font-size:28px; color:#ef4444;">●</div>
+        <span style="font-size:10px; color:#888;">Critical</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Filling Circle (Different Symbols)</h3>
+      <p>Switch between different SF Symbols that visually "fill up" as usage increases — like a circle filling from quarter to full. Both shape and color communicate level.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="d" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a1a; padding:24px; display:flex; gap:32px; justify-content:center; align-items:center;">
+      <!-- Percentage text -->
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="font-size:16px; font-weight:700; font-family:system-ui; color:#4ade80;">23%</div>
+        <span style="font-size:10px; color:#888;">Low</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="font-size:16px; font-weight:700; font-family:system-ui; color:#D4A574;">58%</div>
+        <span style="font-size:10px; color:#888;">Medium</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="font-size:16px; font-weight:700; font-family:system-ui; color:#E07A5F;">79%</div>
+        <span style="font-size:10px; color:#888;">High</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="font-size:16px; font-weight:700; font-family:system-ui; color:#ef4444;">95%</div>
+        <span style="font-size:10px; color:#888;">Critical</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>D. Colored Percentage Text</h3>
+      <p>Replace the icon entirely with the highest usage percentage as colored text. Maximum information density — you see the exact number at a glance.</p>
+    </div>
+  </div>
+</div>

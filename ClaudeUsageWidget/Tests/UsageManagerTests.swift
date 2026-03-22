@@ -168,4 +168,48 @@ final class UsageManagerTests: XCTestCase {
         // After refresh
         XCTAssertFalse(manager.isLoading)
     }
+
+    // MARK: - iconTier integration
+
+    @MainActor
+    func testIconTierStartsAsIdle() {
+        XCTAssertEqual(manager.iconTier, .idle)
+    }
+
+    @MainActor
+    func testIconTierUpdatesAfterSuccessfulRefresh() async {
+        mockKeychain.tokenToReturn = "test-token"
+        mockAPI.responseToReturn = UsageApiResponse(
+            fiveHour: UsageWindow(utilization: 75.0, resetsAt: "2026-03-21T18:00:00Z"),
+            sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil
+        )
+
+        await manager.refresh()
+
+        XCTAssertEqual(manager.iconTier, .high)
+    }
+
+    @MainActor
+    func testIconTierIsIdleAfterError() async {
+        mockKeychain.errorToThrow = KeychainError.notFound
+
+        await manager.refresh()
+
+        XCTAssertEqual(manager.iconTier, .idle)
+    }
+
+    @MainActor
+    func testIconTierReflectsMaxMetric() async {
+        mockKeychain.tokenToReturn = "test-token"
+        mockAPI.responseToReturn = UsageApiResponse(
+            fiveHour: UsageWindow(utilization: 20.0, resetsAt: "2026-03-21T18:00:00Z"),
+            sevenDay: UsageWindow(utilization: 95.0, resetsAt: "2026-03-27T18:00:00Z"),
+            sevenDaySonnet: nil,
+            sevenDayOpus: nil
+        )
+
+        await manager.refresh()
+
+        XCTAssertEqual(manager.iconTier, .critical)
+    }
 }

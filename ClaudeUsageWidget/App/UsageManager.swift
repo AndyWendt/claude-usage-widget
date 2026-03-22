@@ -43,26 +43,35 @@ final class UsageManager: ObservableObject {
     }
 
     func refresh() async {
+        let debug = DebugLogger.shared
+        debug.log("refresh() started", source: "App")
+        debug.dumpContainerDiagnostics(source: "App-refresh")
+
         isLoading = true
         defer { isLoading = false }
 
         let stats = statsService.readStats()
+        debug.log("Stats: todayTokens=\(stats.todayTokens), weekTokens=\(stats.weekTokens)", source: "App")
 
         // Get token
         let token: String
         do {
             if let cached = cachedToken {
                 token = cached
+                debug.log("Using cached token (\(token.prefix(8))...)", source: "App")
             } else {
                 token = try keychainService.readToken()
                 cachedToken = token
+                debug.log("Read token from keychain (\(token.prefix(8))...)", source: "App")
             }
         } catch {
+            let msg = describeError(error)
+            debug.log("Token error: \(msg)", source: "App")
             snapshot = UsageSnapshot(
                 fiveHour: nil, sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
                 tokenStats: stats,
                 lastUpdated: Date(),
-                error: describeError(error)
+                error: msg
             )
             return
         }
@@ -71,22 +80,27 @@ final class UsageManager: ObservableObject {
         do {
             let response = try await apiService.fetchUsage(token: token)
             let newSnapshot = response.toSnapshot(tokenStats: stats)
+            debug.log("API success: fiveHour=\(newSnapshot.fiveHour?.percent ?? -1)%, sevenDay=\(newSnapshot.sevenDay?.percent ?? -1)%", source: "App")
             snapshot = newSnapshot
             do {
                 try containerService.writeSnapshot(newSnapshot)
+                debug.log("Snapshot written to shared container", source: "App")
             } catch {
-                print("[ClaudeUsageWidget] Warning: failed to write snapshot to shared container: \(error.localizedDescription)")
+                debug.log("WRITE FAILED: \(error)", source: "App")
             }
             widgetReloader()
+            debug.log("Widget reload requested", source: "App")
         } catch {
             if case APIError.unauthorized = error { cachedToken = nil }
             if case APIError.forbidden = error { cachedToken = nil }
 
+            let msg = describeError(error)
+            debug.log("API error: \(msg)", source: "App")
             snapshot = UsageSnapshot(
                 fiveHour: nil, sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
                 tokenStats: stats,
                 lastUpdated: Date(),
-                error: describeError(error)
+                error: msg
             )
         }
     }

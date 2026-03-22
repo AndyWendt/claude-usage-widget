@@ -95,4 +95,77 @@ final class UsageSnapshotTests: XCTestCase {
         )
         XCTAssertTrue(stale.isStale)
     }
+
+    // MARK: - maxUsagePercent
+
+    func testMaxUsagePercentAllNilReturnsNil() {
+        let snapshot = UsageSnapshot(
+            fiveHour: nil, sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
+            tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
+            lastUpdated: Date(),
+            error: nil
+        )
+        XCTAssertNil(snapshot.maxUsagePercent)
+    }
+
+    func testMaxUsagePercentSingleMetricReturnsThatValue() {
+        let snapshot = UsageSnapshot(
+            fiveHour: UsageMetric(percent: 42.0, resetsAt: Date()),
+            sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
+            tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
+            lastUpdated: Date(),
+            error: nil
+        )
+        XCTAssertEqual(snapshot.maxUsagePercent, 42.0)
+    }
+
+    func testMaxUsagePercentReturnsMaxAcrossMetrics() {
+        let snapshot = UsageSnapshot(
+            fiveHour: UsageMetric(percent: 30.0, resetsAt: Date()),
+            sevenDay: UsageMetric(percent: 60.0, resetsAt: Date()),
+            sevenDaySonnet: nil,
+            sevenDayOpus: UsageMetric(percent: 88.0, resetsAt: Date()),
+            tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
+            lastUpdated: Date(),
+            error: nil
+        )
+        XCTAssertEqual(snapshot.maxUsagePercent, 88.0)
+    }
+
+    func testMaxUsagePercentExcludesSonnet() {
+        let snapshot = UsageSnapshot(
+            fiveHour: UsageMetric(percent: 20.0, resetsAt: Date()),
+            sevenDay: nil,
+            sevenDaySonnet: UsageMetric(percent: 99.0, resetsAt: Date()),
+            sevenDayOpus: nil,
+            tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
+            lastUpdated: Date(),
+            error: nil
+        )
+        XCTAssertEqual(snapshot.maxUsagePercent, 20.0)
+    }
+
+    func testMaxUsagePercentSonnetOnlyReturnsNil() {
+        let snapshot = UsageSnapshot(
+            fiveHour: nil, sevenDay: nil,
+            sevenDaySonnet: UsageMetric(percent: 80.0, resetsAt: Date()),
+            sevenDayOpus: nil,
+            tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
+            lastUpdated: Date(), error: nil
+        )
+        XCTAssertNil(snapshot.maxUsagePercent)
+    }
+
+    func testMaxUsagePercentClampsValues() {
+        let snapshot = UsageSnapshot(
+            fiveHour: UsageMetric(percent: 150.0, resetsAt: Date()),
+            sevenDay: UsageMetric(percent: -10.0, resetsAt: Date()),
+            sevenDaySonnet: nil,
+            sevenDayOpus: nil,
+            tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
+            lastUpdated: Date(),
+            error: nil
+        )
+        XCTAssertEqual(snapshot.maxUsagePercent, 100.0)
+    }
 }

@@ -6,11 +6,15 @@ struct ClaudeUsageWidgetApp: App {
     @AppStorage("refreshInterval") private var refreshInterval: Int = 300
 
     var body: some Scene {
-        MenuBarExtra("Claude Usage", systemImage: "gauge.medium") {
+        MenuBarExtra {
             MenuBarContentView(
                 manager: manager,
                 refreshInterval: $refreshInterval
             )
+        } label: {
+            let image = manager.iconTier.menuBarImage()
+            Image(nsImage: image)
+                .accessibilityLabel(manager.iconTier.accessibilityLabel)
         }
         .menuBarExtraStyle(.window)
     }

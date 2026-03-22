@@ -28,6 +28,16 @@ npm-debug.log*
 src-tauri/WixTools/
 src-tauri/Cargo.lock
 
+# Swift Package Manager
+.build/
+Package.swift
+Sources/
+Tests/
+
+# Xcode
+xcuserdata/
+*.xcworkspace/xcuserdata/
+
 # Utility scripts
 claude-usage*.sh
 create_icons.py

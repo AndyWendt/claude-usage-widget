@@ -6,7 +6,7 @@
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.andywendt.claude-usage-widget</string>
+		<string>KWBZ4HM9UX.com.andywendt.claude-usage-widget</string>
 	</array>
 </dict>
 </plist>

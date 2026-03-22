@@ -8,7 +8,7 @@ enum SharedContainerError: Error {
 }
 
 final class SharedContainerService: SharedContainerServiceProtocol {
-    static let appGroupID = "group.com.andywendt.claude-usage-widget"
+    static let appGroupID = "KWBZ4HM9UX.com.andywendt.claude-usage-widget"
     private static let snapshotFilename = "usage-snapshot.json"
 
     private let containerURL: URL?

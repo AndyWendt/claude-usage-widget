@@ -32,7 +32,11 @@ final class UsageManager: ObservableObject {
 
     func updatePaceSettings(_ settings: PaceSettings) {
         paceSettings = settings
-        try? containerService.writePaceSettings(settings)
+        do {
+            try containerService.writePaceSettings(settings)
+        } catch {
+            DebugLogger.shared.log("PACE WRITE FAILED: \(error)", source: "App")
+        }
     }
 
     func startTimer(interval: TimeInterval = 300) {

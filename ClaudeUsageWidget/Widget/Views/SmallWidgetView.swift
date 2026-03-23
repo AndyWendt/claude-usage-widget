@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SmallWidgetView: View {
     let snapshot: UsageSnapshot
+    let paceSettings: PaceSettings
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -10,7 +11,14 @@ struct SmallWidgetView: View {
                 .foregroundStyle(AnthropicColors.tan)
 
             if let fiveHour = snapshot.fiveHour {
-                WidgetUsageBar(label: "5-Hour", percent: fiveHour.percent, resetsAt: fiveHour.resetsAt)
+                WidgetUsageBar(
+                    label: "5-Hour",
+                    percent: fiveHour.percent,
+                    resetsAt: fiveHour.resetsAt,
+                    paceInfo: paceSettings.enabledMetrics.contains(.fiveHour)
+                        ? computePace(metric: fiveHour, windowDuration: MetricKey.fiveHour.windowDuration)
+                        : nil
+                )
             } else {
                 Text("No data")
                     .font(.system(size: 10))

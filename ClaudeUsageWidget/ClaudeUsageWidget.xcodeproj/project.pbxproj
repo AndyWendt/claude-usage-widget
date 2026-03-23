@@ -18,6 +18,7 @@
 		3ED7B6DE237CCEC7F15CB38C /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = D805DBCCBAC05A829DD71372 /* ServiceProtocols.swift */; };
 		3F13DEF718FF2725FBBAEA50 /* MenuBarIconTier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A16315EAB299ECFC93E576 /* MenuBarIconTier.swift */; };
 		40F7158B748B08521C9445EC /* UsageSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46952864015DEF0688EFD641 /* UsageSnapshotTests.swift */; };
+		PACE0001PACE0001PACE0001 /* PaceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PACE0002PACE0002PACE0002 /* PaceTests.swift */; };
 		41C78217B88D0B91538CB7A7 /* AnthropicColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 819C2C0936EEE40BAB0A6A72 /* AnthropicColors.swift */; };
 		45E6EEA4655BCCF690BD7CDE /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFABD321FC73997C1E96703 /* SettingsView.swift */; };
 		57E8074602A0C3D14F055055 /* TimelineProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D965128E07E127043A1421 /* TimelineProviderTests.swift */; };
@@ -104,6 +105,7 @@
 		32DA4A5DA2D7F5F5F1EB55C7 /* APIModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIModelsTests.swift; sourceTree = "<group>"; };
 		39691948860FB314644562B2 /* KeychainServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceTests.swift; sourceTree = "<group>"; };
 		46952864015DEF0688EFD641 /* UsageSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageSnapshotTests.swift; sourceTree = "<group>"; };
+		PACE0002PACE0002PACE0002 /* PaceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaceTests.swift; sourceTree = "<group>"; };
 		58B722BBD73039680155A5B4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		5A2FF6035875BE21D69DD7FD /* Widget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Widget.entitlements; sourceTree = "<group>"; };
 		6C6D63E07C580F7CA5E7A3C9 /* DebugLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLogger.swift; sourceTree = "<group>"; };
@@ -174,6 +176,7 @@
 				39691948860FB314644562B2 /* KeychainServiceTests.swift */,
 				0A28A3A0D112B5DAA8B30EBC /* MenuBarIconTierTests.swift */,
 				B36F7104D027BDD059D586CE /* Mocks.swift */,
+				PACE0002PACE0002PACE0002 /* PaceTests.swift */,
 				D3DCB71A17E06BF23F28D7AB /* SharedContainerServiceTests.swift */,
 				895805F81F51FE14695C35C7 /* StatsServiceTests.swift */,
 				27D965128E07E127043A1421 /* TimelineProviderTests.swift */,
@@ -442,6 +445,7 @@
 				7C7AB18DBEB5F7759DD68DBF /* StatsServiceTests.swift in Sources */,
 				57E8074602A0C3D14F055055 /* TimelineProviderTests.swift in Sources */,
 				A155DE7CA56979A05382E762 /* UsageManagerTests.swift in Sources */,
+				PACE0001PACE0001PACE0001 /* PaceTests.swift in Sources */,
 				40F7158B748B08521C9445EC /* UsageSnapshotTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

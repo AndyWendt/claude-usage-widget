@@ -40,6 +40,7 @@ final class MockStatsService: StatsServiceProtocol {
 final class MockSharedContainerService: SharedContainerServiceProtocol {
     var storedSnapshot: UsageSnapshot?
     var writeError: Error?
+    var storedPaceSettings: PaceSettings = .allEnabled
 
     func writeSnapshot(_ snapshot: UsageSnapshot) throws {
         if let error = writeError { throw error }
@@ -48,6 +49,14 @@ final class MockSharedContainerService: SharedContainerServiceProtocol {
 
     func readSnapshot() -> UsageSnapshot? {
         storedSnapshot
+    }
+
+    func writePaceSettings(_ settings: PaceSettings) throws {
+        storedPaceSettings = settings
+    }
+
+    func readPaceSettings() -> PaceSettings {
+        storedPaceSettings
     }
 }
 

@@ -14,6 +14,7 @@ final class UsageManager: ObservableObject {
     }
     @Published var iconTier: MenuBarIconTier = .idle
     @Published var isLoading = false
+    @Published var paceSettings: PaceSettings = .allEnabled
 
     private let keychainService: KeychainServiceProtocol
     private let apiService: APIServiceProtocol
@@ -35,6 +36,16 @@ final class UsageManager: ObservableObject {
         self.statsService = statsService
         self.containerService = containerService
         self.widgetReloader = widgetReloader
+        self.paceSettings = containerService.readPaceSettings()
+    }
+
+    func updatePaceSettings(_ settings: PaceSettings) {
+        paceSettings = settings
+        do {
+            try containerService.writePaceSettings(settings)
+        } catch {
+            DebugLogger.shared.log("PACE WRITE FAILED: \(error)", source: "App")
+        }
     }
 
     func startTimer(interval: TimeInterval = 300) {

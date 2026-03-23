@@ -5,6 +5,7 @@ struct WidgetUsageBar: View {
     let percent: Double
     let resetsAt: Date
     var isOpus: Bool = false
+    var paceInfo: PaceInfo? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
@@ -24,13 +25,41 @@ struct WidgetUsageBar: View {
                     RoundedRectangle(cornerRadius: 3)
                         .fill(gradient)
                         .frame(width: geo.size.width * min(max(percent, 0), 100) / 100)
+
+                    if let pace = paceInfo {
+                        let fillPercent = min(max(percent, 0), 100)
+                        let projPercent = pace.clampedProjectedPercent
+                        var markerX = geo.size.width * projPercent / 100
+                        if abs(projPercent - fillPercent) < 3 {
+                            let direction: CGFloat = projPercent > fillPercent ? 1 : -1
+                            markerX += direction * 4
+                        }
+                        markerX = max(0, min(markerX, geo.size.width))
+                        RoundedRectangle(cornerRadius: 1)
+                            .fill(AnthropicColors.paceColor(for: pace.status))
+                            .opacity(0.7)
+                            .frame(width: 2, height: 10)
+                            .offset(x: markerX - 1, y: -2)
+                    }
                 }
             }
             .frame(height: 6)
 
-            Text(resetsAt, style: .relative)
-                .font(.system(size: 8, design: .monospaced))
-                .foregroundStyle(.tertiary)
+            if let pace = paceInfo {
+                HStack {
+                    Text(resetsAt, style: .relative)
+                        .font(.system(size: 8, design: .monospaced))
+                        .foregroundStyle(.tertiary)
+                    Spacer()
+                    Text(pace.projectedPercent > 100 ? "→ 100%+" : "→ \(Int(min(pace.projectedPercent, 100)))%")
+                        .font(.system(size: 8, weight: .semibold, design: .monospaced))
+                        .foregroundStyle(AnthropicColors.paceColor(for: pace.status))
+                }
+            } else {
+                Text(resetsAt, style: .relative)
+                    .font(.system(size: 8, design: .monospaced))
+                    .foregroundStyle(.tertiary)
+            }
         }
     }
 
@@ -45,4 +74,5 @@ struct WidgetUsageBar: View {
             return AnthropicColors.normalGradient
         }
     }
+
 }

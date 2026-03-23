@@ -13,6 +13,8 @@ enum AnthropicColors {
     static let opusBrown = Color(red: 0.545, green: 0.451, blue: 0.333)     // #8B7355
     static let iconGreen = Color(red: 0.290, green: 0.855, blue: 0.502)     // #4ade80
     static let iconRed = Color(red: 0.937, green: 0.267, blue: 0.267)       // #ef4444
+    static let paceGreen = Color(red: 0.357, green: 0.604, blue: 0.435)    // #5B9A6F
+    static let paceYellow = Color(red: 0.769, green: 0.659, blue: 0.302)   // #C4A84D
 
     // Gradients
     static let normalGradient = LinearGradient(
@@ -27,4 +29,12 @@ enum AnthropicColors {
     static let dangerGradient = LinearGradient(
         colors: [dangerDark, coral], startPoint: .leading, endPoint: .trailing
     )
+
+    static func paceColor(for status: PaceStatus) -> Color {
+        switch status {
+        case .under: return paceGreen
+        case .on: return paceYellow
+        case .over: return coral
+        }
+    }
 }

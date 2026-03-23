@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LargeWidgetView: View {
     let snapshot: UsageSnapshot
+    let paceSettings: PaceSettings
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -10,16 +11,45 @@ struct LargeWidgetView: View {
                 .foregroundStyle(AnthropicColors.tan)
 
             if let fiveHour = snapshot.fiveHour {
-                WidgetUsageBar(label: "5-Hour Window", percent: fiveHour.percent, resetsAt: fiveHour.resetsAt)
+                WidgetUsageBar(
+                    label: "5-Hour Window",
+                    percent: fiveHour.percent,
+                    resetsAt: fiveHour.resetsAt,
+                    paceInfo: paceSettings.enabledMetrics.contains(.fiveHour)
+                        ? computePace(metric: fiveHour, windowDuration: MetricKey.fiveHour.windowDuration)
+                        : nil
+                )
             }
             if let sevenDay = snapshot.sevenDay {
-                WidgetUsageBar(label: "Weekly (All)", percent: sevenDay.percent, resetsAt: sevenDay.resetsAt)
+                WidgetUsageBar(
+                    label: "Weekly (All)",
+                    percent: sevenDay.percent,
+                    resetsAt: sevenDay.resetsAt,
+                    paceInfo: paceSettings.enabledMetrics.contains(.sevenDay)
+                        ? computePace(metric: sevenDay, windowDuration: MetricKey.sevenDay.windowDuration)
+                        : nil
+                )
             }
             if let sonnet = snapshot.sevenDaySonnet {
-                WidgetUsageBar(label: "Weekly (Sonnet)", percent: sonnet.percent, resetsAt: sonnet.resetsAt)
+                WidgetUsageBar(
+                    label: "Weekly (Sonnet)",
+                    percent: sonnet.percent,
+                    resetsAt: sonnet.resetsAt,
+                    paceInfo: paceSettings.enabledMetrics.contains(.sevenDaySonnet)
+                        ? computePace(metric: sonnet, windowDuration: MetricKey.sevenDaySonnet.windowDuration)
+                        : nil
+                )
             }
             if let opus = snapshot.sevenDayOpus {
-                WidgetUsageBar(label: "Weekly (Opus)", percent: opus.percent, resetsAt: opus.resetsAt, isOpus: true)
+                WidgetUsageBar(
+                    label: "Weekly (Opus)",
+                    percent: opus.percent,
+                    resetsAt: opus.resetsAt,
+                    isOpus: true,
+                    paceInfo: paceSettings.enabledMetrics.contains(.sevenDayOpus)
+                        ? computePace(metric: opus, windowDuration: MetricKey.sevenDayOpus.windowDuration)
+                        : nil
+                )
             }
 
             Divider()

@@ -462,4 +462,44 @@ final class UsageManagerTests: XCTestCase {
         XCTAssertEqual(manager.snapshot?.tokenStats.todayTokens, 2000, "Should use fresh stats from statsService")
         XCTAssertEqual(manager.snapshot?.fiveHour?.percent, 50.0, "Usage data should be preserved")
     }
+
+    // MARK: - Pace Settings
+
+    @MainActor
+    func testUpdatePaceSettingsUpdatesInMemory() {
+        let newSettings = PaceSettings(enabledMetrics: [.fiveHour])
+        manager.updatePaceSettings(newSettings)
+        XCTAssertEqual(manager.paceSettings, newSettings)
+    }
+
+    @MainActor
+    func testUpdatePaceSettingsPersistsToContainer() {
+        let newSettings = PaceSettings(enabledMetrics: [.sevenDay, .sevenDayOpus])
+        manager.updatePaceSettings(newSettings)
+        XCTAssertEqual(mockContainer.storedPaceSettings, newSettings)
+    }
+
+    @MainActor
+    func testInitLoadsPaceSettingsFromContainer() {
+        let customSettings = PaceSettings(enabledMetrics: [.fiveHour, .sevenDaySonnet])
+        mockContainer.storedPaceSettings = customSettings
+
+        let newManager = UsageManager(
+            keychainService: mockKeychain,
+            apiService: mockAPI,
+            statsService: mockStats,
+            containerService: mockContainer,
+            widgetReloader: mockReloader.reload
+        )
+
+        XCTAssertEqual(newManager.paceSettings, customSettings)
+    }
+
+    @MainActor
+    func testUpdatePaceSettingsStillUpdatesInMemoryOnWriteFailure() {
+        mockContainer.writeError = NSError(domain: "test", code: 1, userInfo: nil)
+        let newSettings = PaceSettings(enabledMetrics: [.sevenDay])
+        manager.updatePaceSettings(newSettings)
+        XCTAssertEqual(manager.paceSettings, newSettings)
+    }
 }

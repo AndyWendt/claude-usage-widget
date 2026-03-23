@@ -4,6 +4,7 @@ struct UsageBarView: View {
     let label: String
     let metric: UsageMetric?
     var isOpus: Bool = false
+    var paceInfo: PaceInfo? = nil
 
     var body: some View {
         if let metric {
@@ -36,11 +37,37 @@ struct UsageBarView: View {
                                     }
                                 }
                             }
+
+                        if let pace = paceInfo {
+                            let fillPercent = metric.clampedPercent
+                            let projPercent = pace.clampedProjectedPercent
+                            var markerX = geo.size.width * projPercent / 100
+                            if abs(projPercent - fillPercent) < 3 {
+                                let direction: CGFloat = projPercent > fillPercent ? 1 : -1
+                                markerX += direction * 4
+                            }
+                            markerX = max(0, min(markerX, geo.size.width))
+                            RoundedRectangle(cornerRadius: 1)
+                                .fill(AnthropicColors.paceColor(for: pace.status))
+                                .opacity(0.7)
+                                .frame(width: 2, height: 14)
+                                .offset(x: markerX - 1, y: -3)
+                        }
                     }
                 }
                 .frame(height: 8)
 
-                ResetTimerView(resetsAt: metric.resetsAt)
+                if let pace = paceInfo {
+                    HStack {
+                        ResetTimerView(resetsAt: metric.resetsAt)
+                        Spacer()
+                        Text(pace.projectedPercent > 100 ? "→ 100%+" : "→ \(Int(min(pace.projectedPercent, 100)))%")
+                            .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                            .foregroundStyle(AnthropicColors.paceColor(for: pace.status))
+                    }
+                } else {
+                    ResetTimerView(resetsAt: metric.resetsAt)
+                }
             }
         }
     }
@@ -58,4 +85,5 @@ struct UsageBarView: View {
             return AnthropicColors.normalGradient
         }
     }
+
 }

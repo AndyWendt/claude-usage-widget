@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MediumWidgetView: View {
     let snapshot: UsageSnapshot
+    let paceSettings: PaceSettings
 
     var body: some View {
         HStack(spacing: 16) {
@@ -11,7 +12,14 @@ struct MediumWidgetView: View {
                     .foregroundStyle(AnthropicColors.tan)
 
                 if let fiveHour = snapshot.fiveHour {
-                    WidgetUsageBar(label: "5-Hour", percent: fiveHour.percent, resetsAt: fiveHour.resetsAt)
+                    WidgetUsageBar(
+                        label: "5-Hour",
+                        percent: fiveHour.percent,
+                        resetsAt: fiveHour.resetsAt,
+                        paceInfo: paceSettings.enabledMetrics.contains(.fiveHour)
+                            ? computePace(metric: fiveHour, windowDuration: MetricKey.fiveHour.windowDuration)
+                            : nil
+                    )
                 }
 
                 Spacer()
@@ -22,7 +30,14 @@ struct MediumWidgetView: View {
                     .font(.system(size: 11))
 
                 if let sevenDay = snapshot.sevenDay {
-                    WidgetUsageBar(label: "Weekly", percent: sevenDay.percent, resetsAt: sevenDay.resetsAt)
+                    WidgetUsageBar(
+                        label: "Weekly",
+                        percent: sevenDay.percent,
+                        resetsAt: sevenDay.resetsAt,
+                        paceInfo: paceSettings.enabledMetrics.contains(.sevenDay)
+                            ? computePace(metric: sevenDay, windowDuration: MetricKey.sevenDay.windowDuration)
+                            : nil
+                    )
                 }
 
                 Spacer()

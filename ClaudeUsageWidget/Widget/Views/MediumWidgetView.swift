@@ -28,7 +28,7 @@ struct MediumWidgetView: View {
                 Spacer()
 
                 if snapshot.error != nil {
-                    errorIndicator
+                    WidgetErrorIndicator(snapshot: snapshot)
                 } else if snapshot.isStale {
                     HStack(spacing: 2) {
                         Image(systemName: "clock")
@@ -43,16 +43,4 @@ struct MediumWidgetView: View {
         .padding(12)
     }
 
-    private var errorIndicator: some View {
-        HStack(spacing: 2) {
-            Image(systemName: "exclamationmark.circle.fill")
-                .font(.system(size: 8))
-                .foregroundStyle(AnthropicColors.coral)
-            if let lastSuccess = snapshot.lastSuccessfulUpdate {
-                Text(lastSuccess, style: .relative)
-                    .font(.system(size: 8))
-                    .foregroundStyle(.tertiary)
-            }
-        }
-    }
 }

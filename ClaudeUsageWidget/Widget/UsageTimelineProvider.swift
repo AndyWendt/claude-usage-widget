@@ -15,7 +15,7 @@ struct UsageTimelineProvider: TimelineProvider {
             lastUpdated: Date(),
             lastSuccessfulUpdate: nil,
             error: nil
-        ), paceSettings: .allEnabled)
+        ))
     }
 
     func getSnapshot(in context: Context, completion: @escaping (UsageTimelineEntry) -> Void) {
@@ -28,11 +28,9 @@ struct UsageTimelineProvider: TimelineProvider {
         let paceSettings = container.readPaceSettings()
         debug.log("getSnapshot result: \(snapshot != nil ? "got data" : "nil → using placeholder")", source: "Widget")
 
-        let entry = UsageTimelineEntry(
-            date: Date(),
-            snapshot: snapshot ?? placeholder(in: context).snapshot,
-            paceSettings: paceSettings
-        )
+        let isPlaceholder = snapshot == nil
+        let snapshotData = snapshot ?? placeholder(in: context).snapshot
+        let entry = UsageTimelineEntry.makeEntry(date: Date(), snapshot: snapshotData, paceSettings: paceSettings, isPlaceholder: isPlaceholder)
         completion(entry)
     }
 

@@ -27,12 +27,19 @@ struct WidgetUsageBar: View {
                         .frame(width: geo.size.width * min(max(percent, 0), 100) / 100)
 
                     if let pace = paceInfo {
-                        let clampedPosition = min(max(pace.projectedPercent, 0), 100)
+                        let fillPercent = min(max(percent, 0), 100)
+                        let projPercent = pace.clampedProjectedPercent
+                        var markerX = geo.size.width * projPercent / 100
+                        if abs(projPercent - fillPercent) < 3 {
+                            let direction: CGFloat = projPercent > fillPercent ? 1 : -1
+                            markerX += direction * 4
+                        }
+                        markerX = max(0, min(markerX, geo.size.width))
                         RoundedRectangle(cornerRadius: 1)
-                            .fill(paceColor(for: pace.status))
+                            .fill(AnthropicColors.paceColor(for: pace.status))
                             .opacity(0.7)
                             .frame(width: 2, height: 10)
-                            .offset(x: geo.size.width * clampedPosition / 100 - 1, y: -2)
+                            .offset(x: markerX - 1, y: -2)
                     }
                 }
             }
@@ -46,7 +53,7 @@ struct WidgetUsageBar: View {
                     Spacer()
                     Text(pace.projectedPercent > 100 ? "→ 100%+" : "→ \(Int(min(pace.projectedPercent, 100)))%")
                         .font(.system(size: 8, weight: .semibold, design: .monospaced))
-                        .foregroundStyle(paceColor(for: pace.status))
+                        .foregroundStyle(AnthropicColors.paceColor(for: pace.status))
                 }
             } else {
                 Text(resetsAt, style: .relative)
@@ -68,11 +75,4 @@ struct WidgetUsageBar: View {
         }
     }
 
-    private func paceColor(for status: PaceStatus) -> Color {
-        switch status {
-        case .under: return AnthropicColors.paceGreen
-        case .on: return AnthropicColors.paceYellow
-        case .over: return AnthropicColors.coral
-        }
-    }
 }

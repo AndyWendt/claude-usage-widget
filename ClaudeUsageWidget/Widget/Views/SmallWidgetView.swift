@@ -2,10 +2,9 @@ import SwiftUI
 
 struct SmallWidgetView: View {
     let snapshot: UsageSnapshot
+    let paceSettings: PaceSettings
 
     var body: some View {
-        let paceSettings = SharedContainerService().readPaceSettings()
-
         VStack(alignment: .leading, spacing: 8) {
             Text("Claude Usage")
                 .font(.system(size: 11, weight: .semibold))
@@ -16,8 +15,8 @@ struct SmallWidgetView: View {
                     label: "5-Hour",
                     percent: fiveHour.percent,
                     resetsAt: fiveHour.resetsAt,
-                    paceInfo: paceSettings.enabledMetrics.contains("fiveHour")
-                        ? computePace(metric: fiveHour, windowDuration: 5 * 3600)
+                    paceInfo: paceSettings.enabledMetrics.contains(.fiveHour)
+                        ? computePace(metric: fiveHour, windowDuration: MetricKey.fiveHour.windowDuration)
                         : nil
                 )
             } else {

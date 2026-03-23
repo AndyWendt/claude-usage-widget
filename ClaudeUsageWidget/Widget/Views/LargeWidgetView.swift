@@ -2,10 +2,9 @@ import SwiftUI
 
 struct LargeWidgetView: View {
     let snapshot: UsageSnapshot
+    let paceSettings: PaceSettings
 
     var body: some View {
-        let paceSettings = SharedContainerService().readPaceSettings()
-
         VStack(alignment: .leading, spacing: 8) {
             Text("Claude Code Usage")
                 .font(.system(size: 13, weight: .semibold))
@@ -16,8 +15,8 @@ struct LargeWidgetView: View {
                     label: "5-Hour Window",
                     percent: fiveHour.percent,
                     resetsAt: fiveHour.resetsAt,
-                    paceInfo: paceSettings.enabledMetrics.contains("fiveHour")
-                        ? computePace(metric: fiveHour, windowDuration: 5 * 3600)
+                    paceInfo: paceSettings.enabledMetrics.contains(.fiveHour)
+                        ? computePace(metric: fiveHour, windowDuration: MetricKey.fiveHour.windowDuration)
                         : nil
                 )
             }
@@ -26,8 +25,8 @@ struct LargeWidgetView: View {
                     label: "Weekly (All)",
                     percent: sevenDay.percent,
                     resetsAt: sevenDay.resetsAt,
-                    paceInfo: paceSettings.enabledMetrics.contains("sevenDay")
-                        ? computePace(metric: sevenDay, windowDuration: 7 * 24 * 3600)
+                    paceInfo: paceSettings.enabledMetrics.contains(.sevenDay)
+                        ? computePace(metric: sevenDay, windowDuration: MetricKey.sevenDay.windowDuration)
                         : nil
                 )
             }
@@ -36,8 +35,8 @@ struct LargeWidgetView: View {
                     label: "Weekly (Sonnet)",
                     percent: sonnet.percent,
                     resetsAt: sonnet.resetsAt,
-                    paceInfo: paceSettings.enabledMetrics.contains("sevenDaySonnet")
-                        ? computePace(metric: sonnet, windowDuration: 7 * 24 * 3600)
+                    paceInfo: paceSettings.enabledMetrics.contains(.sevenDaySonnet)
+                        ? computePace(metric: sonnet, windowDuration: MetricKey.sevenDaySonnet.windowDuration)
                         : nil
                 )
             }
@@ -47,8 +46,8 @@ struct LargeWidgetView: View {
                     percent: opus.percent,
                     resetsAt: opus.resetsAt,
                     isOpus: true,
-                    paceInfo: paceSettings.enabledMetrics.contains("sevenDayOpus")
-                        ? computePace(metric: opus, windowDuration: 7 * 24 * 3600)
+                    paceInfo: paceSettings.enabledMetrics.contains(.sevenDayOpus)
+                        ? computePace(metric: opus, windowDuration: MetricKey.sevenDayOpus.windowDuration)
                         : nil
                 )
             }

@@ -2,10 +2,9 @@ import SwiftUI
 
 struct MediumWidgetView: View {
     let snapshot: UsageSnapshot
+    let paceSettings: PaceSettings
 
     var body: some View {
-        let paceSettings = SharedContainerService().readPaceSettings()
-
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Claude Usage")
@@ -17,8 +16,8 @@ struct MediumWidgetView: View {
                         label: "5-Hour",
                         percent: fiveHour.percent,
                         resetsAt: fiveHour.resetsAt,
-                        paceInfo: paceSettings.enabledMetrics.contains("fiveHour")
-                            ? computePace(metric: fiveHour, windowDuration: 5 * 3600)
+                        paceInfo: paceSettings.enabledMetrics.contains(.fiveHour)
+                            ? computePace(metric: fiveHour, windowDuration: MetricKey.fiveHour.windowDuration)
                             : nil
                     )
                 }
@@ -35,8 +34,8 @@ struct MediumWidgetView: View {
                         label: "Weekly",
                         percent: sevenDay.percent,
                         resetsAt: sevenDay.resetsAt,
-                        paceInfo: paceSettings.enabledMetrics.contains("sevenDay")
-                            ? computePace(metric: sevenDay, windowDuration: 7 * 24 * 3600)
+                        paceInfo: paceSettings.enabledMetrics.contains(.sevenDay)
+                            ? computePace(metric: sevenDay, windowDuration: MetricKey.sevenDay.windowDuration)
                             : nil
                     )
                 }

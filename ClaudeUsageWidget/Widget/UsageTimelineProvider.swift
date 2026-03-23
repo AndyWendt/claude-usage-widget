@@ -14,7 +14,7 @@ struct UsageTimelineProvider: TimelineProvider {
             tokenStats: TokenStats(todayTokens: 12000, weekTokens: 85000, todayMessages: 25, weekMessages: 150),
             lastUpdated: Date(),
             error: nil
-        ))
+        ), paceSettings: .allEnabled)
     }
 
     func getSnapshot(in context: Context, completion: @escaping (UsageTimelineEntry) -> Void) {
@@ -24,11 +24,13 @@ struct UsageTimelineProvider: TimelineProvider {
 
         let container = SharedContainerService()
         let snapshot = container.readSnapshot()
+        let paceSettings = container.readPaceSettings()
         debug.log("getSnapshot result: \(snapshot != nil ? "got data" : "nil → using placeholder")", source: "Widget")
 
         let entry = UsageTimelineEntry(
             date: Date(),
-            snapshot: snapshot ?? placeholder(in: context).snapshot
+            snapshot: snapshot ?? placeholder(in: context).snapshot,
+            paceSettings: paceSettings
         )
         completion(entry)
     }
@@ -40,8 +42,9 @@ struct UsageTimelineProvider: TimelineProvider {
 
         let container = SharedContainerService()
         let snapshot = container.readSnapshot()
+        let paceSettings = container.readPaceSettings()
 
-        let entries = UsageTimelineEntry.buildTimeline(from: snapshot)
+        let entries = UsageTimelineEntry.buildTimeline(from: snapshot, paceSettings: paceSettings)
         debug.log("getTimeline: \(entries.count) entries, snapshot=\(snapshot != nil ? "present" : "nil")", source: "Widget")
 
         let policy: TimelineReloadPolicy = snapshot == nil

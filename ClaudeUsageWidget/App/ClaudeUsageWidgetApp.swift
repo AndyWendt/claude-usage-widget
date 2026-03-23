@@ -29,7 +29,7 @@ struct MenuBarContentView: View {
             Divider()
                 .background(AnthropicColors.tan.opacity(0.2))
 
-            SettingsView(onIntervalChanged: { interval in
+            SettingsView(manager: manager, onIntervalChanged: { interval in
                 manager.startTimer(interval: TimeInterval(interval))
             })
         }

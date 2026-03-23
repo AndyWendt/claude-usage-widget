@@ -15,6 +15,8 @@ protocol StatsServiceProtocol {
 protocol SharedContainerServiceProtocol {
     func writeSnapshot(_ snapshot: UsageSnapshot) throws
     func readSnapshot() -> UsageSnapshot?
+    func writePaceSettings(_ settings: PaceSettings) throws
+    func readPaceSettings() -> PaceSettings
 }
 
 enum KeychainError: Error, Equatable {

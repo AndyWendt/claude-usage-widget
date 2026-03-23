@@ -11,6 +11,8 @@ enum AnthropicColors {
     static let creamMuted = Color(red: 0.980, green: 0.969, blue: 0.949).opacity(0.6)
     static let dangerDark = Color(red: 0.659, green: 0.314, blue: 0.251)    // #A85040
     static let opusBrown = Color(red: 0.545, green: 0.451, blue: 0.333)     // #8B7355
+    static let paceGreen = Color(red: 0.357, green: 0.604, blue: 0.435)    // #5B9A6F
+    static let paceYellow = Color(red: 0.769, green: 0.659, blue: 0.302)   // #C4A84D
 
     // Gradients
     static let normalGradient = LinearGradient(

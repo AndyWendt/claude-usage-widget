@@ -5,6 +5,7 @@ struct WidgetUsageBar: View {
     let percent: Double
     let resetsAt: Date
     var isOpus: Bool = false
+    var paceInfo: PaceInfo? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
@@ -24,13 +25,34 @@ struct WidgetUsageBar: View {
                     RoundedRectangle(cornerRadius: 3)
                         .fill(gradient)
                         .frame(width: geo.size.width * min(max(percent, 0), 100) / 100)
+
+                    if let pace = paceInfo {
+                        let clampedPosition = min(max(pace.projectedPercent, 0), 100)
+                        RoundedRectangle(cornerRadius: 1)
+                            .fill(paceColor(for: pace.status))
+                            .opacity(0.7)
+                            .frame(width: 2, height: 10)
+                            .offset(x: geo.size.width * clampedPosition / 100 - 1, y: -2)
+                    }
                 }
             }
             .frame(height: 6)
 
-            Text(resetsAt, style: .relative)
-                .font(.system(size: 8, design: .monospaced))
-                .foregroundStyle(.tertiary)
+            if let pace = paceInfo {
+                HStack {
+                    Text(resetsAt, style: .relative)
+                        .font(.system(size: 8, design: .monospaced))
+                        .foregroundStyle(.tertiary)
+                    Spacer()
+                    Text(pace.projectedPercent > 100 ? "→ 100%+" : "→ \(Int(min(pace.projectedPercent, 100)))%")
+                        .font(.system(size: 8, weight: .semibold, design: .monospaced))
+                        .foregroundStyle(paceColor(for: pace.status))
+                }
+            } else {
+                Text(resetsAt, style: .relative)
+                    .font(.system(size: 8, design: .monospaced))
+                    .foregroundStyle(.tertiary)
+            }
         }
     }
 
@@ -43,6 +65,14 @@ struct WidgetUsageBar: View {
             return AnthropicColors.opusGradient
         } else {
             return AnthropicColors.normalGradient
+        }
+    }
+
+    private func paceColor(for status: PaceStatus) -> Color {
+        switch status {
+        case .under: return AnthropicColors.paceGreen
+        case .on: return AnthropicColors.paceYellow
+        case .over: return AnthropicColors.coral
         }
     }
 }

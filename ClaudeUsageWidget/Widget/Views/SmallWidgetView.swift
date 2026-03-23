@@ -4,13 +4,22 @@ struct SmallWidgetView: View {
     let snapshot: UsageSnapshot
 
     var body: some View {
+        let paceSettings = SharedContainerService().readPaceSettings()
+
         VStack(alignment: .leading, spacing: 8) {
             Text("Claude Usage")
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(AnthropicColors.tan)
 
             if let fiveHour = snapshot.fiveHour {
-                WidgetUsageBar(label: "5-Hour", percent: fiveHour.percent, resetsAt: fiveHour.resetsAt)
+                WidgetUsageBar(
+                    label: "5-Hour",
+                    percent: fiveHour.percent,
+                    resetsAt: fiveHour.resetsAt,
+                    paceInfo: paceSettings.enabledMetrics.contains("fiveHour")
+                        ? computePace(metric: fiveHour, windowDuration: 5 * 3600)
+                        : nil
+                )
             } else {
                 Text("No data")
                     .font(.system(size: 10))

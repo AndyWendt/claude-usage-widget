@@ -10,6 +10,7 @@ enum SharedContainerError: Error {
 final class SharedContainerService: SharedContainerServiceProtocol {
     static let appGroupID = "KWBZ4HM9UX.com.andywendt.claude-usage-widget"
     private static let snapshotFilename = "usage-snapshot.json"
+    private static let paceSettingsFilename = "pace-settings.json"
 
     private let containerURL: URL?
 
@@ -82,5 +83,27 @@ final class SharedContainerService: SharedContainerServiceProtocol {
             containerLog.error("[SharedContainer] read error: \(String(reflecting: error), privacy: .public)")
             return nil
         }
+    }
+
+    private var paceSettingsFileURL: URL? {
+        containerURL?.appendingPathComponent(Self.paceSettingsFilename)
+    }
+
+    func writePaceSettings(_ settings: PaceSettings) throws {
+        guard let fileURL = paceSettingsFileURL else {
+            throw SharedContainerError.noContainer
+        }
+        let data = try JSONEncoder().encode(settings)
+        try data.write(to: fileURL, options: .atomic)
+    }
+
+    func readPaceSettings() -> PaceSettings {
+        guard let fileURL = paceSettingsFileURL,
+              FileManager.default.fileExists(atPath: fileURL.path),
+              let data = try? Data(contentsOf: fileURL),
+              let settings = try? JSONDecoder().decode(PaceSettings.self, from: data) else {
+            return .allEnabled
+        }
+        return settings
     }
 }

@@ -36,6 +36,75 @@ final class SharedContainerServiceTests: XCTestCase {
         XCTAssertNil(service.readSnapshot())
     }
 
+    // MARK: - PaceSettings Tests
+
+    func testWriteAndReadPaceSettings() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let svc = SharedContainerService(containerURL: tempDir)
+        let settings = PaceSettings(enabledMetrics: ["fiveHour", "sevenDay"])
+
+        try svc.writePaceSettings(settings)
+        let read = svc.readPaceSettings()
+
+        XCTAssertEqual(read, settings)
+    }
+
+    func testReadPaceSettingsReturnAllEnabledWhenFileMissing() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let svc = SharedContainerService(containerURL: tempDir)
+        let settings = svc.readPaceSettings()
+
+        XCTAssertEqual(settings, .allEnabled)
+    }
+
+    func testWritePaceSettingsOverwritesPrevious() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let svc = SharedContainerService(containerURL: tempDir)
+        let first = PaceSettings(enabledMetrics: ["fiveHour"])
+        try svc.writePaceSettings(first)
+
+        let second = PaceSettings(enabledMetrics: ["sevenDay", "sevenDayOpus"])
+        try svc.writePaceSettings(second)
+
+        let read = svc.readPaceSettings()
+        XCTAssertEqual(read, second)
+    }
+
+    func testPaceSettingsSubsetEncodeDecode() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let svc = SharedContainerService(containerURL: tempDir)
+        let settings = PaceSettings(enabledMetrics: ["fiveHour"])
+        try svc.writePaceSettings(settings)
+
+        let read = svc.readPaceSettings()
+        XCTAssertEqual(read.enabledMetrics, ["fiveHour"])
+    }
+
+    func testPaceSettingsEmptySet() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let svc = SharedContainerService(containerURL: tempDir)
+        let settings = PaceSettings(enabledMetrics: [])
+        try svc.writePaceSettings(settings)
+
+        let read = svc.readPaceSettings()
+        XCTAssertEqual(read.enabledMetrics.count, 0)
+    }
+
     func testWriteOverwritesPrevious() throws {
         let first = UsageSnapshot(
             fiveHour: UsageMetric(percent: 10.0, resetsAt: Date(timeIntervalSince1970: 1711000000)),

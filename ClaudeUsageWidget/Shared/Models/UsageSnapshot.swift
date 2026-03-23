@@ -1,5 +1,14 @@
 import Foundation
 
+enum PaceStatus: Equatable {
+    case under, on, over
+}
+
+struct PaceInfo: Equatable {
+    let projectedPercent: Double
+    let status: PaceStatus
+}
+
 struct UsageMetric: Codable, Equatable {
     let percent: Double
     let resetsAt: Date
@@ -31,6 +40,38 @@ struct TokenStats: Codable, Equatable {
         }
         return "\(value)"
     }
+}
+
+struct PaceSettings: Codable, Equatable {
+    let enabledMetrics: Set<String>
+
+    static let allEnabled = PaceSettings(enabledMetrics: [
+        "fiveHour", "sevenDay", "sevenDaySonnet", "sevenDayOpus"
+    ])
+}
+
+func computePace(metric: UsageMetric, windowDuration: TimeInterval, now: Date = .init()) -> PaceInfo? {
+    let windowStart = metric.resetsAt.addingTimeInterval(-windowDuration)
+    let elapsed = now.timeIntervalSince(windowStart)
+    let fractionElapsed = elapsed / windowDuration
+
+    guard fractionElapsed >= 0.05, fractionElapsed < 1.0, fractionElapsed > 0.0 else {
+        return nil
+    }
+
+    let projectedPercent = metric.percent / fractionElapsed
+    let expectedPercent = fractionElapsed * 100
+
+    let status: PaceStatus
+    if projectedPercent < expectedPercent - 5 {
+        status = .under
+    } else if projectedPercent > expectedPercent + 5 {
+        status = .over
+    } else {
+        status = .on
+    }
+
+    return PaceInfo(projectedPercent: projectedPercent, status: status)
 }
 
 struct UsageSnapshot: Codable, Equatable {

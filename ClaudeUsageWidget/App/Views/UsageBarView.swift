@@ -4,6 +4,8 @@ struct UsageBarView: View {
     let label: String
     let metric: UsageMetric?
     var isOpus: Bool = false
+    var paceInfo: PaceInfo? = nil
+    var showPace: Bool = true
 
     var body: some View {
         if let metric {
@@ -36,11 +38,30 @@ struct UsageBarView: View {
                                     }
                                 }
                             }
+
+                        if showPace, let pace = paceInfo {
+                            let clampedPosition = min(max(pace.projectedPercent, 0), 100)
+                            RoundedRectangle(cornerRadius: 1)
+                                .fill(paceColor(for: pace.status))
+                                .opacity(0.7)
+                                .frame(width: 2, height: 14)
+                                .offset(x: geo.size.width * clampedPosition / 100 - 1, y: -3)
+                        }
                     }
                 }
                 .frame(height: 8)
 
-                ResetTimerView(resetsAt: metric.resetsAt)
+                if showPace, let pace = paceInfo {
+                    HStack {
+                        ResetTimerView(resetsAt: metric.resetsAt)
+                        Spacer()
+                        Text(pace.projectedPercent > 100 ? "→ 100%+" : "→ \(Int(min(pace.projectedPercent, 100)))%")
+                            .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                            .foregroundStyle(paceColor(for: pace.status))
+                    }
+                } else {
+                    ResetTimerView(resetsAt: metric.resetsAt)
+                }
             }
         }
     }
@@ -56,6 +77,14 @@ struct UsageBarView: View {
             return AnthropicColors.opusGradient
         } else {
             return AnthropicColors.normalGradient
+        }
+    }
+
+    private func paceColor(for status: PaceStatus) -> Color {
+        switch status {
+        case .under: return AnthropicColors.paceGreen
+        case .on: return AnthropicColors.paceYellow
+        case .over: return AnthropicColors.coral
         }
     }
 }

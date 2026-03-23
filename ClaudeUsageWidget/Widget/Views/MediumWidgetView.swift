@@ -4,6 +4,8 @@ struct MediumWidgetView: View {
     let snapshot: UsageSnapshot
 
     var body: some View {
+        let paceSettings = SharedContainerService().readPaceSettings()
+
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Claude Usage")
@@ -11,7 +13,14 @@ struct MediumWidgetView: View {
                     .foregroundStyle(AnthropicColors.tan)
 
                 if let fiveHour = snapshot.fiveHour {
-                    WidgetUsageBar(label: "5-Hour", percent: fiveHour.percent, resetsAt: fiveHour.resetsAt)
+                    WidgetUsageBar(
+                        label: "5-Hour",
+                        percent: fiveHour.percent,
+                        resetsAt: fiveHour.resetsAt,
+                        paceInfo: paceSettings.enabledMetrics.contains("fiveHour")
+                            ? computePace(metric: fiveHour, windowDuration: 5 * 3600)
+                            : nil
+                    )
                 }
 
                 Spacer()
@@ -22,7 +31,14 @@ struct MediumWidgetView: View {
                     .font(.system(size: 11))
 
                 if let sevenDay = snapshot.sevenDay {
-                    WidgetUsageBar(label: "Weekly", percent: sevenDay.percent, resetsAt: sevenDay.resetsAt)
+                    WidgetUsageBar(
+                        label: "Weekly",
+                        percent: sevenDay.percent,
+                        resetsAt: sevenDay.resetsAt,
+                        paceInfo: paceSettings.enabledMetrics.contains("sevenDay")
+                            ? computePace(metric: sevenDay, windowDuration: 7 * 24 * 3600)
+                            : nil
+                    )
                 }
 
                 Spacer()

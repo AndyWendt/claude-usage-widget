@@ -4,6 +4,7 @@ import ServiceManagement
 struct SettingsView: View {
     @AppStorage("refreshInterval") private var refreshInterval: Int = 300
     @State private var launchAtLogin: Bool = false
+    @ObservedObject var manager: UsageManager
 
     var onIntervalChanged: ((Int) -> Void)?
 
@@ -50,6 +51,30 @@ struct SettingsView: View {
 
             Divider()
 
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Pace indicator:")
+                    .font(.system(size: 11))
+                    .foregroundStyle(AnthropicColors.creamMuted)
+                Toggle("5-Hour Window", isOn: paceBinding(for: "fiveHour"))
+                    .font(.system(size: 11))
+                    .toggleStyle(.switch)
+                    .controlSize(.mini)
+                Toggle("Weekly (All)", isOn: paceBinding(for: "sevenDay"))
+                    .font(.system(size: 11))
+                    .toggleStyle(.switch)
+                    .controlSize(.mini)
+                Toggle("Weekly (Sonnet)", isOn: paceBinding(for: "sevenDaySonnet"))
+                    .font(.system(size: 11))
+                    .toggleStyle(.switch)
+                    .controlSize(.mini)
+                Toggle("Weekly (Opus)", isOn: paceBinding(for: "sevenDayOpus"))
+                    .font(.system(size: 11))
+                    .toggleStyle(.switch)
+                    .controlSize(.mini)
+            }
+
+            Divider()
+
             Button("Quit") {
                 NSApplication.shared.terminate(nil)
             }
@@ -61,6 +86,21 @@ struct SettingsView: View {
         .onAppear {
             launchAtLogin = SMAppService.mainApp.status == .enabled
         }
+    }
+
+    private func paceBinding(for metric: String) -> Binding<Bool> {
+        Binding(
+            get: { manager.paceSettings.enabledMetrics.contains(metric) },
+            set: { enabled in
+                var metrics = manager.paceSettings.enabledMetrics
+                if enabled {
+                    metrics.insert(metric)
+                } else {
+                    metrics.remove(metric)
+                }
+                manager.updatePaceSettings(PaceSettings(enabledMetrics: metrics))
+            }
+        )
     }
 
     private func toggleLaunchAtLogin(_ enable: Bool) {

@@ -5,6 +5,7 @@ import WidgetKit
 final class UsageManager: ObservableObject {
     @Published var snapshot: UsageSnapshot?
     @Published var isLoading = false
+    @Published var paceSettings: PaceSettings = .allEnabled
 
     private let keychainService: KeychainServiceProtocol
     private let apiService: APIServiceProtocol
@@ -26,6 +27,12 @@ final class UsageManager: ObservableObject {
         self.statsService = statsService
         self.containerService = containerService
         self.widgetReloader = widgetReloader
+        self.paceSettings = containerService.readPaceSettings()
+    }
+
+    func updatePaceSettings(_ settings: PaceSettings) {
+        paceSettings = settings
+        try? containerService.writePaceSettings(settings)
     }
 
     func startTimer(interval: TimeInterval = 300) {

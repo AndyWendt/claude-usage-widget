@@ -82,12 +82,35 @@ struct PopoverView: View {
     }
 
     private func contentView(_ snapshot: UsageSnapshot) -> some View {
-        ScrollView {
+        let paceSettings = manager.paceSettings
+
+        return ScrollView {
             VStack(spacing: 10) {
-                UsageBarView(label: "5-Hour Window", metric: snapshot.fiveHour)
-                UsageBarView(label: "Weekly (All Models)", metric: snapshot.sevenDay)
-                UsageBarView(label: "Weekly (Sonnet)", metric: snapshot.sevenDaySonnet)
-                UsageBarView(label: "Weekly (Opus)", metric: snapshot.sevenDayOpus, isOpus: true)
+                UsageBarView(
+                    label: "5-Hour Window",
+                    metric: snapshot.fiveHour,
+                    paceInfo: snapshot.fiveHour.flatMap { computePace(metric: $0, windowDuration: 5 * 3600) },
+                    showPace: paceSettings.enabledMetrics.contains("fiveHour")
+                )
+                UsageBarView(
+                    label: "Weekly (All Models)",
+                    metric: snapshot.sevenDay,
+                    paceInfo: snapshot.sevenDay.flatMap { computePace(metric: $0, windowDuration: 7 * 24 * 3600) },
+                    showPace: paceSettings.enabledMetrics.contains("sevenDay")
+                )
+                UsageBarView(
+                    label: "Weekly (Sonnet)",
+                    metric: snapshot.sevenDaySonnet,
+                    paceInfo: snapshot.sevenDaySonnet.flatMap { computePace(metric: $0, windowDuration: 7 * 24 * 3600) },
+                    showPace: paceSettings.enabledMetrics.contains("sevenDaySonnet")
+                )
+                UsageBarView(
+                    label: "Weekly (Opus)",
+                    metric: snapshot.sevenDayOpus,
+                    isOpus: true,
+                    paceInfo: snapshot.sevenDayOpus.flatMap { computePace(metric: $0, windowDuration: 7 * 24 * 3600) },
+                    showPace: paceSettings.enabledMetrics.contains("sevenDayOpus")
+                )
 
                 divider
 

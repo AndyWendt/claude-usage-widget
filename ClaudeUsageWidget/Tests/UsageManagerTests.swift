@@ -339,6 +339,26 @@ final class UsageManagerTests: XCTestCase {
     }
 
     @MainActor
+    func testTokenErrorWithContainerFallback() async {
+        // Simulate cold start: no in-memory snapshot, container has data
+        let cachedSnapshot = UsageSnapshot(
+            fiveHour: UsageMetric(percent: 55.0, resetsAt: Date()),
+            sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
+            tokenStats: TokenStats(todayTokens: 1000, weekTokens: 5000, todayMessages: 5, weekMessages: 20),
+            lastUpdated: Date().addingTimeInterval(-600),
+            lastSuccessfulUpdate: Date().addingTimeInterval(-600),
+            error: nil
+        )
+        mockContainer.storedSnapshot = cachedSnapshot
+        mockKeychain.errorToThrow = KeychainError.notFound
+
+        await manager.refresh()
+
+        XCTAssertEqual(manager.snapshot?.fiveHour?.percent, 55.0, "Should use container data on token error")
+        XCTAssertNotNil(manager.snapshot?.error)
+    }
+
+    @MainActor
     func testFreshTokenStatsUsedOnError() async {
         mockKeychain.tokenToReturn = "test-token"
         mockStats.statsToReturn = TokenStats(todayTokens: 1000, weekTokens: 5000, todayMessages: 5, weekMessages: 20)

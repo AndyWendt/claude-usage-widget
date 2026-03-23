@@ -40,6 +40,7 @@ struct UsageSnapshot: Codable, Equatable {
     let sevenDayOpus: UsageMetric?
     let tokenStats: TokenStats
     let lastUpdated: Date
+    let lastSuccessfulUpdate: Date?
     let error: String?
 
     var maxUsagePercent: Double? {
@@ -49,6 +50,23 @@ struct UsageSnapshot: Codable, Equatable {
 
     var isStale: Bool {
         Date().timeIntervalSince(lastUpdated) > 30 * 60
+    }
+
+    var hasUsageData: Bool {
+        fiveHour != nil || sevenDay != nil || sevenDaySonnet != nil || sevenDayOpus != nil
+    }
+
+    func withError(_ message: String, tokenStats: TokenStats? = nil) -> UsageSnapshot {
+        UsageSnapshot(
+            fiveHour: fiveHour,
+            sevenDay: sevenDay,
+            sevenDaySonnet: sevenDaySonnet,
+            sevenDayOpus: sevenDayOpus,
+            tokenStats: tokenStats ?? self.tokenStats,
+            lastUpdated: Date(),
+            lastSuccessfulUpdate: lastSuccessfulUpdate,
+            error: message
+        )
     }
 
     /// Canonical encoder — always uses iso8601 dates for interoperability

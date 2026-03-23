@@ -45,6 +45,7 @@
 		C361E4589119A8A7592463F3 /* KeychainServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39691948860FB314644562B2 /* KeychainServiceTests.swift */; };
 		C855B6A66319B86C87894CC2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C41E3CD0CFE2517D9AF42449 /* Assets.xcassets */; };
 		C9A167969420B17A7108717C /* WidgetUsageBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C5B40C0DC0E06A352FA5762 /* WidgetUsageBar.swift */; };
+		CA1234567890ABCD12345678 /* WidgetErrorIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1234567890ABCD12345678 /* WidgetErrorIndicator.swift */; };
 		CE1EEC1DB4CE4676F6AA61C4 /* ClaudeUsageWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 263B79D4150B25A657B1848E /* ClaudeUsageWidgetBundle.swift */; };
 		CFB75FEBC188DD95BD057C15 /* TokenStatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33EA624DE227AF13301E9A /* TokenStatsView.swift */; };
 		D135B9C3E583F495E5E5A6FB /* SharedContainerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11D7791C1839BE5B42B9E9BD /* SharedContainerService.swift */; };
@@ -134,6 +135,7 @@
 		E7461ED52B3E3AAD8992BF27 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E8C0D48CD788BE7D24F29D44 /* StatsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsService.swift; sourceTree = "<group>"; };
 		EB767F230ACE496D02D795E5 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
+		DA1234567890ABCD12345678 /* WidgetErrorIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetErrorIndicator.swift; sourceTree = "<group>"; };
 		EC15B3C4ED58C0707C816EB5 /* LargeWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeWidgetView.swift; sourceTree = "<group>"; };
 		EE99DFEEC1A2A33E2BE1503D /* UsageTimelineEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageTimelineEntry.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -211,6 +213,7 @@
 				AF83602C29A026F9C7C1A8AA /* MediumWidgetView.swift */,
 				ACEF9840E1B7543897FEC19F /* PlaceholderView.swift */,
 				0832319B01CA125D40343235 /* SmallWidgetView.swift */,
+				DA1234567890ABCD12345678 /* WidgetErrorIndicator.swift */,
 				7C5B40C0DC0E06A352FA5762 /* WidgetUsageBar.swift */,
 			);
 			path = Views;
@@ -465,6 +468,7 @@
 				93A918147C89BAB592F93597 /* UsageSnapshot.swift in Sources */,
 				EB5866E7363FE62ADF14DE60 /* UsageTimelineEntry.swift in Sources */,
 				EAA09417A423EB4E78A720E1 /* UsageTimelineProvider.swift in Sources */,
+				CA1234567890ABCD12345678 /* WidgetErrorIndicator.swift in Sources */,
 				C9A167969420B17A7108717C /* WidgetUsageBar.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

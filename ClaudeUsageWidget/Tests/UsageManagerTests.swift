@@ -208,11 +208,11 @@ final class UsageManagerTests: XCTestCase {
         await manager.refresh()
         XCTAssertEqual(manager.iconTier, .high)
 
-        // Now error
+        // Now error — but cached data is preserved, so iconTier stays based on cached usage
         mockAPI.responseToReturn = nil
         mockAPI.errorToThrow = APIError.serverError(500)
         await manager.refresh()
-        XCTAssertEqual(manager.iconTier, .idle)
+        XCTAssertEqual(manager.iconTier, .high, "iconTier should reflect cached data, not reset to idle on error")
     }
 
     @MainActor
@@ -228,5 +228,238 @@ final class UsageManagerTests: XCTestCase {
         await manager.refresh()
 
         XCTAssertEqual(manager.iconTier, .critical)
+    }
+
+    // MARK: - Error-resilient caching
+
+    @MainActor
+    func testAPIErrorPreservesCachedData() async {
+        // First: successful fetch
+        mockKeychain.tokenToReturn = "test-token"
+        mockAPI.responseToReturn = UsageApiResponse(
+            fiveHour: UsageWindow(utilization: 45.0, resetsAt: "2026-03-21T18:00:00Z"),
+            sevenDay: UsageWindow(utilization: 30.0, resetsAt: "2026-03-22T18:00:00Z"),
+            sevenDaySonnet: nil, sevenDayOpus: nil
+        )
+        await manager.refresh()
+        XCTAssertEqual(manager.snapshot?.fiveHour?.percent, 45.0)
+
+        // Second: API error
+        mockAPI.responseToReturn = nil
+        mockAPI.errorToThrow = APIError.serverError(500)
+        await manager.refresh()
+
+        // Usage data should be preserved from the first fetch
+        XCTAssertEqual(manager.snapshot?.fiveHour?.percent, 45.0)
+        XCTAssertEqual(manager.snapshot?.sevenDay?.percent, 30.0)
+        XCTAssertNotNil(manager.snapshot?.error)
+        XCTAssertTrue(manager.snapshot!.error!.contains("500"))
+    }
+
+    @MainActor
+    func testAPIErrorWithNoPriorDataShowsErrorOnly() async {
+        // First-ever fetch fails — no cached data
+        mockKeychain.tokenToReturn = "test-token"
+        mockAPI.errorToThrow = APIError.networkError("timeout")
+
+        await manager.refresh()
+
+        XCTAssertNil(manager.snapshot?.fiveHour)
+        XCTAssertNil(manager.snapshot?.sevenDay)
+        XCTAssertNotNil(manager.snapshot?.error)
+        XCTAssertEqual(mockReloader.reloadCount, 0, "Widget should NOT be reloaded when there is no cached data")
+    }
+
+    @MainActor
+    func testLastSuccessfulUpdateCarriesForwardOnError() async {
+        mockKeychain.tokenToReturn = "test-token"
+        mockAPI.responseToReturn = UsageApiResponse(
+            fiveHour: UsageWindow(utilization: 10.0, resetsAt: "2026-03-21T18:00:00Z"),
+            sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil
+        )
+        let beforeSuccess = Date()
+        await manager.refresh()
+        let successTime = manager.snapshot?.lastSuccessfulUpdate
+
+        XCTAssertNotNil(successTime)
+        XCTAssertGreaterThanOrEqual(successTime!, beforeSuccess)
+
+        // Now error
+        mockAPI.responseToReturn = nil
+        mockAPI.errorToThrow = APIError.serverError(500)
+        await manager.refresh()
+
+        XCTAssertEqual(manager.snapshot?.lastSuccessfulUpdate, successTime,
+                       "lastSuccessfulUpdate should carry forward from the last success")
+    }
+
+    @MainActor
+    func testSuccessClearsError() async {
+        mockKeychain.tokenToReturn = "test-token"
+
+        // First: error
+        mockAPI.errorToThrow = APIError.serverError(500)
+        await manager.refresh()
+        XCTAssertNotNil(manager.snapshot?.error)
+
+        // Second: success
+        mockAPI.errorToThrow = nil
+        mockAPI.responseToReturn = UsageApiResponse(
+            fiveHour: UsageWindow(utilization: 20.0, resetsAt: "2026-03-21T18:00:00Z"),
+            sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil
+        )
+        await manager.refresh()
+
+        XCTAssertNil(manager.snapshot?.error)
+        XCTAssertNotNil(manager.snapshot?.lastSuccessfulUpdate)
+        XCTAssertEqual(manager.snapshot?.fiveHour?.percent, 20.0)
+    }
+
+    @MainActor
+    func testContainerWrittenOnErrorWithCachedData() async {
+        mockKeychain.tokenToReturn = "test-token"
+        mockAPI.responseToReturn = UsageApiResponse(
+            fiveHour: UsageWindow(utilization: 45.0, resetsAt: "2026-03-21T18:00:00Z"),
+            sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil
+        )
+        await manager.refresh()
+        mockContainer.storedSnapshot = nil // Clear to detect new write
+
+        mockAPI.responseToReturn = nil
+        mockAPI.errorToThrow = APIError.serverError(500)
+        await manager.refresh()
+
+        XCTAssertNotNil(mockContainer.storedSnapshot, "Container should be written on error when cached data exists")
+        XCTAssertEqual(mockContainer.storedSnapshot?.fiveHour?.percent, 45.0)
+        XCTAssertNotNil(mockContainer.storedSnapshot?.error)
+    }
+
+    @MainActor
+    func testWidgetReloadOnErrorWithCachedData() async {
+        mockKeychain.tokenToReturn = "test-token"
+        mockAPI.responseToReturn = UsageApiResponse(
+            fiveHour: UsageWindow(utilization: 45.0, resetsAt: "2026-03-21T18:00:00Z"),
+            sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil
+        )
+        await manager.refresh()
+        let reloadCountAfterSuccess = mockReloader.reloadCount
+
+        mockAPI.responseToReturn = nil
+        mockAPI.errorToThrow = APIError.serverError(500)
+        await manager.refresh()
+
+        XCTAssertEqual(mockReloader.reloadCount, reloadCountAfterSuccess + 1,
+                       "Widget should be reloaded on error when there is cached data")
+    }
+
+    @MainActor
+    func testAppRestartWithContainerDataAndAPIFailure() async {
+        // Simulate: container has data from previous session, in-memory snapshot is nil
+        let cachedSnapshot = UsageSnapshot(
+            fiveHour: UsageMetric(percent: 60.0, resetsAt: Date()),
+            sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
+            tokenStats: TokenStats(todayTokens: 3000, weekTokens: 15000, todayMessages: 5, weekMessages: 20),
+            lastUpdated: Date().addingTimeInterval(-600),
+            lastSuccessfulUpdate: Date().addingTimeInterval(-600),
+            error: nil
+        )
+        mockContainer.storedSnapshot = cachedSnapshot
+
+        mockKeychain.tokenToReturn = "test-token"
+        mockAPI.errorToThrow = APIError.networkError("no internet")
+
+        await manager.refresh()
+
+        XCTAssertEqual(manager.snapshot?.fiveHour?.percent, 60.0, "Should use container data")
+        XCTAssertNotNil(manager.snapshot?.error)
+    }
+
+    @MainActor
+    func testTokenErrorPreservesCachedData() async {
+        // First: successful fetch
+        mockKeychain.tokenToReturn = "test-token"
+        mockAPI.responseToReturn = UsageApiResponse(
+            fiveHour: UsageWindow(utilization: 75.0, resetsAt: "2026-03-21T18:00:00Z"),
+            sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil
+        )
+        await manager.refresh()
+        XCTAssertEqual(manager.snapshot?.fiveHour?.percent, 75.0)
+
+        // Trigger 401 to clear cachedToken, then set keychain to fail
+        mockAPI.responseToReturn = nil
+        mockAPI.errorToThrow = APIError.unauthorized
+        await manager.refresh()
+        // cachedToken is now cleared due to 401
+
+        // Now set keychain to throw on next read
+        mockKeychain.errorToThrow = KeychainError.notFound
+        mockAPI.errorToThrow = nil
+        await manager.refresh()
+
+        XCTAssertEqual(manager.snapshot?.fiveHour?.percent, 75.0, "Token error should preserve cached usage data")
+        XCTAssertNotNil(manager.snapshot?.error)
+        XCTAssertTrue(manager.snapshot!.error!.contains("credentials") || manager.snapshot!.error!.contains("sign in"),
+                      "Error should be from keychain, not API")
+    }
+
+    @MainActor
+    func testContainerWriteFailureOnErrorPathStillSetsSnapshot() async {
+        // First: successful fetch
+        mockKeychain.tokenToReturn = "test-token"
+        mockAPI.responseToReturn = UsageApiResponse(
+            fiveHour: UsageWindow(utilization: 40.0, resetsAt: "2026-03-21T18:00:00Z"),
+            sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil
+        )
+        await manager.refresh()
+
+        // Set up: container write will fail, API will error
+        mockContainer.writeError = NSError(domain: "test", code: 1)
+        mockAPI.responseToReturn = nil
+        mockAPI.errorToThrow = APIError.serverError(500)
+        await manager.refresh()
+
+        // Snapshot should still be set with cached data + error despite write failure
+        XCTAssertEqual(manager.snapshot?.fiveHour?.percent, 40.0)
+        XCTAssertNotNil(manager.snapshot?.error)
+    }
+
+    @MainActor
+    func testTokenErrorWithContainerFallback() async {
+        // Simulate cold start: no in-memory snapshot, container has data
+        let cachedSnapshot = UsageSnapshot(
+            fiveHour: UsageMetric(percent: 55.0, resetsAt: Date()),
+            sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
+            tokenStats: TokenStats(todayTokens: 1000, weekTokens: 5000, todayMessages: 5, weekMessages: 20),
+            lastUpdated: Date().addingTimeInterval(-600),
+            lastSuccessfulUpdate: Date().addingTimeInterval(-600),
+            error: nil
+        )
+        mockContainer.storedSnapshot = cachedSnapshot
+        mockKeychain.errorToThrow = KeychainError.notFound
+
+        await manager.refresh()
+
+        XCTAssertEqual(manager.snapshot?.fiveHour?.percent, 55.0, "Should use container data on token error")
+        XCTAssertNotNil(manager.snapshot?.error)
+    }
+
+    @MainActor
+    func testFreshTokenStatsUsedOnError() async {
+        mockKeychain.tokenToReturn = "test-token"
+        mockStats.statsToReturn = TokenStats(todayTokens: 1000, weekTokens: 5000, todayMessages: 5, weekMessages: 20)
+        mockAPI.responseToReturn = UsageApiResponse(
+            fiveHour: UsageWindow(utilization: 50.0, resetsAt: "2026-03-21T18:00:00Z"),
+            sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil
+        )
+        await manager.refresh()
+
+        // Update stats, then error
+        mockStats.statsToReturn = TokenStats(todayTokens: 2000, weekTokens: 10000, todayMessages: 8, weekMessages: 30)
+        mockAPI.responseToReturn = nil
+        mockAPI.errorToThrow = APIError.serverError(500)
+        await manager.refresh()
+
+        XCTAssertEqual(manager.snapshot?.tokenStats.todayTokens, 2000, "Should use fresh stats from statsService")
+        XCTAssertEqual(manager.snapshot?.fiveHour?.percent, 50.0, "Usage data should be preserved")
     }
 }

@@ -76,12 +76,7 @@ final class UsageManager: ObservableObject {
         } catch {
             let msg = describeError(error)
             debug.log("Token error: \(msg)", source: "App")
-            snapshot = UsageSnapshot(
-                fiveHour: nil, sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
-                tokenStats: stats,
-                lastUpdated: Date(),
-                error: msg
-            )
+            handleError(msg, stats: stats, source: "token")
             return
         }
 
@@ -105,10 +100,25 @@ final class UsageManager: ObservableObject {
 
             let msg = describeError(error)
             debug.log("API error: \(msg)", source: "App")
+            handleError(msg, stats: stats, source: "API")
+        }
+    }
+
+    private func handleError(_ msg: String, stats: TokenStats, source: String) {
+        let debug = DebugLogger.shared
+        let existing = snapshot ?? containerService.readSnapshot()
+        if let existing, existing.hasUsageData {
+            snapshot = existing.withError(msg, tokenStats: stats)
+            do { try containerService.writeSnapshot(snapshot!) } catch {
+                debug.log("WRITE FAILED on \(source) error: \(error)", source: "App")
+            }
+            widgetReloader()
+        } else {
             snapshot = UsageSnapshot(
                 fiveHour: nil, sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
                 tokenStats: stats,
                 lastUpdated: Date(),
+                lastSuccessfulUpdate: nil,
                 error: msg
             )
         }

@@ -84,4 +84,20 @@ final class APIModelsTests: XCTestCase {
         XCTAssertNil(snapshot.sevenDaySonnet)
         XCTAssertNil(snapshot.error)
     }
+
+    func testToSnapshotSetsLastSuccessfulUpdate() {
+        let response = UsageApiResponse(
+            fiveHour: UsageWindow(utilization: 45.0, resetsAt: "2026-03-21T18:00:00Z"),
+            sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil
+        )
+        let stats = TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0)
+        let beforeCall = Date()
+        let snapshot = response.toSnapshot(tokenStats: stats)
+        let afterCall = Date()
+
+        XCTAssertNotNil(snapshot.lastSuccessfulUpdate)
+        XCTAssertGreaterThanOrEqual(snapshot.lastSuccessfulUpdate!, beforeCall)
+        XCTAssertLessThanOrEqual(snapshot.lastSuccessfulUpdate!, afterCall)
+        XCTAssertNil(snapshot.error)
+    }
 }

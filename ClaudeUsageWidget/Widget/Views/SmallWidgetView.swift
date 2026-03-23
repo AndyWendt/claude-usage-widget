@@ -19,7 +19,9 @@ struct SmallWidgetView: View {
 
             Spacer()
 
-            if snapshot.isStale {
+            if snapshot.error != nil {
+                WidgetErrorIndicator(snapshot: snapshot)
+            } else if snapshot.isStale {
                 staleIndicator
             }
         }

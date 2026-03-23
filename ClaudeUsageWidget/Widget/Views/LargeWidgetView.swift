@@ -44,7 +44,9 @@ struct LargeWidgetView: View {
 
             Spacer()
 
-            if snapshot.isStale {
+            if snapshot.error != nil {
+                WidgetErrorIndicator(snapshot: snapshot)
+            } else if snapshot.isStale {
                 HStack(spacing: 2) {
                     Image(systemName: "clock")
                         .font(.system(size: 8))
@@ -56,4 +58,5 @@ struct LargeWidgetView: View {
         }
         .padding(14)
     }
+
 }

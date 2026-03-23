@@ -21,6 +21,7 @@ struct UsageApiResponse: Codable {
             sevenDayOpus: sevenDayOpus.map { UsageMetric(percent: $0.utilization, resetsAt: parseDate($0.resetsAt)) },
             tokenStats: tokenStats,
             lastUpdated: Date(),
+            lastSuccessfulUpdate: Date(),
             error: nil
         )
     }

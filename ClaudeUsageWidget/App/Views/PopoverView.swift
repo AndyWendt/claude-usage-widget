@@ -95,6 +95,15 @@ struct PopoverView: View {
 
                 if let error = snapshot.error {
                     errorBanner(error)
+                    if let lastSuccess = snapshot.lastSuccessfulUpdate {
+                        HStack(spacing: 4) {
+                            Image(systemName: "clock")
+                                .font(.system(size: 9))
+                            Text(lastSuccess, style: .relative)
+                                .font(.system(size: 9))
+                        }
+                        .foregroundStyle(AnthropicColors.creamMuted)
+                    }
                 }
             }
             .padding(.horizontal, 14)

@@ -21,6 +21,7 @@ final class SharedContainerServiceTests: XCTestCase {
             sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
             tokenStats: TokenStats(todayTokens: 5000, weekTokens: 25000, todayMessages: 10, weekMessages: 50),
             lastUpdated: Date(timeIntervalSince1970: 1711000000),
+            lastSuccessfulUpdate: nil,
             error: nil
         )
 
@@ -42,6 +43,7 @@ final class SharedContainerServiceTests: XCTestCase {
             sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
             tokenStats: TokenStats(todayTokens: 100, weekTokens: 500, todayMessages: 1, weekMessages: 5),
             lastUpdated: Date(timeIntervalSince1970: 1711000000),
+            lastSuccessfulUpdate: nil,
             error: nil
         )
         try service.writeSnapshot(first)
@@ -51,6 +53,7 @@ final class SharedContainerServiceTests: XCTestCase {
             sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
             tokenStats: TokenStats(todayTokens: 9000, weekTokens: 50000, todayMessages: 100, weekMessages: 500),
             lastUpdated: Date(timeIntervalSince1970: 1711000000),
+            lastSuccessfulUpdate: nil,
             error: nil
         )
         try service.writeSnapshot(second)

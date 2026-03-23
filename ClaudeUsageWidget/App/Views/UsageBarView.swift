@@ -41,12 +41,11 @@ struct UsageBarView: View {
                         if let pace = paceInfo {
                             let fillPercent = metric.clampedPercent
                             let projPercent = pace.clampedProjectedPercent
-                            var markerX = geo.size.width * projPercent / 100
-                            if abs(projPercent - fillPercent) < 3 {
-                                let direction: CGFloat = projPercent > fillPercent ? 1 : -1
-                                markerX += direction * 4
-                            }
-                            markerX = max(0, min(markerX, geo.size.width))
+                            let baseX = geo.size.width * projPercent / 100
+                            let nudge: CGFloat = abs(projPercent - fillPercent) < 3
+                                ? (projPercent > fillPercent ? 4 : -4)
+                                : 0
+                            let markerX = max(0, min(baseX + nudge, geo.size.width))
                             RoundedRectangle(cornerRadius: 1)
                                 .fill(AnthropicColors.paceColor(for: pace.status))
                                 .opacity(0.7)

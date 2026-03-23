@@ -55,19 +55,19 @@ struct SettingsView: View {
                 Text("Pace indicator:")
                     .font(.system(size: 11))
                     .foregroundStyle(AnthropicColors.creamMuted)
-                Toggle("5-Hour Window", isOn: paceBinding(for: "fiveHour"))
+                Toggle("5-Hour Window", isOn: paceBinding(for: .fiveHour))
                     .font(.system(size: 11))
                     .toggleStyle(.switch)
                     .controlSize(.mini)
-                Toggle("Weekly (All)", isOn: paceBinding(for: "sevenDay"))
+                Toggle("Weekly (All)", isOn: paceBinding(for: .sevenDay))
                     .font(.system(size: 11))
                     .toggleStyle(.switch)
                     .controlSize(.mini)
-                Toggle("Weekly (Sonnet)", isOn: paceBinding(for: "sevenDaySonnet"))
+                Toggle("Weekly (Sonnet)", isOn: paceBinding(for: .sevenDaySonnet))
                     .font(.system(size: 11))
                     .toggleStyle(.switch)
                     .controlSize(.mini)
-                Toggle("Weekly (Opus)", isOn: paceBinding(for: "sevenDayOpus"))
+                Toggle("Weekly (Opus)", isOn: paceBinding(for: .sevenDayOpus))
                     .font(.system(size: 11))
                     .toggleStyle(.switch)
                     .controlSize(.mini)
@@ -88,7 +88,7 @@ struct SettingsView: View {
         }
     }
 
-    private func paceBinding(for metric: String) -> Binding<Bool> {
+    private func paceBinding(for metric: MetricKey) -> Binding<Bool> {
         Binding(
             get: { manager.paceSettings.enabledMetrics.contains(metric) },
             set: { enabled in

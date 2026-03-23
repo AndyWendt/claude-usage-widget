@@ -5,7 +5,6 @@ struct UsageBarView: View {
     let metric: UsageMetric?
     var isOpus: Bool = false
     var paceInfo: PaceInfo? = nil
-    var showPace: Bool = true
 
     var body: some View {
         if let metric {
@@ -39,25 +38,32 @@ struct UsageBarView: View {
                                 }
                             }
 
-                        if showPace, let pace = paceInfo {
-                            let clampedPosition = min(max(pace.projectedPercent, 0), 100)
+                        if let pace = paceInfo {
+                            let fillPercent = metric.clampedPercent
+                            let projPercent = pace.clampedProjectedPercent
+                            var markerX = geo.size.width * projPercent / 100
+                            if abs(projPercent - fillPercent) < 3 {
+                                let direction: CGFloat = projPercent > fillPercent ? 1 : -1
+                                markerX += direction * 4
+                            }
+                            markerX = max(0, min(markerX, geo.size.width))
                             RoundedRectangle(cornerRadius: 1)
-                                .fill(paceColor(for: pace.status))
+                                .fill(AnthropicColors.paceColor(for: pace.status))
                                 .opacity(0.7)
                                 .frame(width: 2, height: 14)
-                                .offset(x: geo.size.width * clampedPosition / 100 - 1, y: -3)
+                                .offset(x: markerX - 1, y: -3)
                         }
                     }
                 }
                 .frame(height: 8)
 
-                if showPace, let pace = paceInfo {
+                if let pace = paceInfo {
                     HStack {
                         ResetTimerView(resetsAt: metric.resetsAt)
                         Spacer()
                         Text(pace.projectedPercent > 100 ? "→ 100%+" : "→ \(Int(min(pace.projectedPercent, 100)))%")
                             .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                            .foregroundStyle(paceColor(for: pace.status))
+                            .foregroundStyle(AnthropicColors.paceColor(for: pace.status))
                     }
                 } else {
                     ResetTimerView(resetsAt: metric.resetsAt)
@@ -80,11 +86,4 @@ struct UsageBarView: View {
         }
     }
 
-    private func paceColor(for status: PaceStatus) -> Color {
-        switch status {
-        case .under: return AnthropicColors.paceGreen
-        case .on: return AnthropicColors.paceYellow
-        case .over: return AnthropicColors.coral
-        }
-    }
 }

@@ -89,27 +89,31 @@ struct PopoverView: View {
                 UsageBarView(
                     label: "5-Hour Window",
                     metric: snapshot.fiveHour,
-                    paceInfo: snapshot.fiveHour.flatMap { computePace(metric: $0, windowDuration: 5 * 3600) },
-                    showPace: paceSettings.enabledMetrics.contains("fiveHour")
+                    paceInfo: paceSettings.enabledMetrics.contains(.fiveHour)
+                        ? snapshot.fiveHour.flatMap { computePace(metric: $0, windowDuration: MetricKey.fiveHour.windowDuration) }
+                        : nil
                 )
                 UsageBarView(
                     label: "Weekly (All Models)",
                     metric: snapshot.sevenDay,
-                    paceInfo: snapshot.sevenDay.flatMap { computePace(metric: $0, windowDuration: 7 * 24 * 3600) },
-                    showPace: paceSettings.enabledMetrics.contains("sevenDay")
+                    paceInfo: paceSettings.enabledMetrics.contains(.sevenDay)
+                        ? snapshot.sevenDay.flatMap { computePace(metric: $0, windowDuration: MetricKey.sevenDay.windowDuration) }
+                        : nil
                 )
                 UsageBarView(
                     label: "Weekly (Sonnet)",
                     metric: snapshot.sevenDaySonnet,
-                    paceInfo: snapshot.sevenDaySonnet.flatMap { computePace(metric: $0, windowDuration: 7 * 24 * 3600) },
-                    showPace: paceSettings.enabledMetrics.contains("sevenDaySonnet")
+                    paceInfo: paceSettings.enabledMetrics.contains(.sevenDaySonnet)
+                        ? snapshot.sevenDaySonnet.flatMap { computePace(metric: $0, windowDuration: MetricKey.sevenDaySonnet.windowDuration) }
+                        : nil
                 )
                 UsageBarView(
                     label: "Weekly (Opus)",
                     metric: snapshot.sevenDayOpus,
                     isOpus: true,
-                    paceInfo: snapshot.sevenDayOpus.flatMap { computePace(metric: $0, windowDuration: 7 * 24 * 3600) },
-                    showPace: paceSettings.enabledMetrics.contains("sevenDayOpus")
+                    paceInfo: paceSettings.enabledMetrics.contains(.sevenDayOpus)
+                        ? snapshot.sevenDayOpus.flatMap { computePace(metric: $0, windowDuration: MetricKey.sevenDayOpus.windowDuration) }
+                        : nil
                 )
 
                 divider

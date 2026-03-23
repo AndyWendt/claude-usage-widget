@@ -3,7 +3,16 @@ import WidgetKit
 
 @MainActor
 final class UsageManager: ObservableObject {
-    @Published var snapshot: UsageSnapshot?
+    @Published var snapshot: UsageSnapshot? {
+        didSet {
+            if let percent = snapshot?.maxUsagePercent {
+                iconTier = MenuBarIconTier.from(percent: percent)
+            } else {
+                iconTier = .idle
+            }
+        }
+    }
+    @Published var iconTier: MenuBarIconTier = .idle
     @Published var isLoading = false
 
     private let keychainService: KeychainServiceProtocol

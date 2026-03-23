@@ -13,8 +13,10 @@
 		14551B3536C5A1E7063D80C4 /* stats-cache.json in Resources */ = {isa = PBXBuildFile; fileRef = 108647D905683B425F33DC3B /* stats-cache.json */; };
 		18EB25E7494EC85E3788006C /* MediumWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF83602C29A026F9C7C1A8AA /* MediumWidgetView.swift */; };
 		1B4549DCF73A428AB9D30F3E /* ClaudeUsageWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B71813093F86943308852F96 /* ClaudeUsageWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		32525ABE4305ABB606140C52 /* MenuBarIconTierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A28A3A0D112B5DAA8B30EBC /* MenuBarIconTierTests.swift */; };
 		3B0E4C5AE538DC2507D948BD /* UsageBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1991566E5B49B2729762AFF /* UsageBarView.swift */; };
 		3ED7B6DE237CCEC7F15CB38C /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = D805DBCCBAC05A829DD71372 /* ServiceProtocols.swift */; };
+		3F13DEF718FF2725FBBAEA50 /* MenuBarIconTier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A16315EAB299ECFC93E576 /* MenuBarIconTier.swift */; };
 		40F7158B748B08521C9445EC /* UsageSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46952864015DEF0688EFD641 /* UsageSnapshotTests.swift */; };
 		41C78217B88D0B91538CB7A7 /* AnthropicColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 819C2C0936EEE40BAB0A6A72 /* AnthropicColors.swift */; };
 		45E6EEA4655BCCF690BD7CDE /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFABD321FC73997C1E96703 /* SettingsView.swift */; };
@@ -32,6 +34,7 @@
 		8D004F47087E89B28EAF1C4C /* StatsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8C0D48CD788BE7D24F29D44 /* StatsService.swift */; };
 		8ECE25E9C0A9951418F4F216 /* DebugLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C6D63E07C580F7CA5E7A3C9 /* DebugLogger.swift */; };
 		93A918147C89BAB592F93597 /* UsageSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239C231DD3A14A125EEC343 /* UsageSnapshot.swift */; };
+		98E613315A875F7C25F3C1EE /* MenuBarIconTier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A16315EAB299ECFC93E576 /* MenuBarIconTier.swift */; };
 		991365EB8D9B099E75247731 /* ResetTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F0B21FA1E73B52BCD7AE3B /* ResetTimerView.swift */; };
 		9F0774D6EF5554D446688FD5 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BEAFF9D1BF1D16D051E2CD8 /* KeychainService.swift */; };
 		A155DE7CA56979A05382E762 /* UsageManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A886BBB5B3CC85D6BB4645CF /* UsageManagerTests.swift */; };
@@ -90,6 +93,8 @@
 
 /* Begin PBXFileReference section */
 		0832319B01CA125D40343235 /* SmallWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallWidgetView.swift; sourceTree = "<group>"; };
+		09A16315EAB299ECFC93E576 /* MenuBarIconTier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarIconTier.swift; sourceTree = "<group>"; };
+		0A28A3A0D112B5DAA8B30EBC /* MenuBarIconTierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarIconTierTests.swift; sourceTree = "<group>"; };
 		0C0DC54E79339225480FF687 /* ClaudeUsageWidgetApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeUsageWidgetApp.swift; sourceTree = "<group>"; };
 		108647D905683B425F33DC3B /* stats-cache.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "stats-cache.json"; sourceTree = "<group>"; };
 		11D7791C1839BE5B42B9E9BD /* SharedContainerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedContainerService.swift; sourceTree = "<group>"; };
@@ -112,7 +117,7 @@
 		916CE4B0DBC547FEA56FEC7F /* APIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIModels.swift; sourceTree = "<group>"; };
 		95E8267EA642B1F0C7330D95 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		9C01A8427B69F1450A624566 /* UsageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageManager.swift; sourceTree = "<group>"; };
-		9E01D3701A2C82768E4A7BDD /* Claude Usage Widget.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Claude Usage Widget.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9E01D3701A2C82768E4A7BDD /* ClaudeUsageWidget.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClaudeUsageWidget.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1E8C679942B065488A6D30B /* APIServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIServiceTests.swift; sourceTree = "<group>"; };
 		A5F0B21FA1E73B52BCD7AE3B /* ResetTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetTimerView.swift; sourceTree = "<group>"; };
 		A689E324C8FB1D63AF114D18 /* ClaudeUsageWidgetTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClaudeUsageWidgetTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -167,6 +172,7 @@
 				32DA4A5DA2D7F5F5F1EB55C7 /* APIModelsTests.swift */,
 				A1E8C679942B065488A6D30B /* APIServiceTests.swift */,
 				39691948860FB314644562B2 /* KeychainServiceTests.swift */,
+				0A28A3A0D112B5DAA8B30EBC /* MenuBarIconTierTests.swift */,
 				B36F7104D027BDD059D586CE /* Mocks.swift */,
 				D3DCB71A17E06BF23F28D7AB /* SharedContainerServiceTests.swift */,
 				895805F81F51FE14695C35C7 /* StatsServiceTests.swift */,
@@ -182,6 +188,7 @@
 			isa = PBXGroup;
 			children = (
 				819C2C0936EEE40BAB0A6A72 /* AnthropicColors.swift */,
+				09A16315EAB299ECFC93E576 /* MenuBarIconTier.swift */,
 			);
 			path = Theme;
 			sourceTree = "<group>";
@@ -267,7 +274,7 @@
 		FA0BB028800489CAF53C9983 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9E01D3701A2C82768E4A7BDD /* Claude Usage Widget.app */,
+				9E01D3701A2C82768E4A7BDD /* ClaudeUsageWidget.app */,
 				B71813093F86943308852F96 /* ClaudeUsageWidgetExtension.appex */,
 				A689E324C8FB1D63AF114D18 /* ClaudeUsageWidgetTests.xctest */,
 			);
@@ -294,7 +301,7 @@
 			packageProductDependencies = (
 			);
 			productName = ClaudeUsageWidget;
-			productReference = 9E01D3701A2C82768E4A7BDD /* Claude Usage Widget.app */;
+			productReference = 9E01D3701A2C82768E4A7BDD /* ClaudeUsageWidget.app */;
 			productType = "com.apple.product-type.application";
 		};
 		8800B081469EBCD359EAF9E8 /* ClaudeUsageWidgetExtension */ = {
@@ -342,6 +349,14 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 2630;
 				TargetAttributes = {
+					5EFC43076EF4702168F3AF84 = {
+						DevelopmentTeam = KWBZ4HM9UX;
+						ProvisioningStyle = Automatic;
+					};
+					8800B081469EBCD359EAF9E8 = {
+						DevelopmentTeam = KWBZ4HM9UX;
+						ProvisioningStyle = Automatic;
+					};
 					A18637C8A420F00281D837F7 = {
 						DevelopmentTeam = KWBZ4HM9UX;
 						ProvisioningStyle = Automatic;
@@ -399,6 +414,7 @@
 				7FDE9E2294F81903B849BE5B /* ClaudeUsageWidgetApp.swift in Sources */,
 				B86093B68A5434C564046E62 /* DebugLogger.swift in Sources */,
 				9F0774D6EF5554D446688FD5 /* KeychainService.swift in Sources */,
+				98E613315A875F7C25F3C1EE /* MenuBarIconTier.swift in Sources */,
 				BCA6AB50558D69435D744871 /* PopoverView.swift in Sources */,
 				991365EB8D9B099E75247731 /* ResetTimerView.swift in Sources */,
 				80E8B06ADD163A079B97BB90 /* ServiceProtocols.swift in Sources */,
@@ -420,6 +436,7 @@
 				5D0F8974DE3B9D83417A133A /* APIModelsTests.swift in Sources */,
 				0C3F566A9F45026665D20418 /* APIServiceTests.swift in Sources */,
 				C361E4589119A8A7592463F3 /* KeychainServiceTests.swift in Sources */,
+				32525ABE4305ABB606140C52 /* MenuBarIconTierTests.swift in Sources */,
 				D33E2FFE75776747532316E5 /* Mocks.swift in Sources */,
 				DA96F5237C3E1AF62F71348B /* SharedContainerServiceTests.swift in Sources */,
 				7C7AB18DBEB5F7759DD68DBF /* StatsServiceTests.swift in Sources */,
@@ -442,6 +459,7 @@
 				0654965772D8E01ED04C5BF9 /* KeychainService.swift in Sources */,
 				DDA24C561FA8281CA0B1F5F8 /* LargeWidgetView.swift in Sources */,
 				18EB25E7494EC85E3788006C /* MediumWidgetView.swift in Sources */,
+				3F13DEF718FF2725FBBAEA50 /* MenuBarIconTier.swift in Sources */,
 				B6D1129F8977BBF7BFFE57C5 /* PlaceholderView.swift in Sources */,
 				3ED7B6DE237CCEC7F15CB38C /* ServiceProtocols.swift in Sources */,
 				D135B9C3E583F495E5E5A6FB /* SharedContainerService.swift in Sources */,
@@ -475,19 +493,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Widget/Widget.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = KWBZ4HM9UX;
 				INFOPLIST_FILE = Widget/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@executable_path/../../../../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.andywendt.claude-usage-widget.widget";
 				PRODUCT_NAME = ClaudeUsageWidgetExtension;
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -591,10 +601,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = KWBZ4HM9UX;
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -603,7 +610,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.andywendt.claude-usage-widget";
 				PRODUCT_MODULE_NAME = ClaudeUsageWidget;
 				PRODUCT_NAME = "Claude Usage Widget";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -612,19 +618,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Widget/Widget.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = KWBZ4HM9UX;
 				INFOPLIST_FILE = Widget/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@executable_path/../../../../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.andywendt.claude-usage-widget.widget";
 				PRODUCT_NAME = ClaudeUsageWidgetExtension;
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -634,10 +632,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = KWBZ4HM9UX;
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -646,7 +641,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.andywendt.claude-usage-widget";
 				PRODUCT_MODULE_NAME = ClaudeUsageWidget;
 				PRODUCT_NAME = "Claude Usage Widget";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 			};
 			name = Release;

@@ -43,6 +43,11 @@ struct UsageSnapshot: Codable, Equatable {
     let lastSuccessfulUpdate: Date?
     let error: String?
 
+    var maxUsagePercent: Double? {
+        let values = [fiveHour?.clampedPercent, sevenDay?.clampedPercent, sevenDayOpus?.clampedPercent].compactMap { $0 }
+        return values.max()
+    }
+
     var isStale: Bool {
         Date().timeIntervalSince(lastUpdated) > 30 * 60
     }

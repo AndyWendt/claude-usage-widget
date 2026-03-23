@@ -48,7 +48,7 @@ struct UsageSnapshot: Codable, Equatable {
     }
 
     var hasUsageData: Bool {
-        fiveHour != nil || sevenDay != nil
+        fiveHour != nil || sevenDay != nil || sevenDaySonnet != nil || sevenDayOpus != nil
     }
 
     func withError(_ message: String, tokenStats: TokenStats? = nil) -> UsageSnapshot {

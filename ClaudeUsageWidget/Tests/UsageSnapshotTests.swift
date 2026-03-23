@@ -163,6 +163,19 @@ final class UsageSnapshotTests: XCTestCase {
         XCTAssertFalse(snapshot.hasUsageData)
     }
 
+    func testHasUsageDataWithSonnetOnly() {
+        let snapshot = UsageSnapshot(
+            fiveHour: nil, sevenDay: nil,
+            sevenDaySonnet: UsageMetric(percent: 20.0, resetsAt: Date()),
+            sevenDayOpus: nil,
+            tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
+            lastUpdated: Date(),
+            lastSuccessfulUpdate: nil,
+            error: nil
+        )
+        XCTAssertTrue(snapshot.hasUsageData)
+    }
+
     func testWithErrorPreservesUsageData() {
         let date = Date(timeIntervalSince1970: 1711000000)
         let snapshot = UsageSnapshot(

@@ -10,6 +10,7 @@ struct UsageTimelineEntry: TimelineEntry {
             fiveHour: nil, sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
             tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
             lastUpdated: Date(),
+            lastSuccessfulUpdate: nil,
             error: "No data available. Open the app to refresh."
         )
 

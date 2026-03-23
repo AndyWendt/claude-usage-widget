@@ -71,6 +71,7 @@ final class UsageManager: ObservableObject {
                 fiveHour: nil, sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
                 tokenStats: stats,
                 lastUpdated: Date(),
+                lastSuccessfulUpdate: nil,
                 error: msg
             )
             return
@@ -100,6 +101,7 @@ final class UsageManager: ObservableObject {
                 fiveHour: nil, sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
                 tokenStats: stats,
                 lastUpdated: Date(),
+                lastSuccessfulUpdate: nil,
                 error: msg
             )
         }

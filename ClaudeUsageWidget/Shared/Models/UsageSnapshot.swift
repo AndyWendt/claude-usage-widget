@@ -40,10 +40,15 @@ struct UsageSnapshot: Codable, Equatable {
     let sevenDayOpus: UsageMetric?
     let tokenStats: TokenStats
     let lastUpdated: Date
+    let lastSuccessfulUpdate: Date?
     let error: String?
 
     var isStale: Bool {
         Date().timeIntervalSince(lastUpdated) > 30 * 60
+    }
+
+    var hasUsageData: Bool {
+        fiveHour != nil || sevenDay != nil
     }
 
     /// Canonical encoder — always uses iso8601 dates for interoperability

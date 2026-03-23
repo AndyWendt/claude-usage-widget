@@ -11,6 +11,7 @@ final class TimelineProviderTests: XCTestCase {
             sevenDayOpus: nil,
             tokenStats: TokenStats(todayTokens: 5000, weekTokens: 25000, todayMessages: 10, weekMessages: 50),
             lastUpdated: Date(),
+            lastSuccessfulUpdate: nil,
             error: nil
         )
 
@@ -41,6 +42,7 @@ final class TimelineProviderTests: XCTestCase {
             fiveHour: nil, sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
             tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
             lastUpdated: Date().addingTimeInterval(-31 * 60),
+            lastSuccessfulUpdate: nil,
             error: nil
         )
         let entry = UsageTimelineEntry(date: Date(), snapshot: staleSnapshot)

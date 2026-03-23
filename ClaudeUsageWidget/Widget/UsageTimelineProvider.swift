@@ -13,6 +13,7 @@ struct UsageTimelineProvider: TimelineProvider {
             sevenDayOpus: UsageMetric(percent: 15.0, resetsAt: Date().addingTimeInterval(86400)),
             tokenStats: TokenStats(todayTokens: 12000, weekTokens: 85000, todayMessages: 25, weekMessages: 150),
             lastUpdated: Date(),
+            lastSuccessfulUpdate: nil,
             error: nil
         ))
     }

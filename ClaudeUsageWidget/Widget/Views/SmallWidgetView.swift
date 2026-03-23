@@ -19,11 +19,26 @@ struct SmallWidgetView: View {
 
             Spacer()
 
-            if snapshot.isStale {
+            if snapshot.error != nil {
+                errorIndicator
+            } else if snapshot.isStale {
                 staleIndicator
             }
         }
         .padding(12)
+    }
+
+    private var errorIndicator: some View {
+        HStack(spacing: 2) {
+            Image(systemName: "exclamationmark.circle.fill")
+                .font(.system(size: 8))
+                .foregroundStyle(AnthropicColors.coral)
+            if let lastSuccess = snapshot.lastSuccessfulUpdate {
+                Text(lastSuccess, style: .relative)
+                    .font(.system(size: 8))
+                    .foregroundStyle(.tertiary)
+            }
+        }
     }
 
     private var staleIndicator: some View {

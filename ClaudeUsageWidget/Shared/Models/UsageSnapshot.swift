@@ -1,5 +1,16 @@
 import Foundation
 
+enum MetricKey: String, Codable, CaseIterable {
+    case fiveHour, sevenDay, sevenDaySonnet, sevenDayOpus
+
+    var windowDuration: TimeInterval {
+        switch self {
+        case .fiveHour: return 5 * 3600
+        case .sevenDay, .sevenDaySonnet, .sevenDayOpus: return 7 * 24 * 3600
+        }
+    }
+}
+
 enum PaceStatus: Equatable {
     case under, on, over
 }
@@ -7,6 +18,7 @@ enum PaceStatus: Equatable {
 struct PaceInfo: Equatable {
     let projectedPercent: Double
     let status: PaceStatus
+    var clampedProjectedPercent: Double { min(max(projectedPercent, 0), 100) }
 }
 
 struct UsageMetric: Codable, Equatable {
@@ -43,19 +55,19 @@ struct TokenStats: Codable, Equatable {
 }
 
 struct PaceSettings: Codable, Equatable {
-    let enabledMetrics: Set<String>
+    let enabledMetrics: Set<MetricKey>
 
-    static let allEnabled = PaceSettings(enabledMetrics: [
-        "fiveHour", "sevenDay", "sevenDaySonnet", "sevenDayOpus"
-    ])
+    static let allEnabled = PaceSettings(enabledMetrics: Set(MetricKey.allCases))
 }
 
 func computePace(metric: UsageMetric, windowDuration: TimeInterval, now: Date = .init()) -> PaceInfo? {
+    guard windowDuration > 0 else { return nil }
+
     let windowStart = metric.resetsAt.addingTimeInterval(-windowDuration)
     let elapsed = now.timeIntervalSince(windowStart)
     let fractionElapsed = elapsed / windowDuration
 
-    guard fractionElapsed >= 0.05, fractionElapsed < 1.0, fractionElapsed > 0.0 else {
+    guard fractionElapsed >= 0.05, fractionElapsed < 1.0 else {
         return nil
     }
 

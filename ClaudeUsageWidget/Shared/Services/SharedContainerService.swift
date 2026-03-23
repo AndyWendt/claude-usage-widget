@@ -98,12 +98,23 @@ final class SharedContainerService: SharedContainerServiceProtocol {
     }
 
     func readPaceSettings() -> PaceSettings {
-        guard let fileURL = paceSettingsFileURL,
-              FileManager.default.fileExists(atPath: fileURL.path),
-              let data = try? Data(contentsOf: fileURL),
-              let settings = try? JSONDecoder().decode(PaceSettings.self, from: data) else {
+        guard let fileURL = paceSettingsFileURL else {
+            containerLog.error("[SharedContainer] readPaceSettings: container URL is nil")
             return .allEnabled
         }
-        return settings
+
+        guard FileManager.default.fileExists(atPath: fileURL.path) else {
+            // First-run: no settings file yet — use defaults
+            return .allEnabled
+        }
+
+        do {
+            let data = try Data(contentsOf: fileURL)
+            let settings = try JSONDecoder().decode(PaceSettings.self, from: data)
+            return settings
+        } catch {
+            containerLog.error("[SharedContainer] readPaceSettings decode error: \(String(reflecting: error), privacy: .public)")
+            return .allEnabled
+        }
     }
 }

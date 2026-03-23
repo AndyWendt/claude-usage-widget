@@ -2,7 +2,7 @@ import SwiftUI
 
 struct LargeWidgetView: View {
     let snapshot: UsageSnapshot
-    let paceSettings: PaceSettings
+    let paceByMetric: [MetricKey: PaceInfo]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -15,9 +15,7 @@ struct LargeWidgetView: View {
                     label: "5-Hour Window",
                     percent: fiveHour.percent,
                     resetsAt: fiveHour.resetsAt,
-                    paceInfo: paceSettings.enabledMetrics.contains(.fiveHour)
-                        ? computePace(metric: fiveHour, windowDuration: MetricKey.fiveHour.windowDuration)
-                        : nil
+                    paceInfo: paceByMetric[.fiveHour]
                 )
             }
             if let sevenDay = snapshot.sevenDay {
@@ -25,9 +23,7 @@ struct LargeWidgetView: View {
                     label: "Weekly (All)",
                     percent: sevenDay.percent,
                     resetsAt: sevenDay.resetsAt,
-                    paceInfo: paceSettings.enabledMetrics.contains(.sevenDay)
-                        ? computePace(metric: sevenDay, windowDuration: MetricKey.sevenDay.windowDuration)
-                        : nil
+                    paceInfo: paceByMetric[.sevenDay]
                 )
             }
             if let sonnet = snapshot.sevenDaySonnet {
@@ -35,9 +31,7 @@ struct LargeWidgetView: View {
                     label: "Weekly (Sonnet)",
                     percent: sonnet.percent,
                     resetsAt: sonnet.resetsAt,
-                    paceInfo: paceSettings.enabledMetrics.contains(.sevenDaySonnet)
-                        ? computePace(metric: sonnet, windowDuration: MetricKey.sevenDaySonnet.windowDuration)
-                        : nil
+                    paceInfo: paceByMetric[.sevenDaySonnet]
                 )
             }
             if let opus = snapshot.sevenDayOpus {
@@ -46,9 +40,7 @@ struct LargeWidgetView: View {
                     percent: opus.percent,
                     resetsAt: opus.resetsAt,
                     isOpus: true,
-                    paceInfo: paceSettings.enabledMetrics.contains(.sevenDayOpus)
-                        ? computePace(metric: opus, windowDuration: MetricKey.sevenDayOpus.windowDuration)
-                        : nil
+                    paceInfo: paceByMetric[.sevenDayOpus]
                 )
             }
 

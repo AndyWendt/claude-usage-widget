@@ -2,7 +2,7 @@ import SwiftUI
 
 struct MediumWidgetView: View {
     let snapshot: UsageSnapshot
-    let paceSettings: PaceSettings
+    let paceByMetric: [MetricKey: PaceInfo]
 
     var body: some View {
         HStack(spacing: 16) {
@@ -16,9 +16,7 @@ struct MediumWidgetView: View {
                         label: "5-Hour",
                         percent: fiveHour.percent,
                         resetsAt: fiveHour.resetsAt,
-                        paceInfo: paceSettings.enabledMetrics.contains(.fiveHour)
-                            ? computePace(metric: fiveHour, windowDuration: MetricKey.fiveHour.windowDuration)
-                            : nil
+                        paceInfo: paceByMetric[.fiveHour]
                     )
                 }
 
@@ -34,9 +32,7 @@ struct MediumWidgetView: View {
                         label: "Weekly",
                         percent: sevenDay.percent,
                         resetsAt: sevenDay.resetsAt,
-                        paceInfo: paceSettings.enabledMetrics.contains(.sevenDay)
-                            ? computePace(metric: sevenDay, windowDuration: MetricKey.sevenDay.windowDuration)
-                            : nil
+                        paceInfo: paceByMetric[.sevenDay]
                     )
                 }
 

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SmallWidgetView: View {
     let snapshot: UsageSnapshot
-    let paceSettings: PaceSettings
+    let paceByMetric: [MetricKey: PaceInfo]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -15,9 +15,7 @@ struct SmallWidgetView: View {
                     label: "5-Hour",
                     percent: fiveHour.percent,
                     resetsAt: fiveHour.resetsAt,
-                    paceInfo: paceSettings.enabledMetrics.contains(.fiveHour)
-                        ? computePace(metric: fiveHour, windowDuration: MetricKey.fiveHour.windowDuration)
-                        : nil
+                    paceInfo: paceByMetric[.fiveHour]
                 )
             } else {
                 Text("No data")

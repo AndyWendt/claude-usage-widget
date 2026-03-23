@@ -3,7 +3,6 @@ node_modules/
 
 # Build outputs
 dist/
-src-tauri/target/
 
 # IDE
 .idea/
@@ -23,10 +22,6 @@ npm-debug.log*
 .env
 .env.local
 .env.*.local
-
-# Tauri
-src-tauri/WixTools/
-src-tauri/Cargo.lock
 
 # Swift Package Manager
 .build/

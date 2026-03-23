@@ -339,6 +339,27 @@ final class UsageManagerTests: XCTestCase {
     }
 
     @MainActor
+    func testContainerWriteFailureOnErrorPathStillSetsSnapshot() async {
+        // First: successful fetch
+        mockKeychain.tokenToReturn = "test-token"
+        mockAPI.responseToReturn = UsageApiResponse(
+            fiveHour: UsageWindow(utilization: 40.0, resetsAt: "2026-03-21T18:00:00Z"),
+            sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil
+        )
+        await manager.refresh()
+
+        // Set up: container write will fail, API will error
+        mockContainer.writeError = NSError(domain: "test", code: 1)
+        mockAPI.responseToReturn = nil
+        mockAPI.errorToThrow = APIError.serverError(500)
+        await manager.refresh()
+
+        // Snapshot should still be set with cached data + error despite write failure
+        XCTAssertEqual(manager.snapshot?.fiveHour?.percent, 40.0)
+        XCTAssertNotNil(manager.snapshot?.error)
+    }
+
+    @MainActor
     func testTokenErrorWithContainerFallback() async {
         // Simulate cold start: no in-memory snapshot, container has data
         let cachedSnapshot = UsageSnapshot(

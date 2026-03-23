@@ -204,6 +204,7 @@ final class UsageManagerTests: XCTestCase {
         XCTAssertNil(manager.snapshot?.fiveHour)
         XCTAssertNil(manager.snapshot?.sevenDay)
         XCTAssertNotNil(manager.snapshot?.error)
+        XCTAssertEqual(mockReloader.reloadCount, 0, "Widget should NOT be reloaded when there is no cached data")
     }
 
     @MainActor

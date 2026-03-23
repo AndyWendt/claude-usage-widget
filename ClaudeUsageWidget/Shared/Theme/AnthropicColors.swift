@@ -27,4 +27,12 @@ enum AnthropicColors {
     static let dangerGradient = LinearGradient(
         colors: [dangerDark, coral], startPoint: .leading, endPoint: .trailing
     )
+
+    static func paceColor(for status: PaceStatus) -> Color {
+        switch status {
+        case .under: return paceGreen
+        case .on: return paceYellow
+        case .over: return coral
+        }
+    }
 }

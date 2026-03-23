@@ -2,19 +2,34 @@ import XCTest
 @testable import ClaudeUsageWidget
 
 final class PaceStatusTests: XCTestCase {
-    func testPaceStatusCases() {
-        let under = PaceStatus.under
-        let on = PaceStatus.on
-        let over = PaceStatus.over
-        XCTAssertNotNil(under)
-        XCTAssertNotNil(on)
-        XCTAssertNotNil(over)
+    func testPaceStatusEquatable() {
+        XCTAssertEqual(PaceStatus.under, PaceStatus.under)
+        XCTAssertEqual(PaceStatus.on, PaceStatus.on)
+        XCTAssertEqual(PaceStatus.over, PaceStatus.over)
+        XCTAssertNotEqual(PaceStatus.under, PaceStatus.on)
+        XCTAssertNotEqual(PaceStatus.on, PaceStatus.over)
+        XCTAssertNotEqual(PaceStatus.under, PaceStatus.over)
     }
 
     func testPaceInfoProperties() {
         let info = PaceInfo(projectedPercent: 75.0, status: .on)
         XCTAssertEqual(info.projectedPercent, 75.0)
         XCTAssertEqual(info.status, .on)
+    }
+
+    func testClampedProjectedPercentNormal() {
+        let info = PaceInfo(projectedPercent: 75.0, status: .on)
+        XCTAssertEqual(info.clampedProjectedPercent, 75.0)
+    }
+
+    func testClampedProjectedPercentAbove100() {
+        let info = PaceInfo(projectedPercent: 160.0, status: .over)
+        XCTAssertEqual(info.clampedProjectedPercent, 100.0)
+    }
+
+    func testClampedProjectedPercentBelowZero() {
+        let info = PaceInfo(projectedPercent: -10.0, status: .under)
+        XCTAssertEqual(info.clampedProjectedPercent, 0.0)
     }
 }
 
@@ -158,7 +173,7 @@ final class PaceComputeTests: XCTestCase {
     // MARK: - PaceSettings
 
     func testPaceSettingsEncodeDecode() throws {
-        let settings = PaceSettings(enabledMetrics: ["fiveHour", "sevenDay"])
+        let settings = PaceSettings(enabledMetrics: [.fiveHour, .sevenDay])
         let data = try JSONEncoder().encode(settings)
         let decoded = try JSONDecoder().decode(PaceSettings.self, from: data)
         XCTAssertEqual(decoded, settings)
@@ -167,9 +182,82 @@ final class PaceComputeTests: XCTestCase {
     func testPaceSettingsAllEnabledContainsAllKeys() {
         let all = PaceSettings.allEnabled
         XCTAssertEqual(all.enabledMetrics.count, 4)
-        XCTAssertTrue(all.enabledMetrics.contains("fiveHour"))
-        XCTAssertTrue(all.enabledMetrics.contains("sevenDay"))
-        XCTAssertTrue(all.enabledMetrics.contains("sevenDaySonnet"))
-        XCTAssertTrue(all.enabledMetrics.contains("sevenDayOpus"))
+        XCTAssertTrue(all.enabledMetrics.contains(.fiveHour))
+        XCTAssertTrue(all.enabledMetrics.contains(.sevenDay))
+        XCTAssertTrue(all.enabledMetrics.contains(.sevenDaySonnet))
+        XCTAssertTrue(all.enabledMetrics.contains(.sevenDayOpus))
+    }
+
+    // MARK: - MetricKey Window Duration
+
+    func testMetricKeyWindowDurationFiveHour() {
+        XCTAssertEqual(MetricKey.fiveHour.windowDuration, 5 * 3600)
+    }
+
+    func testMetricKeyWindowDurationSevenDay() {
+        let expected = 7 * 24 * 3600.0
+        XCTAssertEqual(MetricKey.sevenDay.windowDuration, expected)
+        XCTAssertEqual(MetricKey.sevenDaySonnet.windowDuration, expected)
+        XCTAssertEqual(MetricKey.sevenDayOpus.windowDuration, expected)
+    }
+
+    // MARK: - Exact Boundary Tests
+
+    func testComputePaceAtExactly5PercentElapsed() {
+        // fractionElapsed = exactly 0.05 → should return non-nil
+        let now = resetsAt.addingTimeInterval(-windowDuration * 0.95)
+        let metric = UsageMetric(percent: 5.0, resetsAt: resetsAt)
+
+        let pace = computePace(metric: metric, windowDuration: windowDuration, now: now)
+
+        XCTAssertNotNil(pace)
+    }
+
+    func testComputePaceAtExactlyFractionElapsed1() {
+        // fractionElapsed = exactly 1.0 (now == resetsAt) → should return nil
+        let now = resetsAt
+        let metric = UsageMetric(percent: 50.0, resetsAt: resetsAt)
+
+        let pace = computePace(metric: metric, windowDuration: windowDuration, now: now)
+
+        XCTAssertNil(pace)
+    }
+
+    func testComputePaceDeadZoneExactBoundaryUnder() {
+        // At 50% elapsed, expected = 50. We want projected = expected - 5 = 45 exactly.
+        // projected = percent / fractionElapsed → percent = 45 * 0.5 = 22.5
+        let now = resetsAt.addingTimeInterval(-windowDuration * 0.5)
+        let metric = UsageMetric(percent: 22.5, resetsAt: resetsAt)
+
+        let pace = computePace(metric: metric, windowDuration: windowDuration, now: now)
+
+        XCTAssertNotNil(pace)
+        // projected = 22.5 / 0.5 = 45, expected = 50. 45 is NOT < 45, so .on
+        XCTAssertEqual(pace!.status, .on)
+    }
+
+    func testComputePaceDeadZoneExactBoundaryOver() {
+        // At 50% elapsed, expected = 50. We want projected = expected + 5 = 55 exactly.
+        // projected = percent / fractionElapsed → percent = 55 * 0.5 = 27.5
+        let now = resetsAt.addingTimeInterval(-windowDuration * 0.5)
+        let metric = UsageMetric(percent: 27.5, resetsAt: resetsAt)
+
+        let pace = computePace(metric: metric, windowDuration: windowDuration, now: now)
+
+        XCTAssertNotNil(pace)
+        // projected = 27.5 / 0.5 = 55, expected = 50. 55 is NOT > 55, so .on
+        XCTAssertEqual(pace!.status, .on)
+    }
+
+    func testComputePaceWindowDurationZeroReturnsNil() {
+        let metric = UsageMetric(percent: 50.0, resetsAt: resetsAt)
+        let pace = computePace(metric: metric, windowDuration: 0, now: resetsAt.addingTimeInterval(-100))
+        XCTAssertNil(pace)
+    }
+
+    func testComputePaceWindowDurationNegativeReturnsNil() {
+        let metric = UsageMetric(percent: 50.0, resetsAt: resetsAt)
+        let pace = computePace(metric: metric, windowDuration: -1, now: resetsAt.addingTimeInterval(-100))
+        XCTAssertNil(pace)
     }
 }

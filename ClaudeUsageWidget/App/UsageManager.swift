@@ -46,6 +46,7 @@ final class UsageManager: ObservableObject {
         } catch {
             DebugLogger.shared.log("PACE WRITE FAILED: \(error)", source: "App")
         }
+        widgetReloader()
     }
 
     func startTimer(interval: TimeInterval = 300) {

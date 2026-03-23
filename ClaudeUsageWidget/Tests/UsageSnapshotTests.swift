@@ -162,4 +162,61 @@ final class UsageSnapshotTests: XCTestCase {
         )
         XCTAssertFalse(snapshot.hasUsageData)
     }
+
+    func testWithErrorPreservesUsageData() {
+        let date = Date(timeIntervalSince1970: 1711000000)
+        let snapshot = UsageSnapshot(
+            fiveHour: UsageMetric(percent: 45.0, resetsAt: date),
+            sevenDay: UsageMetric(percent: 30.0, resetsAt: date),
+            sevenDaySonnet: nil, sevenDayOpus: nil,
+            tokenStats: TokenStats(todayTokens: 5000, weekTokens: 25000, todayMessages: 10, weekMessages: 50),
+            lastUpdated: date,
+            lastSuccessfulUpdate: date,
+            error: nil
+        )
+
+        let errorSnapshot = snapshot.withError("Network error")
+
+        XCTAssertEqual(errorSnapshot.fiveHour?.percent, 45.0)
+        XCTAssertEqual(errorSnapshot.sevenDay?.percent, 30.0)
+        XCTAssertEqual(errorSnapshot.tokenStats.todayTokens, 5000)
+        XCTAssertEqual(errorSnapshot.lastSuccessfulUpdate, date)
+        XCTAssertEqual(errorSnapshot.error, "Network error")
+        // lastUpdated should be recent (not the original date)
+        XCTAssertTrue(errorSnapshot.lastUpdated.timeIntervalSince(date) > 0)
+    }
+
+    func testWithErrorUsesFreshTokenStats() {
+        let date = Date(timeIntervalSince1970: 1711000000)
+        let snapshot = UsageSnapshot(
+            fiveHour: UsageMetric(percent: 45.0, resetsAt: date),
+            sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
+            tokenStats: TokenStats(todayTokens: 1000, weekTokens: 5000, todayMessages: 5, weekMessages: 20),
+            lastUpdated: date,
+            lastSuccessfulUpdate: date,
+            error: nil
+        )
+
+        let freshStats = TokenStats(todayTokens: 2000, weekTokens: 10000, todayMessages: 8, weekMessages: 30)
+        let errorSnapshot = snapshot.withError("Server error", tokenStats: freshStats)
+
+        XCTAssertEqual(errorSnapshot.tokenStats.todayTokens, 2000, "Should use fresh stats")
+        XCTAssertEqual(errorSnapshot.tokenStats.weekTokens, 10000)
+    }
+
+    func testWithErrorFallsBackToCachedTokenStats() {
+        let date = Date(timeIntervalSince1970: 1711000000)
+        let snapshot = UsageSnapshot(
+            fiveHour: UsageMetric(percent: 45.0, resetsAt: date),
+            sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
+            tokenStats: TokenStats(todayTokens: 1000, weekTokens: 5000, todayMessages: 5, weekMessages: 20),
+            lastUpdated: date,
+            lastSuccessfulUpdate: date,
+            error: nil
+        )
+
+        let errorSnapshot = snapshot.withError("Server error")
+
+        XCTAssertEqual(errorSnapshot.tokenStats.todayTokens, 1000, "Should fall back to cached stats when none provided")
+    }
 }

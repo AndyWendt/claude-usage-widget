@@ -51,6 +51,19 @@ struct UsageSnapshot: Codable, Equatable {
         fiveHour != nil || sevenDay != nil
     }
 
+    func withError(_ message: String, tokenStats: TokenStats? = nil) -> UsageSnapshot {
+        UsageSnapshot(
+            fiveHour: fiveHour,
+            sevenDay: sevenDay,
+            sevenDaySonnet: sevenDaySonnet,
+            sevenDayOpus: sevenDayOpus,
+            tokenStats: tokenStats ?? self.tokenStats,
+            lastUpdated: Date(),
+            lastSuccessfulUpdate: lastSuccessfulUpdate,
+            error: message
+        )
+    }
+
     /// Canonical encoder — always uses iso8601 dates for interoperability
     /// between the main app and the widget extension.
     static func makeEncoder() -> JSONEncoder {

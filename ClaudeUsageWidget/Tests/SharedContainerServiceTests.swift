@@ -45,7 +45,7 @@ final class SharedContainerServiceTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
         let svc = SharedContainerService(containerURL: tempDir)
-        let settings = PaceSettings(enabledMetrics: ["fiveHour", "sevenDay"])
+        let settings = PaceSettings(enabledMetrics: [.fiveHour, .sevenDay])
 
         try svc.writePaceSettings(settings)
         let read = svc.readPaceSettings()
@@ -70,10 +70,10 @@ final class SharedContainerServiceTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
         let svc = SharedContainerService(containerURL: tempDir)
-        let first = PaceSettings(enabledMetrics: ["fiveHour"])
+        let first = PaceSettings(enabledMetrics: [.fiveHour])
         try svc.writePaceSettings(first)
 
-        let second = PaceSettings(enabledMetrics: ["sevenDay", "sevenDayOpus"])
+        let second = PaceSettings(enabledMetrics: [.sevenDay, .sevenDayOpus])
         try svc.writePaceSettings(second)
 
         let read = svc.readPaceSettings()
@@ -86,11 +86,11 @@ final class SharedContainerServiceTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
         let svc = SharedContainerService(containerURL: tempDir)
-        let settings = PaceSettings(enabledMetrics: ["fiveHour"])
+        let settings = PaceSettings(enabledMetrics: [.fiveHour])
         try svc.writePaceSettings(settings)
 
         let read = svc.readPaceSettings()
-        XCTAssertEqual(read.enabledMetrics, ["fiveHour"])
+        XCTAssertEqual(read.enabledMetrics, [.fiveHour])
     }
 
     func testPaceSettingsEmptySet() throws {

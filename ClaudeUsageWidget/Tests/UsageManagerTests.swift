@@ -502,4 +502,11 @@ final class UsageManagerTests: XCTestCase {
         manager.updatePaceSettings(newSettings)
         XCTAssertEqual(manager.paceSettings, newSettings)
     }
+
+    @MainActor
+    func testUpdatePaceSettingsReloadsWidget() {
+        let newSettings = PaceSettings(enabledMetrics: [.fiveHour])
+        manager.updatePaceSettings(newSettings)
+        XCTAssertEqual(mockReloader.reloadCount, 1, "Widget should be reloaded when pace settings change")
+    }
 }

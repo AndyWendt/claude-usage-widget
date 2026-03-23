@@ -100,7 +100,8 @@ final class TimelineProviderTests: XCTestCase {
     }
 
     func testBuildTimelinePaceAccuracyMatchesComputePace() {
-        let resetsAt = Date().addingTimeInterval(2 * 3600)
+        let now = Date()
+        let resetsAt = now.addingTimeInterval(2 * 3600)
         let fiveHour = UsageMetric(percent: 22.0, resetsAt: resetsAt)
         let snapshot = UsageSnapshot(
             fiveHour: fiveHour,
@@ -108,20 +109,35 @@ final class TimelineProviderTests: XCTestCase {
             sevenDaySonnet: nil,
             sevenDayOpus: nil,
             tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
-            lastUpdated: Date(),
+            lastUpdated: now,
             lastSuccessfulUpdate: nil,
             error: nil
         )
 
-        let entries = UsageTimelineEntry.buildTimeline(from: snapshot)
-        let entryPace = entries.first!.paceByMetric[.fiveHour]
-        let directPace = computePace(metric: fiveHour, windowDuration: MetricKey.fiveHour.windowDuration)
+        let entry = UsageTimelineEntry.makeEntry(date: now, snapshot: snapshot, paceSettings: .allEnabled)
+        let entryPace = entry.paceByMetric[.fiveHour]
+        let directPace = computePace(metric: fiveHour, windowDuration: MetricKey.fiveHour.windowDuration, now: now)
 
-        // Both should produce equivalent results (computed at ~same time)
         XCTAssertNotNil(entryPace)
         XCTAssertNotNil(directPace)
-        XCTAssertEqual(entryPace!.projectedPercent, directPace!.projectedPercent, accuracy: 1.0)
+        XCTAssertEqual(entryPace!.projectedPercent, directPace!.projectedPercent, accuracy: 0.01)
         XCTAssertEqual(entryPace!.status, directPace!.status)
+    }
+
+    func testGetSnapshotPlaceholderHasNoPace() {
+        // When there's no real snapshot, the placeholder fallback should not show pace
+        let entry = UsageTimelineEntry.makeEntry(date: Date(), snapshot: UsageSnapshot(
+            fiveHour: UsageMetric(percent: 45.0, resetsAt: Date().addingTimeInterval(3600)),
+            sevenDay: UsageMetric(percent: 30.0, resetsAt: Date().addingTimeInterval(86400)),
+            sevenDaySonnet: UsageMetric(percent: 22.0, resetsAt: Date().addingTimeInterval(86400)),
+            sevenDayOpus: UsageMetric(percent: 15.0, resetsAt: Date().addingTimeInterval(86400)),
+            tokenStats: TokenStats(todayTokens: 12000, weekTokens: 85000, todayMessages: 25, weekMessages: 150),
+            lastUpdated: Date(),
+            lastSuccessfulUpdate: nil,
+            error: nil
+        ), paceSettings: .allEnabled, isPlaceholder: true)
+
+        XCTAssertTrue(entry.paceByMetric.isEmpty, "Placeholder entries should not show pace indicators")
     }
 
     func testMakeEntryPreComputesPace() {

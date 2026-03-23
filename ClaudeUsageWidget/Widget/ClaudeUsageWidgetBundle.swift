@@ -14,7 +14,7 @@ struct UsageWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: UsageTimelineProvider()) { entry in
             Group {
-                if entry.snapshot.error != nil && entry.snapshot.fiveHour == nil {
+                if entry.snapshot.error != nil && !entry.snapshot.hasUsageData {
                     WidgetErrorView(message: entry.snapshot.error)
                 } else {
                     WidgetContentView(entry: entry)

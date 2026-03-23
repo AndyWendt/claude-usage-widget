@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pace Indicator Design Options</title>
+<style>
+  :root {
+    --tan: #D4A574;
+    --tan-light: #E8D4BC;
+    --tan-dark: #B8956A;
+    --coral: #E07A5F;
+    --coral-light: #F0A090;
+    --charcoal: #2D2A26;
+    --cream: #FAF7F2;
+    --cream-muted: rgba(250, 247, 242, 0.6);
+    --danger: #A85040;
+    --opus-brown: #8B7355;
+    --green: #5B9A6F;
+    --green-muted: rgba(91, 154, 111, 0.15);
+    --yellow: #C4A84D;
+    --yellow-muted: rgba(196, 168, 77, 0.15);
+    --red-muted: rgba(224, 122, 95, 0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Helvetica Neue', sans-serif;
+    background: #1a1816;
+    color: var(--cream);
+    padding: 40px;
+  }
+
+  h1 {
+    color: var(--tan);
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--cream-muted);
+    font-size: 14px;
+    margin-bottom: 40px;
+  }
+
+  .design-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 1200px;
+  }
+
+  .design-option {
+    background: rgba(45, 42, 38, 0.6);
+    border: 1px solid rgba(212, 165, 116, 0.15);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .design-option.recommended {
+    border-color: var(--tan);
+    box-shadow: 0 0 20px rgba(212, 165, 116, 0.1);
+  }
+
+  .option-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .option-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--tan);
+    background: rgba(212, 165, 116, 0.15);
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .option-label.rec {
+    background: var(--tan);
+    color: var(--charcoal);
+  }
+
+  .option-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--cream);
+  }
+
+  .option-desc {
+    font-size: 12px;
+    color: var(--cream-muted);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  /* Shared popover mock styles */
+  .popover-mock {
+    background: rgba(45, 42, 38, 0.95);
+    border-radius: 12px;
+    padding: 14px;
+    width: 260px;
+    margin: 0 auto;
+  }
+
+  .popover-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .popover-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tan);
+  }
+
+  .usage-bar-group {
+    margin-bottom: 10px;
+  }
+
+  .bar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .bar-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--cream-muted);
+  }
+
+  .bar-percent {
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'SF Mono', 'Menlo', monospace;
+    color: var(--cream);
+  }
+
+  .bar-track {
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(212, 165, 116, 0.2);
+    position: relative;
+    overflow: visible;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(to right, var(--tan-dark), var(--tan));
+  }
+
+  .bar-fill.warning {
+    background: linear-gradient(to right, var(--coral), var(--coral-light));
+  }
+
+  .bar-fill.danger {
+    background: linear-gradient(to right, var(--danger), var(--coral));
+  }
+
+  .reset-time {
+    font-size: 9px;
+    font-family: 'SF Mono', 'Menlo', monospace;
+    color: rgba(250, 247, 242, 0.35);
+    margin-top: 3px;
+  }
+
+  /* Design A specific */
+  .pace-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  .pace-badge.under {
+    color: var(--green);
+    background: var(--green-muted);
+  }
+
+  .pace-badge.over {
+    color: var(--coral);
+    background: var(--red-muted);
+  }
+
+  .pace-badge.on {
+    color: var(--yellow);
+    background: var(--yellow-muted);
+  }
+
+  /* Design B specific - projection line */
+  .bar-track-with-marker {
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(212, 165, 116, 0.2);
+    position: relative;
+    overflow: visible;
+  }
+
+  .projection-marker {
+    position: absolute;
+    top: -3px;
+    height: 14px;
+    width: 2px;
+    border-radius: 1px;
+    opacity: 0.7;
+  }
+
+  .projection-marker.under { background: var(--green); }
+  .projection-marker.over { background: var(--coral); }
+
+  .projection-label {
+    font-size: 9px;
+    font-family: 'SF Mono', 'Menlo', monospace;
+    color: var(--cream-muted);
+    margin-top: 3px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .proj-value {
+    font-weight: 600;
+  }
+
+  .proj-value.under { color: var(--green); }
+  .proj-value.over { color: var(--coral); }
+  .proj-value.on { color: var(--yellow); }
+
+  /* Design C specific - inline pace */
+  .pace-inline {
+    font-size: 9px;
+    font-family: 'SF Mono', 'Menlo', monospace;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 3px;
+  }
+
+  .pace-arrow {
+    font-size: 8px;
+  }
+
+  .pace-arrow.under { color: var(--green); }
+  .pace-arrow.over { color: var(--coral); }
+
+  /* Design D specific - combined */
+  .pace-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 3px;
+  }
+
+  .pace-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 9px;
+    font-weight: 500;
+  }
+
+  .pace-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+  }
+
+  .pace-dot.under { background: var(--green); }
+  .pace-dot.over { background: var(--coral); }
+  .pace-dot.on { background: var(--yellow); }
+
+  .pace-proj {
+    font-size: 9px;
+    font-family: 'SF Mono', 'Menlo', monospace;
+  }
+
+  /* Widget mocks */
+  .widget-section {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(212, 165, 116, 0.1);
+  }
+
+  .widget-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--tan);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .widget-grid {
+    display: flex;
+    gap: 12px;
+  }
+
+  .widget-mock {
+    border-radius: 16px;
+    padding: 12px;
+    background: linear-gradient(135deg, rgba(45, 42, 38, 0.9), rgba(35, 32, 28, 0.95));
+  }
+
+  .widget-mock.small {
+    width: 150px;
+    height: 150px;
+  }
+
+  .widget-mock.medium {
+    width: 310px;
+    height: 150px;
+    display: flex;
+    gap: 16px;
+  }
+
+  .widget-mock .widget-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--tan);
+    margin-bottom: 8px;
+  }
+
+  .widget-bar-group {
+    margin-bottom: 6px;
+  }
+
+  .widget-bar-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3px;
+  }
+
+  .widget-bar-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: rgba(250, 247, 242, 0.5);
+  }
+
+  .widget-bar-percent {
+    font-size: 10px;
+    font-weight: 600;
+    font-family: 'SF Mono', 'Menlo', monospace;
+    color: var(--cream);
+  }
+
+  .widget-bar-track {
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.08);
+    position: relative;
+    overflow: visible;
+  }
+
+  .widget-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(to right, var(--tan-dark), var(--tan));
+  }
+
+  .widget-bar-fill.warning {
+    background: linear-gradient(to right, var(--coral), var(--coral-light));
+  }
+
+  .widget-reset {
+    font-size: 8px;
+    font-family: 'SF Mono', 'Menlo', monospace;
+    color: rgba(250, 247, 242, 0.25);
+    margin-top: 2px;
+  }
+
+  .widget-pace-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 8px;
+    font-weight: 600;
+    padding: 1px 4px;
+    border-radius: 2px;
+    margin-left: 4px;
+  }
+
+  .widget-pace-badge.under {
+    color: var(--green);
+    background: var(--green-muted);
+  }
+
+  .widget-pace-badge.over {
+    color: var(--coral);
+    background: var(--red-muted);
+  }
+
+  .widget-pace-inline {
+    font-size: 8px;
+    font-family: 'SF Mono', 'Menlo', monospace;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .widget-half {
+    flex: 1;
+  }
+
+  /* Full width option */
+  .full-width {
+    grid-column: 1 / -1;
+  }
+
+  .pros-cons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+    font-size: 11px;
+  }
+
+  .pros, .cons {
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .pros {
+    background: var(--green-muted);
+  }
+
+  .cons {
+    background: var(--red-muted);
+  }
+
+  .pros-title, .cons-title {
+    font-weight: 600;
+    margin-bottom: 6px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .pros-title { color: var(--green); }
+  .cons-title { color: var(--coral); }
+
+  .pros li, .cons li {
+    list-style: none;
+    padding: 2px 0;
+    color: var(--cream-muted);
+    line-height: 1.4;
+  }
+
+  .divider-mock {
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(212, 165, 116, 0.3), transparent);
+    margin: 8px 0;
+  }
+</style>
+</head>
+<body>
+
+<h1>Pace Indicator Designs</h1>
+<p class="subtitle">Each design shows both color + text (option C from our discussion). The question is <em>how</em> to present it.</p>
+
+<div class="design-grid">
+
+  <!-- DESIGN A: Badge Style -->
+  <div class="design-option">
+    <div class="option-header">
+      <span class="option-label">A</span>
+      <span class="option-title">Badge Style</span>
+    </div>
+    <p class="option-desc">Compact badge next to the percentage showing pace status + projected finish. Clean, doesn't change the bar layout.</p>
+
+    <div class="popover-mock">
+      <div class="popover-header">
+        <span class="popover-title">Claude Code Usage</span>
+      </div>
+
+      <div class="usage-bar-group">
+        <div class="bar-header">
+          <span class="bar-label">5-Hour Window</span>
+          <span style="display: flex; align-items: center; gap: 6px;">
+            <span class="pace-badge under">&#x25BC; 62%</span>
+            <span class="bar-percent">42%</span>
+          </span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width: 42%;"></div>
+        </div>
+        <div class="reset-time">resets in 2h 48m</div>
+      </div>
+
+      <div class="usage-bar-group">
+        <div class="bar-header">
+          <span class="bar-label">Weekly (All Models)</span>
+          <span style="display: flex; align-items: center; gap: 6px;">
+            <span class="pace-badge over">&#x25B2; 91%</span>
+            <span class="bar-percent">73%</span>
+          </span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill warning" style="width: 73%;"></div>
+        </div>
+        <div class="reset-time">resets in 2d 5h</div>
+      </div>
+
+      <div class="usage-bar-group">
+        <div class="bar-header">
+          <span class="bar-label">Weekly (Sonnet)</span>
+          <span style="display: flex; align-items: center; gap: 6px;">
+            <span class="pace-badge on">~ 50%</span>
+            <span class="bar-percent">48%</span>
+          </span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width: 48%;"></div>
+        </div>
+        <div class="reset-time">resets in 2d 5h</div>
+      </div>
+    </div>
+
+    <!-- Widget mock for A -->
+    <div class="widget-section">
+      <div class="widget-section-title">Widget (Small)</div>
+      <div class="widget-mock small">
+        <div class="widget-title">Claude Usage</div>
+        <div class="widget-bar-group">
+          <div class="widget-bar-header">
+            <span class="widget-bar-label">5-Hour</span>
+            <span style="display: flex; align-items: center;">
+              <span class="widget-pace-badge under">&#x25BC;62%</span>
+              <span class="widget-bar-percent" style="margin-left: 4px;">42%</span>
+            </span>
+          </div>
+          <div class="widget-bar-track">
+            <div class="widget-bar-fill" style="width: 42%;"></div>
+          </div>
+          <div class="widget-reset">2h 48m left</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pros-cons">
+      <div class="pros">
+        <div class="pros-title">Pros</div>
+        <ul>
+          <li>Compact, fits existing layout</li>
+          <li>Color-coded at a glance</li>
+          <li>Projection number visible</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <div class="cons-title">Cons</div>
+        <ul>
+          <li>Header row gets crowded</li>
+          <li>Two percentages side-by-side could confuse</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN B: Projection Marker on Bar -->
+  <div class="design-option recommended">
+    <div class="option-header">
+      <span class="option-label rec">Recommended</span>
+      <span class="option-label">B</span>
+      <span class="option-title">Projection Marker</span>
+    </div>
+    <p class="option-desc">A vertical tick on the bar shows where you'll end up. Projection number below. The bar tells the whole story visually.</p>
+
+    <div class="popover-mock">
+      <div class="popover-header">
+        <span class="popover-title">Claude Code Usage</span>
+      </div>
+
+      <div class="usage-bar-group">
+        <div class="bar-header">
+          <span class="bar-label">5-Hour Window</span>
+          <span class="bar-percent">42%</span>
+        </div>
+        <div class="bar-track-with-marker">
+          <div class="bar-fill" style="width: 42%; border-radius: 4px;"></div>
+          <div class="projection-marker under" style="left: 62%;"></div>
+        </div>
+        <div class="projection-label">
+          <span class="reset-time">resets in 2h 48m</span>
+          <span class="proj-value under">&#x2192; 62% projected</span>
+        </div>
+      </div>
+
+      <div class="usage-bar-group">
+        <div class="bar-header">
+          <span class="bar-label">Weekly (All Models)</span>
+          <span class="bar-percent">73%</span>
+        </div>
+        <div class="bar-track-with-marker">
+          <div class="bar-fill warning" style="width: 73%; border-radius: 4px;"></div>
+          <div class="projection-marker over" style="left: 91%;"></div>
+        </div>
+        <div class="projection-label">
+          <span class="reset-time">resets in 2d 5h</span>
+          <span class="proj-value over">&#x2192; 91% projected</span>
+        </div>
+      </div>
+
+      <div class="usage-bar-group">
+        <div class="bar-header">
+          <span class="bar-label">Weekly (Sonnet)</span>
+          <span class="bar-percent">48%</span>
+        </div>
+        <div class="bar-track-with-marker">
+          <div class="bar-fill" style="width: 48%; border-radius: 4px;"></div>
+          <div class="projection-marker under" style="left: 50%;"></div>
+        </div>
+        <div class="projection-label">
+          <span class="reset-time">resets in 2d 5h</span>
+          <span class="proj-value on">&#x2192; ~50% projected</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Widget mock for B -->
+    <div class="widget-section">
+      <div class="widget-section-title">Widget (Medium)</div>
+      <div class="widget-mock medium">
+        <div class="widget-half">
+          <div class="widget-title">Claude Usage</div>
+          <div class="widget-bar-group">
+            <div class="widget-bar-header">
+              <span class="widget-bar-label">5-Hour</span>
+              <span class="widget-bar-percent">42%</span>
+            </div>
+            <div class="widget-bar-track" style="overflow: visible;">
+              <div class="widget-bar-fill" style="width: 42%;"></div>
+              <div style="position: absolute; top: -2px; left: 62%; height: 10px; width: 2px; border-radius: 1px; background: var(--green); opacity: 0.7;"></div>
+            </div>
+            <div class="widget-pace-inline">
+              <span class="widget-reset">2h 48m</span>
+              <span style="color: var(--green); font-weight: 600;">&#x2192; 62%</span>
+            </div>
+          </div>
+        </div>
+        <div class="widget-half">
+          <div class="widget-title" style="opacity: 0;">&nbsp;</div>
+          <div class="widget-bar-group">
+            <div class="widget-bar-header">
+              <span class="widget-bar-label">Weekly</span>
+              <span class="widget-bar-percent">73%</span>
+            </div>
+            <div class="widget-bar-track" style="overflow: visible;">
+              <div class="widget-bar-fill warning" style="width: 73%;"></div>
+              <div style="position: absolute; top: -2px; left: 91%; height: 10px; width: 2px; border-radius: 1px; background: var(--coral); opacity: 0.7;"></div>
+            </div>
+            <div class="widget-pace-inline">
+              <span class="widget-reset">2d 5h</span>
+              <span style="color: var(--coral); font-weight: 600;">&#x2192; 91%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pros-cons">
+      <div class="pros">
+        <div class="pros-title">Pros</div>
+        <ul>
+          <li>Visually intuitive &mdash; "where I am" vs "where I'm heading"</li>
+          <li>Doesn't clutter the header row</li>
+          <li>Works at widget scale too</li>
+          <li>Natural reading: bar = now, marker = future</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <div class="cons-title">Cons</div>
+        <ul>
+          <li>Marker can overlap fill when pace &asymp; current</li>
+          <li>Slightly more complex bar component</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN C: Subtext Row -->
+  <div class="design-option">
+    <div class="option-header">
+      <span class="option-label">C</span>
+      <span class="option-title">Subtext Row</span>
+    </div>
+    <p class="option-desc">Dedicated pace line below each bar with status dot, label, and projection. Keeps the bar clean, adds a new row.</p>
+
+    <div class="popover-mock">
+      <div class="popover-header">
+        <span class="popover-title">Claude Code Usage</span>
+      </div>
+
+      <div class="usage-bar-group">
+        <div class="bar-header">
+          <span class="bar-label">5-Hour Window</span>
+          <span class="bar-percent">42%</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width: 42%;"></div>
+        </div>
+        <div class="pace-row">
+          <span class="pace-status">
+            <span class="pace-dot under"></span>
+            <span style="color: var(--green); font-size: 9px;">Under pace</span>
+          </span>
+          <span class="pace-proj" style="color: var(--cream-muted);">projected <span style="color: var(--green); font-weight: 600;">62%</span> at reset</span>
+        </div>
+        <div class="reset-time" style="margin-top: 2px;">resets in 2h 48m</div>
+      </div>
+
+      <div class="usage-bar-group">
+        <div class="bar-header">
+          <span class="bar-label">Weekly (All Models)</span>
+          <span class="bar-percent">73%</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill warning" style="width: 73%;"></div>
+        </div>
+        <div class="pace-row">
+          <span class="pace-status">
+            <span class="pace-dot over"></span>
+            <span style="color: var(--coral); font-size: 9px;">Over pace</span>
+          </span>
+          <span class="pace-proj" style="color: var(--cream-muted);">projected <span style="color: var(--coral); font-weight: 600;">91%</span> at reset</span>
+        </div>
+        <div class="reset-time" style="margin-top: 2px;">resets in 2d 5h</div>
+      </div>
+
+      <div class="usage-bar-group">
+        <div class="bar-header">
+          <span class="bar-label">Weekly (Sonnet)</span>
+          <span class="bar-percent">48%</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width: 48%;"></div>
+        </div>
+        <div class="pace-row">
+          <span class="pace-status">
+            <span class="pace-dot on"></span>
+            <span style="color: var(--yellow); font-size: 9px;">On pace</span>
+          </span>
+          <span class="pace-proj" style="color: var(--cream-muted);">projected <span style="color: var(--yellow); font-weight: 600;">~50%</span> at reset</span>
+        </div>
+        <div class="reset-time" style="margin-top: 2px;">resets in 2d 5h</div>
+      </div>
+    </div>
+
+    <!-- Widget mock for C -->
+    <div class="widget-section">
+      <div class="widget-section-title">Widget (Small)</div>
+      <div class="widget-mock small">
+        <div class="widget-title">Claude Usage</div>
+        <div class="widget-bar-group">
+          <div class="widget-bar-header">
+            <span class="widget-bar-label">5-Hour</span>
+            <span class="widget-bar-percent">42%</span>
+          </div>
+          <div class="widget-bar-track">
+            <div class="widget-bar-fill" style="width: 42%;"></div>
+          </div>
+          <div class="widget-pace-inline">
+            <span style="width: 5px; height: 5px; border-radius: 50%; background: var(--green); display: inline-block;"></span>
+            <span style="color: var(--green); font-size: 8px;">Under &bull; 62%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pros-cons">
+      <div class="pros">
+        <div class="pros-title">Pros</div>
+        <ul>
+          <li>Very clear &mdash; explicit label + number</li>
+          <li>Status dot provides color at a glance</li>
+          <li>Bar stays clean and unchanged</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <div class="cons-title">Cons</div>
+        <ul>
+          <li>Takes more vertical space</li>
+          <li>Could feel verbose with 4 bars</li>
+          <li>Widgets get cramped with extra row</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN D: Hybrid (marker + badge) -->
+  <div class="design-option">
+    <div class="option-header">
+      <span class="option-label">D</span>
+      <span class="option-title">Hybrid (Marker + Minimal Text)</span>
+    </div>
+    <p class="option-desc">Projection marker on the bar + a compact "&#x2192; 62%" next to the reset timer. Best of A and B &mdash; visual cue on bar, number in the footer.</p>
+
+    <div class="popover-mock">
+      <div class="popover-header">
+        <span class="popover-title">Claude Code Usage</span>
+      </div>
+
+      <div class="usage-bar-group">
+        <div class="bar-header">
+          <span class="bar-label">5-Hour Window</span>
+          <span class="bar-percent">42%</span>
+        </div>
+        <div class="bar-track-with-marker">
+          <div class="bar-fill" style="width: 42%; border-radius: 4px;"></div>
+          <div class="projection-marker under" style="left: 62%;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 3px;">
+          <span class="reset-time">resets in 2h 48m</span>
+          <span style="font-size: 9px; font-family: 'SF Mono', monospace; color: var(--green); font-weight: 600;">&#x2192; 62%</span>
+        </div>
+      </div>
+
+      <div class="usage-bar-group">
+        <div class="bar-header">
+          <span class="bar-label">Weekly (All Models)</span>
+          <span class="bar-percent">73%</span>
+        </div>
+        <div class="bar-track-with-marker">
+          <div class="bar-fill warning" style="width: 73%; border-radius: 4px;"></div>
+          <div class="projection-marker over" style="left: 91%;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 3px;">
+          <span class="reset-time">resets in 2d 5h</span>
+          <span style="font-size: 9px; font-family: 'SF Mono', monospace; color: var(--coral); font-weight: 600;">&#x2192; 91%</span>
+        </div>
+      </div>
+
+      <div class="usage-bar-group">
+        <div class="bar-header">
+          <span class="bar-label">Weekly (Sonnet)</span>
+          <span class="bar-percent">48%</span>
+        </div>
+        <div class="bar-track-with-marker">
+          <div class="bar-fill" style="width: 48%; border-radius: 4px;"></div>
+          <div class="projection-marker under" style="left: 50%;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 3px;">
+          <span class="reset-time">resets in 2d 5h</span>
+          <span style="font-size: 9px; font-family: 'SF Mono', monospace; color: var(--yellow); font-weight: 600;">&#x2192; ~50%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Widget mock for D -->
+    <div class="widget-section">
+      <div class="widget-section-title">Widget (Medium)</div>
+      <div class="widget-mock medium">
+        <div class="widget-half">
+          <div class="widget-title">Claude Usage</div>
+          <div class="widget-bar-group">
+            <div class="widget-bar-header">
+              <span class="widget-bar-label">5-Hour</span>
+              <span class="widget-bar-percent">42%</span>
+            </div>
+            <div class="widget-bar-track" style="overflow: visible;">
+              <div class="widget-bar-fill" style="width: 42%;"></div>
+              <div style="position: absolute; top: -2px; left: 62%; height: 10px; width: 2px; border-radius: 1px; background: var(--green); opacity: 0.7;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 2px;">
+              <span class="widget-reset">2h 48m</span>
+              <span style="font-size: 8px; font-family: monospace; color: var(--green); font-weight: 600;">&#x2192; 62%</span>
+            </div>
+          </div>
+        </div>
+        <div class="widget-half">
+          <div class="widget-title" style="opacity: 0;">&nbsp;</div>
+          <div class="widget-bar-group">
+            <div class="widget-bar-header">
+              <span class="widget-bar-label">Weekly</span>
+              <span class="widget-bar-percent">73%</span>
+            </div>
+            <div class="widget-bar-track" style="overflow: visible;">
+              <div class="widget-bar-fill warning" style="width: 73%;"></div>
+              <div style="position: absolute; top: -2px; left: 91%; height: 10px; width: 2px; border-radius: 1px; background: var(--coral); opacity: 0.7;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 2px;">
+              <span class="widget-reset">2d 5h</span>
+              <span style="font-size: 8px; font-family: monospace; color: var(--coral); font-weight: 600;">&#x2192; 91%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pros-cons">
+      <div class="pros">
+        <div class="pros-title">Pros</div>
+        <ul>
+          <li>Visual + numerical, minimal space</li>
+          <li>Projection arrow replaces nothing</li>
+          <li>Scales well to widgets</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <div class="cons-title">Cons</div>
+        <ul>
+          <li>No explicit "over/under" label</li>
+          <li>Relies on color literacy for status</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

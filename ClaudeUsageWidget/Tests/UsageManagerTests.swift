@@ -6,6 +6,9 @@ final class UsageManagerTests: XCTestCase {
     var mockKeychain: MockKeychainService!
     var mockAPI: MockAPIService!
     var mockStats: MockStatsService!
+    var mockCodexAuth: MockCodexAuthService!
+    var mockCodexAPI: MockCodexAPIService!
+    var mockCodexStats: MockStatsService!
     var mockContainer: MockSharedContainerService!
     var mockReloader: MockWidgetReloader!
 
@@ -14,12 +17,18 @@ final class UsageManagerTests: XCTestCase {
         mockKeychain = MockKeychainService()
         mockAPI = MockAPIService()
         mockStats = MockStatsService()
+        mockCodexAuth = MockCodexAuthService()
+        mockCodexAPI = MockCodexAPIService()
+        mockCodexStats = MockStatsService()
         mockContainer = MockSharedContainerService()
         mockReloader = MockWidgetReloader()
         manager = UsageManager(
             keychainService: mockKeychain,
             apiService: mockAPI,
             statsService: mockStats,
+            codexAuthService: mockCodexAuth,
+            codexAPIService: mockCodexAPI,
+            codexStatsService: mockCodexStats,
             containerService: mockContainer,
             widgetReloader: mockReloader.reload
         )
@@ -42,6 +51,106 @@ final class UsageManagerTests: XCTestCase {
         XCTAssertNil(manager.snapshot?.error)
         XCTAssertFalse(manager.isLoading)
         XCTAssertEqual(mockReloader.reloadCount, 1, "Widget should be reloaded on successful fetch")
+    }
+
+    @MainActor
+    func testFetchSuccessMergesCodexSnapshot() async {
+        mockKeychain.tokenToReturn = "claude-token"
+        mockAPI.responseToReturn = UsageApiResponse(
+            fiveHour: UsageWindow(utilization: 45.0, resetsAt: "2026-03-21T18:00:00Z"),
+            sevenDay: UsageWindow(utilization: 54.0, resetsAt: "2026-03-28T18:00:00Z"),
+            sevenDaySonnet: nil,
+            sevenDayOpus: nil
+        )
+        mockStats.statsToReturn = TokenStats(todayTokens: 5000, weekTokens: 25000, todayMessages: 10, weekMessages: 50)
+        mockCodexAuth.credentialsToReturn = CodexAuthCredentials(accessToken: "codex-token", accountID: "account-123")
+        mockCodexAPI.responseToReturn = CodexUsageResponse(
+            rateLimit: CodexRateLimitEnvelope(
+                allowed: true,
+                limitReached: false,
+                primaryWindow: CodexRateWindow(usedPercent: 15, limitWindowSeconds: 18000, resetAfterSeconds: 4180, resetAt: 1_774_388_998),
+                secondaryWindow: CodexRateWindow(usedPercent: 10, limitWindowSeconds: 604800, resetAfterSeconds: 257905, resetAt: 1_774_642_723)
+            ),
+            codeReviewRateLimit: nil,
+            additionalRateLimits: [
+                CodexAdditionalRateLimit(
+                    limitName: "GPT-5.3-Codex-Spark",
+                    meteredFeature: "codex_bengalfox",
+                    rateLimit: CodexRateLimitEnvelope(
+                        allowed: true,
+                        limitReached: false,
+                        primaryWindow: CodexRateWindow(usedPercent: 1, limitWindowSeconds: 18000, resetAfterSeconds: 18000, resetAt: 1_774_402_818),
+                        secondaryWindow: nil
+                    )
+                )
+            ]
+        )
+        mockCodexStats.statsToReturn = TokenStats(todayTokens: 2000, weekTokens: 9000, todayMessages: 2, weekMessages: 7)
+
+        await manager.refresh()
+
+        XCTAssertEqual(manager.snapshot?.fiveHour?.percent, 45.0)
+        XCTAssertEqual(manager.snapshot?.codex?.fiveHour?.percent, 15)
+        XCTAssertEqual(manager.snapshot?.codex?.sevenDay?.percent, 10)
+        XCTAssertEqual(manager.snapshot?.codex?.extraLabel, "GPT-5.3-Codex-Spark")
+        XCTAssertEqual(manager.snapshot?.codex?.extraMetric?.percent, 1)
+        XCTAssertEqual(manager.snapshot?.codex?.tokenStats.todayTokens, 2000)
+        XCTAssertEqual(mockCodexAPI.lastCredentialsUsed?.accountID, "account-123")
+        XCTAssertEqual(mockContainer.storedSnapshot?.codex?.sevenDay?.percent, 10)
+        XCTAssertNil(manager.snapshot?.error)
+    }
+
+    @MainActor
+    func testMissingCodexAuthDoesNotBlockClaudeRefresh() async {
+        mockKeychain.tokenToReturn = "claude-token"
+        mockAPI.responseToReturn = UsageApiResponse(
+            fiveHour: UsageWindow(utilization: 22.0, resetsAt: "2026-03-21T18:00:00Z"),
+            sevenDay: nil,
+            sevenDaySonnet: nil,
+            sevenDayOpus: nil
+        )
+        mockCodexAuth.errorToThrow = CodexAuthError.notConfigured
+
+        await manager.refresh()
+
+        XCTAssertEqual(manager.snapshot?.fiveHour?.percent, 22.0)
+        XCTAssertNil(manager.snapshot?.codex)
+        XCTAssertNil(manager.snapshot?.error)
+    }
+
+    @MainActor
+    func testCodexErrorPreservesCachedCodexData() async {
+        mockKeychain.tokenToReturn = "claude-token"
+        mockAPI.responseToReturn = UsageApiResponse(
+            fiveHour: UsageWindow(utilization: 45.0, resetsAt: "2026-03-21T18:00:00Z"),
+            sevenDay: nil,
+            sevenDaySonnet: nil,
+            sevenDayOpus: nil
+        )
+        mockCodexAuth.credentialsToReturn = CodexAuthCredentials(accessToken: "codex-token", accountID: "account-123")
+        mockCodexAPI.responseToReturn = CodexUsageResponse(
+            rateLimit: CodexRateLimitEnvelope(
+                allowed: true,
+                limitReached: false,
+                primaryWindow: CodexRateWindow(usedPercent: 12, limitWindowSeconds: 18000, resetAfterSeconds: 3600, resetAt: 1_774_388_998),
+                secondaryWindow: CodexRateWindow(usedPercent: 8, limitWindowSeconds: 604800, resetAfterSeconds: 257905, resetAt: 1_774_642_723)
+            ),
+            codeReviewRateLimit: nil,
+            additionalRateLimits: nil
+        )
+
+        await manager.refresh()
+
+        mockCodexAPI.responseToReturn = nil
+        mockCodexAPI.errorToThrow = APIError.serverError(500)
+
+        await manager.refresh()
+
+        XCTAssertEqual(manager.snapshot?.codex?.fiveHour?.percent, 12)
+        XCTAssertEqual(manager.snapshot?.codex?.sevenDay?.percent, 8)
+        XCTAssertNotNil(manager.snapshot?.codex?.error)
+        XCTAssertTrue(manager.snapshot?.codex?.error?.contains("500") ?? false)
+        XCTAssertNil(manager.snapshot?.error)
     }
 
     @MainActor
@@ -488,6 +597,9 @@ final class UsageManagerTests: XCTestCase {
             keychainService: mockKeychain,
             apiService: mockAPI,
             statsService: mockStats,
+            codexAuthService: mockCodexAuth,
+            codexAPIService: mockCodexAPI,
+            codexStatsService: mockCodexStats,
             containerService: mockContainer,
             widgetReloader: mockReloader.reload
         )

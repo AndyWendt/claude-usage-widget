@@ -29,6 +29,36 @@ final class MockAPIService: APIServiceProtocol {
     }
 }
 
+final class MockCodexAuthService: CodexAuthServiceProtocol {
+    var credentialsToReturn: CodexAuthCredentials?
+    var errorToThrow: Error?
+    var readAuthCallCount = 0
+
+    func readAuth() throws -> CodexAuthCredentials {
+        readAuthCallCount += 1
+        if let error = errorToThrow { throw error }
+        guard let credentials = credentialsToReturn else {
+            throw CodexAuthError.notConfigured
+        }
+        return credentials
+    }
+}
+
+final class MockCodexAPIService: CodexAPIServiceProtocol {
+    var responseToReturn: CodexUsageResponse?
+    var errorToThrow: Error?
+    var lastCredentialsUsed: CodexAuthCredentials?
+
+    func fetchUsage(credentials: CodexAuthCredentials) async throws -> CodexUsageResponse {
+        lastCredentialsUsed = credentials
+        if let error = errorToThrow { throw error }
+        guard let response = responseToReturn else {
+            throw APIError.serverError(500)
+        }
+        return response
+    }
+}
+
 final class MockStatsService: StatsServiceProtocol {
     var statsToReturn = TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0)
 

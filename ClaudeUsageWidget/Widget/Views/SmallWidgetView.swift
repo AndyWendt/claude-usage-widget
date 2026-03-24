@@ -3,14 +3,35 @@ import SwiftUI
 struct SmallWidgetView: View {
     let snapshot: UsageSnapshot
     let paceByMetric: [MetricKey: PaceInfo]
+    let codexPaceByMetric: [MetricKey: PaceInfo]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Claude Usage")
+            Text(snapshot.hasCodexData ? "AI Usage" : "Claude Usage")
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(AnthropicColors.tan)
 
-            if let fiveHour = snapshot.fiveHour {
+            if snapshot.hasCodexData {
+                if let fiveHour = snapshot.fiveHour {
+                    WidgetUsageBar(
+                        label: "Claude",
+                        percent: fiveHour.percent,
+                        resetsAt: fiveHour.resetsAt,
+                        paceInfo: paceByMetric[.fiveHour]
+                    )
+                }
+
+                if let codexFiveHour = snapshot.codex?.fiveHour {
+                    WidgetUsageBar(
+                        label: "Codex",
+                        percent: codexFiveHour.percent,
+                        resetsAt: codexFiveHour.resetsAt,
+                        paceInfo: codexPaceByMetric[.fiveHour],
+                        fillGradient: AnthropicColors.codexGradient,
+                        trackColor: AnthropicColors.codexTrack
+                    )
+                }
+            } else if let fiveHour = snapshot.fiveHour {
                 WidgetUsageBar(
                     label: "5-Hour",
                     percent: fiveHour.percent,

@@ -5,6 +5,7 @@ struct UsageTimelineEntry: TimelineEntry {
     let date: Date
     let snapshot: UsageSnapshot
     var paceByMetric: [MetricKey: PaceInfo] = [:]
+    var codexPaceByMetric: [MetricKey: PaceInfo] = [:]
 
     static func buildTimeline(from snapshot: UsageSnapshot?, paceSettings: PaceSettings = .allEnabled) -> [UsageTimelineEntry] {
         let base = snapshot ?? UsageSnapshot(
@@ -24,8 +25,9 @@ struct UsageTimelineEntry: TimelineEntry {
         let now = Date()
         for i in 0..<4 {
             let entryDate = now.addingTimeInterval(TimeInterval(i * 15 * 60))
-            let pace = computePaceMap(snapshot: base, paceSettings: paceSettings, now: entryDate)
-            entries.append(UsageTimelineEntry(date: entryDate, snapshot: base, paceByMetric: pace))
+            let pace = computePaceMap(metrics: claudePairs(from: base), paceSettings: paceSettings, now: entryDate)
+            let codexPace = computePaceMap(metrics: codexPairs(from: base), paceSettings: paceSettings, now: entryDate)
+            entries.append(UsageTimelineEntry(date: entryDate, snapshot: base, paceByMetric: pace, codexPaceByMetric: codexPace))
         }
         return entries
     }
@@ -34,24 +36,35 @@ struct UsageTimelineEntry: TimelineEntry {
         guard !isPlaceholder else {
             return UsageTimelineEntry(date: date, snapshot: snapshot)
         }
-        let pace = computePaceMap(snapshot: snapshot, paceSettings: paceSettings, now: date)
-        return UsageTimelineEntry(date: date, snapshot: snapshot, paceByMetric: pace)
+        let pace = computePaceMap(metrics: claudePairs(from: snapshot), paceSettings: paceSettings, now: date)
+        let codexPace = computePaceMap(metrics: codexPairs(from: snapshot), paceSettings: paceSettings, now: date)
+        return UsageTimelineEntry(date: date, snapshot: snapshot, paceByMetric: pace, codexPaceByMetric: codexPace)
     }
 
-    private static func computePaceMap(snapshot: UsageSnapshot, paceSettings: PaceSettings, now: Date) -> [MetricKey: PaceInfo] {
+    private static func computePaceMap(metrics: [(MetricKey, UsageMetric?)], paceSettings: PaceSettings, now: Date) -> [MetricKey: PaceInfo] {
         var map: [MetricKey: PaceInfo] = [:]
-        let pairs: [(MetricKey, UsageMetric?)] = [
-            (.fiveHour, snapshot.fiveHour),
-            (.sevenDay, snapshot.sevenDay),
-            (.sevenDaySonnet, snapshot.sevenDaySonnet),
-            (.sevenDayOpus, snapshot.sevenDayOpus),
-        ]
-        for (key, metric) in pairs {
+        for (key, metric) in metrics {
             guard paceSettings.enabledMetrics.contains(key), let metric else { continue }
             if let pace = computePace(metric: metric, windowDuration: key.windowDuration, now: now) {
                 map[key] = pace
             }
         }
         return map
+    }
+
+    private static func claudePairs(from snapshot: UsageSnapshot) -> [(MetricKey, UsageMetric?)] {
+        [
+            (.fiveHour, snapshot.fiveHour),
+            (.sevenDay, snapshot.sevenDay),
+            (.sevenDaySonnet, snapshot.sevenDaySonnet),
+            (.sevenDayOpus, snapshot.sevenDayOpus),
+        ]
+    }
+
+    private static func codexPairs(from snapshot: UsageSnapshot) -> [(MetricKey, UsageMetric?)] {
+        [
+            (.fiveHour, snapshot.codex?.fiveHour),
+            (.sevenDay, snapshot.codex?.sevenDay),
+        ]
     }
 }

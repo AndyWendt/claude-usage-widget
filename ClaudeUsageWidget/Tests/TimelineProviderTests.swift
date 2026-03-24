@@ -72,6 +72,35 @@ final class TimelineProviderTests: XCTestCase {
         XCTAssertNotNil(first.paceByMetric[.sevenDay], "sevenDay pace should be pre-computed in the entry")
     }
 
+    func testBuildTimelinePreComputesCodexPaceInfo() {
+        let snapshot = UsageSnapshot(
+            fiveHour: UsageMetric(percent: 22.0, resetsAt: Date().addingTimeInterval(2 * 3600)),
+            sevenDay: UsageMetric(percent: 32.0, resetsAt: Date().addingTimeInterval(4 * 86400)),
+            sevenDaySonnet: nil,
+            sevenDayOpus: nil,
+            codex: ProviderUsageSnapshot(
+                fiveHour: UsageMetric(percent: 12.0, resetsAt: Date().addingTimeInterval(2 * 3600)),
+                sevenDay: UsageMetric(percent: 18.0, resetsAt: Date().addingTimeInterval(4 * 86400)),
+                extraLabel: nil,
+                extraMetric: nil,
+                tokenStats: .zero,
+                lastUpdated: Date(),
+                lastSuccessfulUpdate: nil,
+                error: nil
+            ),
+            tokenStats: .zero,
+            lastUpdated: Date(),
+            lastSuccessfulUpdate: nil,
+            error: nil
+        )
+
+        let entries = UsageTimelineEntry.buildTimeline(from: snapshot)
+
+        let first = entries.first!
+        XCTAssertNotNil(first.codexPaceByMetric[.fiveHour], "Codex fiveHour pace should be pre-computed in the entry")
+        XCTAssertNotNil(first.codexPaceByMetric[.sevenDay], "Codex sevenDay pace should be pre-computed in the entry")
+    }
+
     func testBuildTimelineRespectsDisabledPaceSettings() {
         let snapshot = UsageSnapshot(
             fiveHour: UsageMetric(percent: 22.0, resetsAt: Date().addingTimeInterval(2 * 3600)),
@@ -97,6 +126,7 @@ final class TimelineProviderTests: XCTestCase {
 
         let first = entries.first!
         XCTAssertTrue(first.paceByMetric.isEmpty, "No pace data when snapshot is nil")
+        XCTAssertTrue(first.codexPaceByMetric.isEmpty, "No Codex pace data when snapshot is nil")
     }
 
     func testBuildTimelinePaceAccuracyMatchesComputePace() {

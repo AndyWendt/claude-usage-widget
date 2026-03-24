@@ -27,11 +27,13 @@ final class MockURLProtocol: URLProtocol {
 
 final class APIServiceTests: XCTestCase {
     var service: APIService!
+    var codexService: CodexAPIService!
 
     override func setUp() {
         let config = URLSessionConfiguration.ephemeral
         config.protocolClasses = [MockURLProtocol.self]
         service = APIService(session: URLSession(configuration: config))
+        codexService = CodexAPIService(session: URLSession(configuration: config))
     }
 
     func testFetchUsageSuccess() async throws {
@@ -118,5 +120,55 @@ final class APIServiceTests: XCTestCase {
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
+    }
+
+    func testCodexFetchUsageSuccess() async throws {
+        let responseJSON = """
+        {
+            "rate_limit": {
+                "allowed": true,
+                "limit_reached": false,
+                "primary_window": {"used_percent": 15, "limit_window_seconds": 18000, "reset_after_seconds": 4180, "reset_at": 1774388998}
+            }
+        }
+        """.data(using: .utf8)!
+
+        MockURLProtocol.requestHandler = { request in
+            XCTAssertEqual(request.url?.absoluteString, "https://chatgpt.com/backend-api/wham/usage")
+            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer codex-token")
+            XCTAssertEqual(request.value(forHTTPHeaderField: "ChatGPT-Account-Id"), "account-123")
+            let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (response, responseJSON)
+        }
+
+        let result = try await codexService.fetchUsage(
+            credentials: CodexAuthCredentials(accessToken: "codex-token", accountID: "account-123")
+        )
+
+        XCTAssertEqual(result.rateLimit.primaryWindow?.usedPercent, 15)
+    }
+
+    func testCodexAuthServiceReadsChatGPTCredentials() throws {
+        let tmpDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tmpDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tmpDir) }
+
+        let authFile = tmpDir.appendingPathComponent("auth.json")
+        let json = """
+        {
+            "auth_mode": "chatgpt",
+            "tokens": {
+                "access_token": "codex-token",
+                "account_id": "account-123"
+            }
+        }
+        """
+        try json.write(to: authFile, atomically: true, encoding: .utf8)
+
+        let authService = CodexAuthService(authFileURL: authFile)
+        let credentials = try authService.readAuth()
+
+        XCTAssertEqual(credentials.accessToken, "codex-token")
+        XCTAssertEqual(credentials.accountID, "account-123")
     }
 }

@@ -100,4 +100,81 @@ final class APIModelsTests: XCTestCase {
         XCTAssertLessThanOrEqual(snapshot.lastSuccessfulUpdate!, afterCall)
         XCTAssertNil(snapshot.error)
     }
+
+    func testDecodeCodexUsageResponse() throws {
+        let json = """
+        {
+            "rate_limit": {
+                "allowed": true,
+                "limit_reached": false,
+                "primary_window": {"used_percent": 15, "limit_window_seconds": 18000, "reset_after_seconds": 4180, "reset_at": 1774388998},
+                "secondary_window": {"used_percent": 10, "limit_window_seconds": 604800, "reset_after_seconds": 257905, "reset_at": 1774642723}
+            },
+            "code_review_rate_limit": {
+                "allowed": true,
+                "limit_reached": false,
+                "primary_window": {"used_percent": 0, "limit_window_seconds": 604800, "reset_after_seconds": 604800, "reset_at": 1774989618}
+            },
+            "additional_rate_limits": [
+                {
+                    "limit_name": "GPT-5.3-Codex-Spark",
+                    "metered_feature": "codex_bengalfox",
+                    "rate_limit": {
+                        "allowed": true,
+                        "limit_reached": false,
+                        "primary_window": {"used_percent": 1, "limit_window_seconds": 18000, "reset_after_seconds": 18000, "reset_at": 1774402818}
+                    }
+                }
+            ]
+        }
+        """.data(using: .utf8)!
+
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        let response = try decoder.decode(CodexUsageResponse.self, from: json)
+
+        XCTAssertEqual(response.rateLimit.primaryWindow?.usedPercent, 15)
+        XCTAssertEqual(response.rateLimit.secondaryWindow?.usedPercent, 10)
+        XCTAssertEqual(response.additionalRateLimits?.first?.limitName, "GPT-5.3-Codex-Spark")
+        XCTAssertEqual(response.codeReviewRateLimit?.primaryWindow?.resetAt, 1_774_989_618)
+    }
+
+    func testCodexUsageToProviderSnapshotPrefersAdditionalLimit() {
+        let response = CodexUsageResponse(
+            rateLimit: CodexRateLimitEnvelope(
+                allowed: true,
+                limitReached: false,
+                primaryWindow: CodexRateWindow(usedPercent: 15, limitWindowSeconds: 18000, resetAfterSeconds: 4180, resetAt: 1_774_388_998),
+                secondaryWindow: CodexRateWindow(usedPercent: 10, limitWindowSeconds: 604800, resetAfterSeconds: 257905, resetAt: 1_774_642_723)
+            ),
+            codeReviewRateLimit: CodexRateLimitEnvelope(
+                allowed: true,
+                limitReached: false,
+                primaryWindow: CodexRateWindow(usedPercent: 30, limitWindowSeconds: 604800, resetAfterSeconds: 600, resetAt: 1_774_989_618),
+                secondaryWindow: nil
+            ),
+            additionalRateLimits: [
+                CodexAdditionalRateLimit(
+                    limitName: "GPT-5.3-Codex-Spark",
+                    meteredFeature: "codex_bengalfox",
+                    rateLimit: CodexRateLimitEnvelope(
+                        allowed: true,
+                        limitReached: false,
+                        primaryWindow: CodexRateWindow(usedPercent: 1, limitWindowSeconds: 18000, resetAfterSeconds: 18000, resetAt: 1_774_402_818),
+                        secondaryWindow: nil
+                    )
+                )
+            ]
+        )
+        let stats = TokenStats(todayTokens: 1200, weekTokens: 3000, todayMessages: 2, weekMessages: 5)
+
+        let snapshot = response.toProviderSnapshot(tokenStats: stats, now: Date(timeIntervalSince1970: 1_774_384_818))
+
+        XCTAssertEqual(snapshot.fiveHour?.percent, 15)
+        XCTAssertEqual(snapshot.sevenDay?.percent, 10)
+        XCTAssertEqual(snapshot.extraLabel, "GPT-5.3-Codex-Spark")
+        XCTAssertEqual(snapshot.extraMetric?.percent, 1)
+        XCTAssertEqual(snapshot.tokenStats.weekTokens, 3000)
+        XCTAssertNil(snapshot.error)
+    }
 }

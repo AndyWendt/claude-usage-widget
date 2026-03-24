@@ -8,6 +8,14 @@ protocol APIServiceProtocol {
     func fetchUsage(token: String) async throws -> UsageApiResponse
 }
 
+protocol CodexAuthServiceProtocol {
+    func readAuth() throws -> CodexAuthCredentials
+}
+
+protocol CodexAPIServiceProtocol {
+    func fetchUsage(credentials: CodexAuthCredentials) async throws -> CodexUsageResponse
+}
+
 protocol StatsServiceProtocol {
     func readStats() -> TokenStats
 }
@@ -31,4 +39,9 @@ enum APIError: Error, Equatable {
     case serverError(Int)
     case networkError(String)
     case decodingError(String)
+}
+
+enum CodexAuthError: Error, Equatable {
+    case notConfigured
+    case invalidData(String)
 }

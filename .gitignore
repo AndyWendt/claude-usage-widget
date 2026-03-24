@@ -36,3 +36,6 @@ xcuserdata/
 # Utility scripts
 claude-usage*.sh
 create_icons.py
+
+# Local Codex worktrees
+.claude/worktrees/

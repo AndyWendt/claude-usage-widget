@@ -1,4 +1,5 @@
 import Foundation
+import SQLite3
 
 final class StatsService: StatsServiceProtocol {
     private let statsFilePath: String
@@ -141,6 +142,62 @@ final class StatsService: StatsServiceProtocol {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         return formatter
+    }
+}
+
+final class CodexStatsService: StatsServiceProtocol {
+    private let databasePath: String
+
+    init(databasePath: String? = nil) {
+        if let databasePath {
+            self.databasePath = databasePath
+        } else {
+            self.databasePath = FileManager.default.homeDirectoryForCurrentUser
+                .appendingPathComponent(".codex/state_5.sqlite")
+                .path
+        }
+    }
+
+    func readStats() -> TokenStats {
+        var db: OpaquePointer?
+        guard sqlite3_open_v2(databasePath, &db, SQLITE_OPEN_READONLY, nil) == SQLITE_OK, let db else {
+            if db != nil {
+                sqlite3_close(db)
+            }
+            return .zero
+        }
+        defer { sqlite3_close(db) }
+
+        let calendar = Calendar.current
+        let startOfToday = Int(calendar.startOfDay(for: Date()).timeIntervalSince1970)
+        let startOfWeek = Int(
+            calendar.date(byAdding: .day, value: -7, to: calendar.startOfDay(for: Date()))?
+                .timeIntervalSince1970 ?? 0
+        )
+
+        return TokenStats(
+            todayTokens: queryInt(db, sql: "SELECT COALESCE(SUM(tokens_used), 0) FROM threads WHERE model_provider = 'openai' AND created_at >= ?", threshold: startOfToday),
+            weekTokens: queryInt(db, sql: "SELECT COALESCE(SUM(tokens_used), 0) FROM threads WHERE model_provider = 'openai' AND created_at >= ?", threshold: startOfWeek),
+            todayMessages: queryInt(db, sql: "SELECT COUNT(*) FROM threads WHERE model_provider = 'openai' AND created_at >= ?", threshold: startOfToday),
+            weekMessages: queryInt(db, sql: "SELECT COUNT(*) FROM threads WHERE model_provider = 'openai' AND created_at >= ?", threshold: startOfWeek)
+        )
+    }
+
+    private func queryInt(_ db: OpaquePointer, sql: String, threshold: Int) -> Int {
+        var statement: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK, let statement else {
+            if statement != nil {
+                sqlite3_finalize(statement)
+            }
+            return 0
+        }
+        defer { sqlite3_finalize(statement) }
+
+        sqlite3_bind_int64(statement, 1, sqlite3_int64(threshold))
+        guard sqlite3_step(statement) == SQLITE_ROW else {
+            return 0
+        }
+        return Int(sqlite3_column_int64(statement, 0))
     }
 }
 

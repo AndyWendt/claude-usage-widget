@@ -1,4 +1,5 @@
 import XCTest
+import SQLite3
 @testable import ClaudeUsageWidget
 
 final class StatsServiceTests: XCTestCase {
@@ -154,6 +155,73 @@ final class StatsServiceTests: XCTestCase {
         XCTAssertEqual(stats.todayTokens, 0)
         XCTAssertEqual(stats.weekTokens, 1000)
         XCTAssertEqual(stats.weekMessages, 5)
+    }
+
+    func testCodexStatsServiceReadsSQLiteTotals() throws {
+        let tmpDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tmpDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tmpDir) }
+
+        let dbURL = tmpDir.appendingPathComponent("state.sqlite")
+        var db: OpaquePointer?
+        XCTAssertEqual(sqlite3_open(dbURL.path, &db), SQLITE_OK)
+        defer { sqlite3_close(db) }
+
+        XCTAssertEqual(
+            sqlite3_exec(
+                db,
+                """
+                CREATE TABLE threads (
+                    id TEXT PRIMARY KEY,
+                    rollout_path TEXT NOT NULL,
+                    created_at INTEGER NOT NULL,
+                    updated_at INTEGER NOT NULL,
+                    source TEXT NOT NULL,
+                    model_provider TEXT NOT NULL,
+                    cwd TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    sandbox_policy TEXT NOT NULL,
+                    approval_mode TEXT NOT NULL,
+                    tokens_used INTEGER NOT NULL DEFAULT 0,
+                    has_user_event INTEGER NOT NULL DEFAULT 0,
+                    archived INTEGER NOT NULL DEFAULT 0
+                );
+                """,
+                nil,
+                nil,
+                nil
+            ),
+            SQLITE_OK
+        )
+
+        let now = Int(Date().timeIntervalSince1970)
+        let threeDaysAgo = now - (3 * 24 * 3600)
+        let tenDaysAgo = now - (10 * 24 * 3600)
+
+        XCTAssertEqual(
+            sqlite3_exec(
+                db,
+                """
+                INSERT INTO threads (id, rollout_path, created_at, updated_at, source, model_provider, cwd, title, sandbox_policy, approval_mode, tokens_used, has_user_event, archived) VALUES
+                ('today', '/tmp/today.jsonl', \(now), \(now), 'cli', 'openai', '/tmp', 'Today', 'workspace-write', 'never', 1200, 1, 0),
+                ('week', '/tmp/week.jsonl', \(threeDaysAgo), \(threeDaysAgo), 'cli', 'openai', '/tmp', 'Week', 'workspace-write', 'never', 800, 1, 0),
+                ('old', '/tmp/old.jsonl', \(tenDaysAgo), \(tenDaysAgo), 'cli', 'openai', '/tmp', 'Old', 'workspace-write', 'never', 4000, 1, 0),
+                ('other-provider', '/tmp/other.jsonl', \(now), \(now), 'cli', 'anthropic', '/tmp', 'Other', 'workspace-write', 'never', 9999, 1, 0);
+                """,
+                nil,
+                nil,
+                nil
+            ),
+            SQLITE_OK
+        )
+
+        let service = CodexStatsService(databasePath: dbURL.path)
+        let stats = service.readStats()
+
+        XCTAssertEqual(stats.todayTokens, 1200)
+        XCTAssertEqual(stats.weekTokens, 2000)
+        XCTAssertEqual(stats.todayMessages, 1)
+        XCTAssertEqual(stats.weekMessages, 2)
     }
 
     private static func dateString(daysAgo: Int) -> String {

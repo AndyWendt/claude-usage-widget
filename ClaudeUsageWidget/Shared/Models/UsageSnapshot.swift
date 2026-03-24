@@ -36,6 +36,8 @@ struct TokenStats: Codable, Equatable {
     let todayMessages: Int
     let weekMessages: Int
 
+    static let zero = TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0)
+
     var formattedTodayTokens: String {
         Self.formatNumber(todayTokens)
     }
@@ -66,6 +68,19 @@ struct ProviderUsageSnapshot: Codable, Equatable {
 
     var hasUsageData: Bool {
         fiveHour != nil || sevenDay != nil || extraMetric != nil
+    }
+
+    func withError(_ message: String, tokenStats: TokenStats? = nil) -> ProviderUsageSnapshot {
+        ProviderUsageSnapshot(
+            fiveHour: fiveHour,
+            sevenDay: sevenDay,
+            extraLabel: extraLabel,
+            extraMetric: extraMetric,
+            tokenStats: tokenStats ?? self.tokenStats,
+            lastUpdated: Date(),
+            lastSuccessfulUpdate: lastSuccessfulUpdate,
+            error: message
+        )
     }
 }
 

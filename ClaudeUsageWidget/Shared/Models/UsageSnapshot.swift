@@ -54,6 +54,29 @@ struct TokenStats: Codable, Equatable {
     }
 }
 
+struct ProviderUsageSnapshot: Codable, Equatable {
+    let fiveHour: UsageMetric?
+    let sevenDay: UsageMetric?
+    let extraLabel: String?
+    let extraMetric: UsageMetric?
+    let tokenStats: TokenStats
+    let lastUpdated: Date
+    let lastSuccessfulUpdate: Date?
+    let error: String?
+
+    var hasUsageData: Bool {
+        fiveHour != nil || sevenDay != nil || extraMetric != nil
+    }
+}
+
+struct CompareUsageSection: Equatable {
+    let title: String
+    let claudeLabel: String
+    let claudeMetric: UsageMetric?
+    let codexLabel: String
+    let codexMetric: UsageMetric?
+}
+
 struct PaceSettings: Codable, Equatable {
     let enabledMetrics: Set<MetricKey>
 
@@ -91,13 +114,43 @@ struct UsageSnapshot: Codable, Equatable {
     let sevenDay: UsageMetric?
     let sevenDaySonnet: UsageMetric?
     let sevenDayOpus: UsageMetric?
+    let codex: ProviderUsageSnapshot?
     let tokenStats: TokenStats
     let lastUpdated: Date
     let lastSuccessfulUpdate: Date?
     let error: String?
 
+    init(
+        fiveHour: UsageMetric?,
+        sevenDay: UsageMetric?,
+        sevenDaySonnet: UsageMetric?,
+        sevenDayOpus: UsageMetric?,
+        codex: ProviderUsageSnapshot? = nil,
+        tokenStats: TokenStats,
+        lastUpdated: Date,
+        lastSuccessfulUpdate: Date?,
+        error: String?
+    ) {
+        self.fiveHour = fiveHour
+        self.sevenDay = sevenDay
+        self.sevenDaySonnet = sevenDaySonnet
+        self.sevenDayOpus = sevenDayOpus
+        self.codex = codex
+        self.tokenStats = tokenStats
+        self.lastUpdated = lastUpdated
+        self.lastSuccessfulUpdate = lastSuccessfulUpdate
+        self.error = error
+    }
+
     var maxUsagePercent: Double? {
-        let values = [fiveHour?.clampedPercent, sevenDay?.clampedPercent, sevenDayOpus?.clampedPercent].compactMap { $0 }
+        let values = [
+            fiveHour?.clampedPercent,
+            sevenDay?.clampedPercent,
+            sevenDayOpus?.clampedPercent,
+            codex?.fiveHour?.clampedPercent,
+            codex?.sevenDay?.clampedPercent,
+            codex?.extraMetric?.clampedPercent
+        ].compactMap { $0 }
         return values.max()
     }
 
@@ -106,7 +159,61 @@ struct UsageSnapshot: Codable, Equatable {
     }
 
     var hasUsageData: Bool {
-        fiveHour != nil || sevenDay != nil || sevenDaySonnet != nil || sevenDayOpus != nil
+        fiveHour != nil || sevenDay != nil || sevenDaySonnet != nil || sevenDayOpus != nil || (codex?.hasUsageData ?? false)
+    }
+
+    var hasCodexData: Bool {
+        codex?.hasUsageData ?? false
+    }
+
+    var displayTitle: String {
+        hasCodexData ? "AI Usage" : "Claude Code Usage"
+    }
+
+    var compareSections: [CompareUsageSection] {
+        guard let codex, codex.hasUsageData else { return [] }
+
+        var sections = [
+            CompareUsageSection(
+                title: "5-Hour Window",
+                claudeLabel: "Claude",
+                claudeMetric: fiveHour,
+                codexLabel: "Codex",
+                codexMetric: codex.fiveHour
+            ),
+            CompareUsageSection(
+                title: "Weekly",
+                claudeLabel: "Claude",
+                claudeMetric: sevenDay,
+                codexLabel: "Codex",
+                codexMetric: codex.sevenDay
+            )
+        ]
+
+        if let claudeExtra = preferredClaudeExtraMetric ?? codex.extraMetric {
+            sections.append(
+                CompareUsageSection(
+                    title: "Extra Limit",
+                    claudeLabel: preferredClaudeExtraLabel,
+                    claudeMetric: preferredClaudeExtraMetric,
+                    codexLabel: codex.extraLabel ?? "Codex Extra",
+                    codexMetric: codex.extraMetric ?? claudeExtra
+                )
+            )
+        }
+
+        return sections
+    }
+
+    var compareErrorMessages: [String] {
+        var messages: [String] = []
+        if let error {
+            messages.append("Claude: \(error)")
+        }
+        if let codexError = codex?.error {
+            messages.append("Codex: \(codexError)")
+        }
+        return messages
     }
 
     func withError(_ message: String, tokenStats: TokenStats? = nil) -> UsageSnapshot {
@@ -115,6 +222,7 @@ struct UsageSnapshot: Codable, Equatable {
             sevenDay: sevenDay,
             sevenDaySonnet: sevenDaySonnet,
             sevenDayOpus: sevenDayOpus,
+            codex: codex,
             tokenStats: tokenStats ?? self.tokenStats,
             lastUpdated: Date(),
             lastSuccessfulUpdate: lastSuccessfulUpdate,
@@ -136,5 +244,15 @@ struct UsageSnapshot: Codable, Equatable {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         return decoder
+    }
+
+    private var preferredClaudeExtraMetric: UsageMetric? {
+        sevenDayOpus ?? sevenDaySonnet
+    }
+
+    private var preferredClaudeExtraLabel: String {
+        if sevenDayOpus != nil { return "Weekly (Opus)" }
+        if sevenDaySonnet != nil { return "Weekly (Sonnet)" }
+        return "Claude Extra"
     }
 }

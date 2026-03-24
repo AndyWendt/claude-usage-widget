@@ -301,4 +301,139 @@ final class UsageSnapshotTests: XCTestCase {
 
         XCTAssertEqual(errorSnapshot.tokenStats.todayTokens, 1000, "Should fall back to cached stats when none provided")
     }
+
+    func testEncodeDecodeRoundTripWithCodex() throws {
+        let date = Date(timeIntervalSince1970: 1711000000)
+        let snapshot = UsageSnapshot(
+            fiveHour: UsageMetric(percent: 45.0, resetsAt: date),
+            sevenDay: UsageMetric(percent: 30.0, resetsAt: date),
+            sevenDaySonnet: UsageMetric(percent: 12.0, resetsAt: date),
+            sevenDayOpus: nil,
+            codex: ProviderUsageSnapshot(
+                fiveHour: UsageMetric(percent: 5.0, resetsAt: date),
+                sevenDay: UsageMetric(percent: 8.0, resetsAt: date),
+                extraLabel: "Code Review",
+                extraMetric: UsageMetric(percent: 2.0, resetsAt: date),
+                tokenStats: TokenStats(todayTokens: 1000, weekTokens: 4000, todayMessages: 4, weekMessages: 12),
+                lastUpdated: date,
+                lastSuccessfulUpdate: date,
+                error: nil
+            ),
+            tokenStats: TokenStats(todayTokens: 5000, weekTokens: 25000, todayMessages: 10, weekMessages: 50),
+            lastUpdated: date,
+            lastSuccessfulUpdate: date,
+            error: nil
+        )
+
+        let data = try UsageSnapshot.makeEncoder().encode(snapshot)
+        let decoded = try UsageSnapshot.makeDecoder().decode(UsageSnapshot.self, from: data)
+
+        XCTAssertEqual(decoded.codex?.fiveHour?.percent, 5.0)
+        XCTAssertEqual(decoded.codex?.extraLabel, "Code Review")
+        XCTAssertEqual(decoded.codex?.tokenStats.weekTokens, 4000)
+    }
+
+    func testHasUsageDataIncludesCodex() {
+        let snapshot = UsageSnapshot(
+            fiveHour: nil, sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
+            codex: ProviderUsageSnapshot(
+                fiveHour: UsageMetric(percent: 5.0, resetsAt: Date()),
+                sevenDay: nil,
+                extraLabel: nil,
+                extraMetric: nil,
+                tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
+                lastUpdated: Date(),
+                lastSuccessfulUpdate: nil,
+                error: nil
+            ),
+            tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
+            lastUpdated: Date(),
+            lastSuccessfulUpdate: nil,
+            error: nil
+        )
+
+        XCTAssertTrue(snapshot.hasUsageData)
+    }
+
+    func testMaxUsagePercentIncludesCodexMetrics() {
+        let snapshot = UsageSnapshot(
+            fiveHour: UsageMetric(percent: 20.0, resetsAt: Date()),
+            sevenDay: nil,
+            sevenDaySonnet: nil,
+            sevenDayOpus: nil,
+            codex: ProviderUsageSnapshot(
+                fiveHour: UsageMetric(percent: 72.0, resetsAt: Date()),
+                sevenDay: UsageMetric(percent: 12.0, resetsAt: Date()),
+                extraLabel: "Code Review",
+                extraMetric: UsageMetric(percent: 15.0, resetsAt: Date()),
+                tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
+                lastUpdated: Date(),
+                lastSuccessfulUpdate: nil,
+                error: nil
+            ),
+            tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
+            lastUpdated: Date(),
+            lastSuccessfulUpdate: nil,
+            error: nil
+        )
+
+        XCTAssertEqual(snapshot.maxUsagePercent, 72.0)
+    }
+
+    func testCompareSectionsBuildClaudeAndCodexRows() {
+        let date = Date(timeIntervalSince1970: 1711000000)
+        let snapshot = UsageSnapshot(
+            fiveHour: UsageMetric(percent: 60.0, resetsAt: date),
+            sevenDay: UsageMetric(percent: 54.0, resetsAt: date),
+            sevenDaySonnet: UsageMetric(percent: 1.0, resetsAt: date),
+            sevenDayOpus: nil,
+            codex: ProviderUsageSnapshot(
+                fiveHour: UsageMetric(percent: 4.0, resetsAt: date),
+                sevenDay: UsageMetric(percent: 8.0, resetsAt: date),
+                extraLabel: "Code Review",
+                extraMetric: UsageMetric(percent: 0.0, resetsAt: date),
+                tokenStats: TokenStats(todayTokens: 250, weekTokens: 900, todayMessages: 2, weekMessages: 6),
+                lastUpdated: date,
+                lastSuccessfulUpdate: date,
+                error: nil
+            ),
+            tokenStats: TokenStats(todayTokens: 0, weekTokens: 4_400_000, todayMessages: 0, weekMessages: 0),
+            lastUpdated: date,
+            lastSuccessfulUpdate: date,
+            error: nil
+        )
+
+        let sections = snapshot.compareSections
+
+        XCTAssertEqual(sections.map(\.title), ["5-Hour Window", "Weekly", "Extra Limit"])
+        XCTAssertEqual(sections[0].claudeLabel, "Claude")
+        XCTAssertEqual(sections[0].codexLabel, "Codex")
+        XCTAssertEqual(sections[0].claudeMetric?.percent, 60.0)
+        XCTAssertEqual(sections[0].codexMetric?.percent, 4.0)
+        XCTAssertEqual(sections[2].claudeLabel, "Weekly (Sonnet)")
+        XCTAssertEqual(sections[2].codexLabel, "Code Review")
+        XCTAssertEqual(sections[2].codexMetric?.percent, 0.0)
+    }
+
+    func testDisplayTitleUsesAIUsageWhenCodexExists() {
+        let snapshot = UsageSnapshot(
+            fiveHour: nil, sevenDay: nil, sevenDaySonnet: nil, sevenDayOpus: nil,
+            codex: ProviderUsageSnapshot(
+                fiveHour: UsageMetric(percent: 5.0, resetsAt: Date()),
+                sevenDay: nil,
+                extraLabel: nil,
+                extraMetric: nil,
+                tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
+                lastUpdated: Date(),
+                lastSuccessfulUpdate: nil,
+                error: nil
+            ),
+            tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
+            lastUpdated: Date(),
+            lastSuccessfulUpdate: nil,
+            error: nil
+        )
+
+        XCTAssertEqual(snapshot.displayTitle, "AI Usage")
+    }
 }

@@ -15,6 +15,9 @@ enum AnthropicColors {
     static let iconRed = Color(red: 0.937, green: 0.267, blue: 0.267)       // #ef4444
     static let paceGreen = Color(red: 0.357, green: 0.604, blue: 0.435)    // #5B9A6F
     static let paceYellow = Color(red: 0.769, green: 0.659, blue: 0.302)   // #C4A84D
+    static let codexBlue = Color(red: 0.333, green: 0.545, blue: 0.827)    // #558BD3
+    static let codexTeal = Color(red: 0.333, green: 0.741, blue: 0.737)    // #55BDBC
+    static let codexTrack = codexBlue.opacity(0.18)
 
     // Gradients
     static let normalGradient = LinearGradient(
@@ -28,6 +31,9 @@ enum AnthropicColors {
     )
     static let dangerGradient = LinearGradient(
         colors: [dangerDark, coral], startPoint: .leading, endPoint: .trailing
+    )
+    static let codexGradient = LinearGradient(
+        colors: [codexBlue, codexTeal], startPoint: .leading, endPoint: .trailing
     )
 
     static func paceColor(for status: PaceStatus) -> Color {

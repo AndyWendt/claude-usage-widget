@@ -26,7 +26,7 @@ struct PopoverView: View {
 
     private var headerView: some View {
         HStack {
-            Text("Claude Code Usage")
+            Text(manager.snapshot?.displayTitle ?? "Claude Code Usage")
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(AnthropicColors.tan)
             Spacer()
@@ -82,59 +82,81 @@ struct PopoverView: View {
     }
 
     private func contentView(_ snapshot: UsageSnapshot) -> some View {
-        let paceSettings = manager.paceSettings
-
-        return ScrollView {
+        ScrollView {
             VStack(spacing: 10) {
-                UsageBarView(
-                    label: "5-Hour Window",
-                    metric: snapshot.fiveHour,
-                    paceInfo: paceSettings.enabledMetrics.contains(.fiveHour)
-                        ? snapshot.fiveHour.flatMap { computePace(metric: $0, windowDuration: MetricKey.fiveHour.windowDuration) }
-                        : nil
-                )
-                UsageBarView(
-                    label: "Weekly (All Models)",
-                    metric: snapshot.sevenDay,
-                    paceInfo: paceSettings.enabledMetrics.contains(.sevenDay)
-                        ? snapshot.sevenDay.flatMap { computePace(metric: $0, windowDuration: MetricKey.sevenDay.windowDuration) }
-                        : nil
-                )
-                UsageBarView(
-                    label: "Weekly (Sonnet)",
-                    metric: snapshot.sevenDaySonnet,
-                    paceInfo: paceSettings.enabledMetrics.contains(.sevenDaySonnet)
-                        ? snapshot.sevenDaySonnet.flatMap { computePace(metric: $0, windowDuration: MetricKey.sevenDaySonnet.windowDuration) }
-                        : nil
-                )
-                UsageBarView(
-                    label: "Weekly (Opus)",
-                    metric: snapshot.sevenDayOpus,
-                    isOpus: true,
-                    paceInfo: paceSettings.enabledMetrics.contains(.sevenDayOpus)
-                        ? snapshot.sevenDayOpus.flatMap { computePace(metric: $0, windowDuration: MetricKey.sevenDayOpus.windowDuration) }
-                        : nil
-                )
-
-                divider
-
-                TokenStatsView(stats: snapshot.tokenStats)
-
-                if let error = snapshot.error {
-                    errorBanner(error)
-                    if let lastSuccess = snapshot.lastSuccessfulUpdate {
-                        HStack(spacing: 4) {
-                            Image(systemName: "clock")
-                                .font(.system(size: 9))
-                            Text(lastSuccess, style: .relative)
-                                .font(.system(size: 9))
-                        }
-                        .foregroundStyle(AnthropicColors.creamMuted)
-                    }
+                if snapshot.hasCodexData {
+                    comparisonContent(snapshot)
+                } else {
+                    legacyContent(snapshot)
                 }
             }
             .padding(.horizontal, 14)
             .padding(.bottom, 12)
+        }
+    }
+
+    @ViewBuilder
+    private func legacyContent(_ snapshot: UsageSnapshot) -> some View {
+        let paceSettings = manager.paceSettings
+
+        UsageBarView(
+            label: "5-Hour Window",
+            metric: snapshot.fiveHour,
+            paceInfo: paceSettings.enabledMetrics.contains(.fiveHour)
+                ? snapshot.fiveHour.flatMap { computePace(metric: $0, windowDuration: MetricKey.fiveHour.windowDuration) }
+                : nil
+        )
+        UsageBarView(
+            label: "Weekly (All Models)",
+            metric: snapshot.sevenDay,
+            paceInfo: paceSettings.enabledMetrics.contains(.sevenDay)
+                ? snapshot.sevenDay.flatMap { computePace(metric: $0, windowDuration: MetricKey.sevenDay.windowDuration) }
+                : nil
+        )
+        UsageBarView(
+            label: "Weekly (Sonnet)",
+            metric: snapshot.sevenDaySonnet,
+            paceInfo: paceSettings.enabledMetrics.contains(.sevenDaySonnet)
+                ? snapshot.sevenDaySonnet.flatMap { computePace(metric: $0, windowDuration: MetricKey.sevenDaySonnet.windowDuration) }
+                : nil
+        )
+        UsageBarView(
+            label: "Weekly (Opus)",
+            metric: snapshot.sevenDayOpus,
+            isOpus: true,
+            paceInfo: paceSettings.enabledMetrics.contains(.sevenDayOpus)
+                ? snapshot.sevenDayOpus.flatMap { computePace(metric: $0, windowDuration: MetricKey.sevenDayOpus.windowDuration) }
+                : nil
+        )
+
+        divider
+
+        TokenStatsView(stats: snapshot.tokenStats)
+
+        if let error = snapshot.error {
+            errorBanner(error)
+            if let lastSuccess = snapshot.lastSuccessfulUpdate {
+                lastSuccessView(lastSuccess)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func comparisonContent(_ snapshot: UsageSnapshot) -> some View {
+        ForEach(Array(snapshot.compareSections.enumerated()), id: \.offset) { _, section in
+            CompareUsageSectionView(section: section)
+        }
+
+        divider
+
+        CompareTokenStatsView(claudeStats: snapshot.tokenStats, codexStats: snapshot.codex?.tokenStats)
+
+        ForEach(snapshot.compareErrorMessages, id: \.self) { message in
+            errorBanner(message)
+        }
+
+        if let codexLastSuccess = snapshot.codex?.lastSuccessfulUpdate ?? snapshot.lastSuccessfulUpdate {
+            lastSuccessView(codexLastSuccess)
         }
     }
 
@@ -163,6 +185,16 @@ struct PopoverView: View {
         .padding(8)
         .background(AnthropicColors.coral.opacity(0.1))
         .cornerRadius(6)
+    }
+
+    private func lastSuccessView(_ lastSuccess: Date) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: "clock")
+                .font(.system(size: 9))
+            Text(lastSuccess, style: .relative)
+                .font(.system(size: 9))
+        }
+        .foregroundStyle(AnthropicColors.creamMuted)
     }
 
     private var debugLogView: some View {
@@ -201,5 +233,131 @@ struct PopoverView: View {
             }
         }
         .padding(.top, 4)
+    }
+}
+
+private struct CompareUsageSectionView: View {
+    let section: CompareUsageSection
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(section.title)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(AnthropicColors.creamMuted)
+
+            CompareUsageBarRowView(
+                label: section.claudeLabel,
+                metric: section.claudeMetric,
+                fill: AnthropicColors.normalGradient,
+                trackColor: AnthropicColors.tan.opacity(0.2)
+            )
+
+            CompareUsageBarRowView(
+                label: section.codexLabel,
+                metric: section.codexMetric,
+                fill: AnthropicColors.codexGradient,
+                trackColor: AnthropicColors.codexTrack
+            )
+        }
+    }
+}
+
+private struct CompareUsageBarRowView: View {
+    let label: String
+    let metric: UsageMetric?
+    let fill: LinearGradient
+    let trackColor: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(label)
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(AnthropicColors.cream)
+
+                Spacer()
+
+                Text(metricText)
+                    .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(AnthropicColors.cream)
+            }
+
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(trackColor)
+
+                    if let metric {
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(fill)
+                            .frame(width: geo.size.width * metric.clampedPercent / 100)
+                    }
+                }
+            }
+            .frame(height: 8)
+
+            HStack {
+                Spacer()
+                Text(resetText)
+                    .font(.system(size: 9, design: .monospaced))
+                    .foregroundStyle(AnthropicColors.creamMuted)
+            }
+        }
+    }
+
+    private var metricText: String {
+        guard let metric else { return "—" }
+        return "\(Int(metric.clampedPercent))%"
+    }
+
+    private var resetText: String {
+        guard let metric else { return "No data" }
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return "Resets in \(formatter.localizedString(for: metric.resetsAt, relativeTo: Date()))"
+    }
+}
+
+private struct CompareTokenStatsView: View {
+    let claudeStats: TokenStats
+    let codexStats: TokenStats?
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 16) {
+            CompareTokenStatsColumn(title: "Claude", stats: claudeStats)
+
+            if let codexStats {
+                CompareTokenStatsColumn(title: "Codex", stats: codexStats)
+            }
+        }
+    }
+}
+
+private struct CompareTokenStatsColumn: View {
+    let title: String
+    let stats: TokenStats
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(AnthropicColors.cream)
+
+            statsRow(label: "Today", value: stats.formattedTodayTokens)
+            statsRow(label: "Week", value: stats.formattedWeekTokens)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func statsRow(label: String, value: String) -> some View {
+        HStack {
+            Text(label)
+                .font(.system(size: 10))
+                .foregroundStyle(AnthropicColors.creamMuted)
+            Spacer()
+            Text(value)
+                .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                .foregroundStyle(AnthropicColors.cream)
+        }
     }
 }

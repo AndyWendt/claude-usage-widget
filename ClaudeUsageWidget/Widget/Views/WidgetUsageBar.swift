@@ -6,6 +6,8 @@ struct WidgetUsageBar: View {
     let resetsAt: Date
     var isOpus: Bool = false
     var paceInfo: PaceInfo? = nil
+    var fillGradient: LinearGradient? = nil
+    var trackColor: Color = Color.white.opacity(0.12)
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
@@ -21,7 +23,7 @@ struct WidgetUsageBar: View {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 3)
-                        .fill(.quaternary)
+                        .fill(trackColor)
                     RoundedRectangle(cornerRadius: 3)
                         .fill(gradient)
                         .frame(width: geo.size.width * min(max(percent, 0), 100) / 100)
@@ -63,6 +65,9 @@ struct WidgetUsageBar: View {
     }
 
     private var gradient: LinearGradient {
+        if let fillGradient {
+            return fillGradient
+        }
         if percent >= 90 {
             return AnthropicColors.dangerGradient
         } else if percent >= 70 {

@@ -11,6 +11,17 @@ struct UsageTimelineProvider: TimelineProvider {
             sevenDay: UsageMetric(percent: 30.0, resetsAt: Date().addingTimeInterval(86400)),
             sevenDaySonnet: UsageMetric(percent: 22.0, resetsAt: Date().addingTimeInterval(86400)),
             sevenDayOpus: UsageMetric(percent: 15.0, resetsAt: Date().addingTimeInterval(86400)),
+            codex: ProviderUsageSnapshot(
+                fiveHour: UsageMetric(percent: 12.0, resetsAt: Date().addingTimeInterval(7200)),
+                sevenDay: UsageMetric(percent: 8.0, resetsAt: Date().addingTimeInterval(2 * 86400)),
+                extraLabel: "GPT-5.3-Codex-Spark",
+                extraMetric: UsageMetric(percent: 6.0, resetsAt: Date().addingTimeInterval(2 * 86400)),
+                extraWindowDuration: MetricKey.sevenDay.windowDuration,
+                tokenStats: TokenStats(todayTokens: 8000, weekTokens: 42000, todayMessages: 12, weekMessages: 60),
+                lastUpdated: Date(),
+                lastSuccessfulUpdate: nil,
+                error: nil
+            ),
             tokenStats: TokenStats(todayTokens: 12000, weekTokens: 85000, todayMessages: 25, weekMessages: 150),
             lastUpdated: Date(),
             lastSuccessfulUpdate: nil,

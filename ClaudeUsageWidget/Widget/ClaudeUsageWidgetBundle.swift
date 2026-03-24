@@ -36,13 +36,13 @@ struct WidgetContentView: View {
     var body: some View {
         switch family {
         case .systemSmall:
-            SmallWidgetView(snapshot: entry.snapshot, paceByMetric: entry.paceByMetric)
+            SmallWidgetView(snapshot: entry.snapshot, paceByMetric: entry.paceByMetric, codexPaceByMetric: entry.codexPaceByMetric)
         case .systemMedium:
-            MediumWidgetView(snapshot: entry.snapshot, paceByMetric: entry.paceByMetric)
+            MediumWidgetView(snapshot: entry.snapshot, paceByMetric: entry.paceByMetric, codexPaceByMetric: entry.codexPaceByMetric)
         case .systemLarge:
-            LargeWidgetView(snapshot: entry.snapshot, paceByMetric: entry.paceByMetric)
+            LargeWidgetView(snapshot: entry.snapshot, paceByMetric: entry.paceByMetric, codexPaceByMetric: entry.codexPaceByMetric)
         default:
-            SmallWidgetView(snapshot: entry.snapshot, paceByMetric: entry.paceByMetric)
+            SmallWidgetView(snapshot: entry.snapshot, paceByMetric: entry.paceByMetric, codexPaceByMetric: entry.codexPaceByMetric)
         }
     }
 }

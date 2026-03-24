@@ -3,16 +3,19 @@ import XCTest
 
 final class SharedContainerServiceTests: XCTestCase {
     var service: SharedContainerService!
+    var tempDir: URL!
 
     override func setUp() {
-        // Use the containerURL init which maps to UserDefaults.standard for tests
-        service = SharedContainerService(containerURL: nil)
-        // Clear any leftover test data
-        UserDefaults.standard.removeObject(forKey: "usageSnapshot")
+        tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try? FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        service = SharedContainerService(containerURL: tempDir)
     }
 
     override func tearDown() {
-        UserDefaults.standard.removeObject(forKey: "usageSnapshot")
+        if let tempDir {
+            try? FileManager.default.removeItem(at: tempDir)
+        }
+        tempDir = nil
     }
 
     func testWriteAndReadSnapshot() throws {

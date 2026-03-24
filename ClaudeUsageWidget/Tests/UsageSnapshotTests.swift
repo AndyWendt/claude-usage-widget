@@ -314,6 +314,7 @@ final class UsageSnapshotTests: XCTestCase {
                 sevenDay: UsageMetric(percent: 8.0, resetsAt: date),
                 extraLabel: "Code Review",
                 extraMetric: UsageMetric(percent: 2.0, resetsAt: date),
+                extraWindowDuration: MetricKey.sevenDay.windowDuration,
                 tokenStats: TokenStats(todayTokens: 1000, weekTokens: 4000, todayMessages: 4, weekMessages: 12),
                 lastUpdated: date,
                 lastSuccessfulUpdate: date,
@@ -341,6 +342,7 @@ final class UsageSnapshotTests: XCTestCase {
                 sevenDay: nil,
                 extraLabel: nil,
                 extraMetric: nil,
+                extraWindowDuration: nil,
                 tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
                 lastUpdated: Date(),
                 lastSuccessfulUpdate: nil,
@@ -366,6 +368,7 @@ final class UsageSnapshotTests: XCTestCase {
                 sevenDay: UsageMetric(percent: 12.0, resetsAt: Date()),
                 extraLabel: "Code Review",
                 extraMetric: UsageMetric(percent: 15.0, resetsAt: Date()),
+                extraWindowDuration: MetricKey.sevenDay.windowDuration,
                 tokenStats: TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0),
                 lastUpdated: Date(),
                 lastSuccessfulUpdate: nil,
@@ -392,6 +395,7 @@ final class UsageSnapshotTests: XCTestCase {
                 sevenDay: UsageMetric(percent: 8.0, resetsAt: date),
                 extraLabel: "Code Review",
                 extraMetric: UsageMetric(percent: 0.0, resetsAt: date),
+                extraWindowDuration: MetricKey.sevenDay.windowDuration,
                 tokenStats: TokenStats(todayTokens: 250, weekTokens: 900, todayMessages: 2, weekMessages: 6),
                 lastUpdated: date,
                 lastSuccessfulUpdate: date,
@@ -410,9 +414,13 @@ final class UsageSnapshotTests: XCTestCase {
         XCTAssertEqual(sections[0].codexLabel, "Codex")
         XCTAssertEqual(sections[0].claudeMetric?.percent, 60.0)
         XCTAssertEqual(sections[0].codexMetric?.percent, 4.0)
+        XCTAssertEqual(sections[0].claudeMetricKey, .fiveHour)
+        XCTAssertEqual(sections[0].codexWindowDuration, MetricKey.fiveHour.windowDuration)
         XCTAssertEqual(sections[2].claudeLabel, "Weekly (Sonnet)")
         XCTAssertEqual(sections[2].codexLabel, "Code Review")
         XCTAssertEqual(sections[2].codexMetric?.percent, 0.0)
+        XCTAssertEqual(sections[2].claudeMetricKey, .sevenDaySonnet)
+        XCTAssertEqual(sections[2].codexWindowDuration, MetricKey.sevenDay.windowDuration)
     }
 
     func testDisplayTitleUsesAIUsageWhenCodexExists() {

@@ -50,6 +50,7 @@ struct CodexUsageResponse: Codable {
             sevenDay: makeMetric(from: rateLimit.secondaryWindow),
             extraLabel: extra?.label,
             extraMetric: extra?.metric,
+            extraWindowDuration: extra?.windowDuration,
             tokenStats: tokenStats,
             lastUpdated: now,
             lastSuccessfulUpdate: now,
@@ -57,18 +58,21 @@ struct CodexUsageResponse: Codable {
         )
     }
 
-    private func preferredExtraLimit() -> (label: String, metric: UsageMetric)? {
-        if let additional = (additionalRateLimits ?? []).lazy.compactMap({ limit -> (String, UsageMetric)? in
-            guard let metric = makeMetric(from: limit.rateLimit.primaryWindow) ?? makeMetric(from: limit.rateLimit.secondaryWindow) else {
+    private func preferredExtraLimit() -> (label: String, metric: UsageMetric, windowDuration: TimeInterval)? {
+        if let additional = (additionalRateLimits ?? []).lazy.compactMap({ limit -> (String, UsageMetric, TimeInterval)? in
+            guard let metric = makeMetric(from: limit.rateLimit.secondaryWindow) ?? makeMetric(from: limit.rateLimit.primaryWindow) else {
                 return nil
             }
-            return (limit.limitName, metric)
+            guard let duration = preferredWindowDuration(from: limit.rateLimit) else {
+                return nil
+            }
+            return (limit.limitName, metric, duration)
         }).first {
             return additional
         }
 
-        if let codeReviewMetric = makeMetric(from: codeReviewRateLimit?.primaryWindow) ?? makeMetric(from: codeReviewRateLimit?.secondaryWindow) {
-            return ("Code Review", codeReviewMetric)
+        if let codeReviewMetric = makeMetric(from: codeReviewRateLimit?.secondaryWindow) ?? makeMetric(from: codeReviewRateLimit?.primaryWindow) {
+            return ("Code Review", codeReviewMetric, preferredWindowDuration(from: codeReviewRateLimit) ?? MetricKey.sevenDay.windowDuration)
         }
 
         return nil
@@ -80,6 +84,16 @@ struct CodexUsageResponse: Codable {
             percent: window.usedPercent,
             resetsAt: Date(timeIntervalSince1970: window.resetAt)
         )
+    }
+
+    private func preferredWindowDuration(from envelope: CodexRateLimitEnvelope?) -> TimeInterval? {
+        if let seconds = envelope?.secondaryWindow?.limitWindowSeconds {
+            return TimeInterval(seconds)
+        }
+        if let seconds = envelope?.primaryWindow?.limitWindowSeconds {
+            return TimeInterval(seconds)
+        }
+        return nil
     }
 }
 

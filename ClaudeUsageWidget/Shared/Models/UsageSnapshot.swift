@@ -61,10 +61,33 @@ struct ProviderUsageSnapshot: Codable, Equatable {
     let sevenDay: UsageMetric?
     let extraLabel: String?
     let extraMetric: UsageMetric?
+    let extraWindowDuration: TimeInterval?
     let tokenStats: TokenStats
     let lastUpdated: Date
     let lastSuccessfulUpdate: Date?
     let error: String?
+
+    init(
+        fiveHour: UsageMetric?,
+        sevenDay: UsageMetric?,
+        extraLabel: String?,
+        extraMetric: UsageMetric?,
+        extraWindowDuration: TimeInterval? = nil,
+        tokenStats: TokenStats,
+        lastUpdated: Date,
+        lastSuccessfulUpdate: Date?,
+        error: String?
+    ) {
+        self.fiveHour = fiveHour
+        self.sevenDay = sevenDay
+        self.extraLabel = extraLabel
+        self.extraMetric = extraMetric
+        self.extraWindowDuration = extraWindowDuration
+        self.tokenStats = tokenStats
+        self.lastUpdated = lastUpdated
+        self.lastSuccessfulUpdate = lastSuccessfulUpdate
+        self.error = error
+    }
 
     var hasUsageData: Bool {
         fiveHour != nil || sevenDay != nil || extraMetric != nil
@@ -76,6 +99,7 @@ struct ProviderUsageSnapshot: Codable, Equatable {
             sevenDay: sevenDay,
             extraLabel: extraLabel,
             extraMetric: extraMetric,
+            extraWindowDuration: extraWindowDuration,
             tokenStats: tokenStats ?? self.tokenStats,
             lastUpdated: Date(),
             lastSuccessfulUpdate: lastSuccessfulUpdate,
@@ -88,8 +112,10 @@ struct CompareUsageSection: Equatable {
     let title: String
     let claudeLabel: String
     let claudeMetric: UsageMetric?
+    let claudeMetricKey: MetricKey?
     let codexLabel: String
     let codexMetric: UsageMetric?
+    let codexWindowDuration: TimeInterval?
 }
 
 struct PaceSettings: Codable, Equatable {
@@ -193,15 +219,19 @@ struct UsageSnapshot: Codable, Equatable {
                 title: "5-Hour Window",
                 claudeLabel: "Claude",
                 claudeMetric: fiveHour,
+                claudeMetricKey: .fiveHour,
                 codexLabel: "Codex",
-                codexMetric: codex.fiveHour
+                codexMetric: codex.fiveHour,
+                codexWindowDuration: MetricKey.fiveHour.windowDuration
             ),
             CompareUsageSection(
                 title: "Weekly",
                 claudeLabel: "Claude",
                 claudeMetric: sevenDay,
+                claudeMetricKey: .sevenDay,
                 codexLabel: "Codex",
-                codexMetric: codex.sevenDay
+                codexMetric: codex.sevenDay,
+                codexWindowDuration: MetricKey.sevenDay.windowDuration
             )
         ]
 
@@ -211,8 +241,10 @@ struct UsageSnapshot: Codable, Equatable {
                     title: "Extra Limit",
                     claudeLabel: preferredClaudeExtraLabel,
                     claudeMetric: preferredClaudeExtraMetric,
+                    claudeMetricKey: preferredClaudeExtraMetricKey,
                     codexLabel: codex.extraLabel ?? "Codex Extra",
-                    codexMetric: codex.extraMetric ?? claudeExtra
+                    codexMetric: codex.extraMetric ?? claudeExtra,
+                    codexWindowDuration: codex.extraWindowDuration
                 )
             )
         }
@@ -263,6 +295,12 @@ struct UsageSnapshot: Codable, Equatable {
 
     private var preferredClaudeExtraMetric: UsageMetric? {
         sevenDayOpus ?? sevenDaySonnet
+    }
+
+    private var preferredClaudeExtraMetricKey: MetricKey? {
+        if sevenDayOpus != nil { return .sevenDayOpus }
+        if sevenDaySonnet != nil { return .sevenDaySonnet }
+        return nil
     }
 
     private var preferredClaudeExtraLabel: String {

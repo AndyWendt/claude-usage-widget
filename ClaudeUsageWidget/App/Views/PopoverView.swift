@@ -143,8 +143,14 @@ struct PopoverView: View {
 
     @ViewBuilder
     private func comparisonContent(_ snapshot: UsageSnapshot) -> some View {
+        let paceSettings = manager.paceSettings
+
         ForEach(Array(snapshot.compareSections.enumerated()), id: \.offset) { _, section in
-            CompareUsageSectionView(section: section)
+            CompareUsageSectionView(
+                section: section,
+                claudePaceInfo: claudePaceInfo(for: section, paceSettings: paceSettings),
+                codexPaceInfo: codexPaceInfo(for: section, paceSettings: paceSettings)
+            )
         }
 
         divider
@@ -234,10 +240,37 @@ struct PopoverView: View {
         }
         .padding(.top, 4)
     }
+
+    private func claudePaceInfo(for section: CompareUsageSection, paceSettings: PaceSettings) -> PaceInfo? {
+        guard
+            let key = section.claudeMetricKey,
+            paceSettings.enabledMetrics.contains(key),
+            let metric = section.claudeMetric
+        else {
+            return nil
+        }
+
+        return computePace(metric: metric, windowDuration: key.windowDuration)
+    }
+
+    private func codexPaceInfo(for section: CompareUsageSection, paceSettings: PaceSettings) -> PaceInfo? {
+        guard
+            let key = section.claudeMetricKey,
+            paceSettings.enabledMetrics.contains(key),
+            let duration = section.codexWindowDuration,
+            let metric = section.codexMetric
+        else {
+            return nil
+        }
+
+        return computePace(metric: metric, windowDuration: duration)
+    }
 }
 
 private struct CompareUsageSectionView: View {
     let section: CompareUsageSection
+    let claudePaceInfo: PaceInfo?
+    let codexPaceInfo: PaceInfo?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -248,6 +281,7 @@ private struct CompareUsageSectionView: View {
             CompareUsageBarRowView(
                 label: section.claudeLabel,
                 metric: section.claudeMetric,
+                paceInfo: claudePaceInfo,
                 fill: AnthropicColors.normalGradient,
                 trackColor: AnthropicColors.tan.opacity(0.2)
             )
@@ -255,6 +289,7 @@ private struct CompareUsageSectionView: View {
             CompareUsageBarRowView(
                 label: section.codexLabel,
                 metric: section.codexMetric,
+                paceInfo: codexPaceInfo,
                 fill: AnthropicColors.codexGradient,
                 trackColor: AnthropicColors.codexTrack
             )
@@ -265,6 +300,7 @@ private struct CompareUsageSectionView: View {
 private struct CompareUsageBarRowView: View {
     let label: String
     let metric: UsageMetric?
+    let paceInfo: PaceInfo?
     let fill: LinearGradient
     let trackColor: Color
 
@@ -291,16 +327,43 @@ private struct CompareUsageBarRowView: View {
                         RoundedRectangle(cornerRadius: 4)
                             .fill(fill)
                             .frame(width: geo.size.width * metric.clampedPercent / 100)
+
+                        if let pace = paceInfo {
+                            let fillPercent = metric.clampedPercent
+                            let projPercent = pace.clampedProjectedPercent
+                            let baseX = geo.size.width * projPercent / 100
+                            let nudge: CGFloat = abs(projPercent - fillPercent) < 3
+                                ? (projPercent > fillPercent ? 4 : -4)
+                                : 0
+                            let markerX = max(0, min(baseX + nudge, geo.size.width))
+                            RoundedRectangle(cornerRadius: 1)
+                                .fill(AnthropicColors.paceColor(for: pace.status))
+                                .opacity(0.7)
+                                .frame(width: 2, height: 14)
+                                .offset(x: markerX - 1, y: -3)
+                        }
                     }
                 }
             }
             .frame(height: 8)
 
-            HStack {
-                Spacer()
-                Text(resetText)
-                    .font(.system(size: 9, design: .monospaced))
-                    .foregroundStyle(AnthropicColors.creamMuted)
+            if let pace = paceInfo, metric != nil {
+                HStack {
+                    Text(resetText)
+                        .font(.system(size: 9, design: .monospaced))
+                        .foregroundStyle(AnthropicColors.creamMuted)
+                    Spacer()
+                    Text(pace.projectedPercent > 100 ? "→ 100%+" : "→ \(Int(min(pace.projectedPercent, 100)))%")
+                        .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                        .foregroundStyle(AnthropicColors.paceColor(for: pace.status))
+                }
+            } else {
+                HStack {
+                    Spacer()
+                    Text(resetText)
+                        .font(.system(size: 9, design: .monospaced))
+                        .foregroundStyle(AnthropicColors.creamMuted)
+                }
             }
         }
     }
@@ -314,7 +377,7 @@ private struct CompareUsageBarRowView: View {
         guard let metric else { return "No data" }
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .short
-        return "Resets in \(formatter.localizedString(for: metric.resetsAt, relativeTo: Date()))"
+        return "Resets \(formatter.localizedString(for: metric.resetsAt, relativeTo: Date()))"
     }
 }
 

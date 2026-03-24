@@ -161,7 +161,7 @@ final class APIModelsTests: XCTestCase {
                         allowed: true,
                         limitReached: false,
                         primaryWindow: CodexRateWindow(usedPercent: 1, limitWindowSeconds: 18000, resetAfterSeconds: 18000, resetAt: 1_774_402_818),
-                        secondaryWindow: nil
+                        secondaryWindow: CodexRateWindow(usedPercent: 6, limitWindowSeconds: 604800, resetAfterSeconds: 300000, resetAt: 1_775_002_818)
                     )
                 )
             ]
@@ -173,7 +173,8 @@ final class APIModelsTests: XCTestCase {
         XCTAssertEqual(snapshot.fiveHour?.percent, 15)
         XCTAssertEqual(snapshot.sevenDay?.percent, 10)
         XCTAssertEqual(snapshot.extraLabel, "GPT-5.3-Codex-Spark")
-        XCTAssertEqual(snapshot.extraMetric?.percent, 1)
+        XCTAssertEqual(snapshot.extraMetric?.percent, 6)
+        XCTAssertEqual(snapshot.extraWindowDuration, MetricKey.sevenDay.windowDuration)
         XCTAssertEqual(snapshot.tokenStats.weekTokens, 3000)
         XCTAssertNil(snapshot.error)
     }

@@ -35,6 +35,36 @@ final class UsageManagerTests: XCTestCase {
     }
 
     @MainActor
+    func testInitLoadsCachedSnapshotAndIconTier() {
+        let cachedSnapshot = UsageSnapshot(
+            fiveHour: UsageMetric(percent: 72, resetsAt: Date(timeIntervalSince1970: 1_710_000_000)),
+            sevenDay: nil,
+            sevenDaySonnet: nil,
+            sevenDayOpus: nil,
+            codex: nil,
+            tokenStats: TokenStats(todayTokens: 1000, weekTokens: 5000, todayMessages: 3, weekMessages: 10),
+            lastUpdated: Date(timeIntervalSince1970: 1_710_000_100),
+            lastSuccessfulUpdate: Date(timeIntervalSince1970: 1_710_000_100),
+            error: nil
+        )
+        mockContainer.storedSnapshot = cachedSnapshot
+
+        let initializedManager = UsageManager(
+            keychainService: mockKeychain,
+            apiService: mockAPI,
+            statsService: mockStats,
+            codexAuthService: mockCodexAuth,
+            codexAPIService: mockCodexAPI,
+            codexStatsService: mockCodexStats,
+            containerService: mockContainer,
+            widgetReloader: mockReloader.reload
+        )
+
+        XCTAssertEqual(initializedManager.snapshot?.fiveHour?.percent, 72)
+        XCTAssertEqual(initializedManager.iconTier, .high)
+    }
+
+    @MainActor
     func testFetchSuccessUpdatesSnapshot() async {
         mockKeychain.tokenToReturn = "test-token"
         mockAPI.responseToReturn = UsageApiResponse(

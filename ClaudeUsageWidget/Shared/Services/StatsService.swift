@@ -4,8 +4,9 @@ import SQLite3
 final class StatsService: StatsServiceProtocol {
     private let statsFilePath: String
     private let sessionMetaDirectoryPath: String
+    private let projectsDirectoryPath: String
 
-    init(statsFilePath: String? = nil, sessionMetaDirectoryPath: String? = nil) {
+    init(statsFilePath: String? = nil, sessionMetaDirectoryPath: String? = nil, projectsDirectoryPath: String? = nil) {
         let home = FileManager.default.homeDirectoryForCurrentUser
 
         if let path = statsFilePath {
@@ -21,9 +22,21 @@ final class StatsService: StatsServiceProtocol {
                 .appendingPathComponent(".claude/usage-data/session-meta")
                 .path
         }
+
+        if let path = projectsDirectoryPath {
+            self.projectsDirectoryPath = path
+        } else {
+            self.projectsDirectoryPath = home
+                .appendingPathComponent(".claude/projects")
+                .path
+        }
     }
 
     func readStats() -> TokenStats {
+        if let transcriptStats = readTranscriptStats() {
+            return transcriptStats
+        }
+
         guard let data = FileManager.default.contents(atPath: statsFilePath),
               let cache = try? JSONDecoder().decode(StatsCache.self, from: data) else {
             return readSessionMetaStats() ?? TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0)
@@ -62,6 +75,91 @@ final class StatsService: StatsServiceProtocol {
                 if day.date >= weekAgo { weekMessages += day.messageCount }
             }
         }
+
+        return TokenStats(
+            todayTokens: todayTokens,
+            weekTokens: weekTokens,
+            todayMessages: todayMessages,
+            weekMessages: weekMessages
+        )
+    }
+
+    private func readTranscriptStats() -> TokenStats? {
+        let fileManager = FileManager.default
+        let projectsURL = URL(fileURLWithPath: projectsDirectoryPath, isDirectory: true)
+        guard fileManager.fileExists(atPath: projectsDirectoryPath) else {
+            return nil
+        }
+
+        let calendar = Calendar.current
+        let startOfToday = calendar.startOfDay(for: Date())
+        let startOfWeek = calendar.date(byAdding: .day, value: -7, to: startOfToday) ?? startOfToday
+
+        guard let enumerator = fileManager.enumerator(
+            at: projectsURL,
+            includingPropertiesForKeys: [.isRegularFileKey, .contentModificationDateKey],
+            options: [.skipsHiddenFiles]
+        ) else {
+            return nil
+        }
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .custom { decoder in
+            try Self.decodeISO8601Date(from: decoder)
+        }
+
+        var todayTokens = 0
+        var weekTokens = 0
+        var todayMessages = 0
+        var weekMessages = 0
+        var processedHashes = Set<String>()
+        var foundTranscriptEntry = false
+
+        for case let fileURL as URL in enumerator {
+            guard fileURL.pathExtension == "jsonl" else { continue }
+
+            let values = try? fileURL.resourceValues(forKeys: [.isRegularFileKey, .contentModificationDateKey])
+            guard values?.isRegularFile == true else { continue }
+
+            if let modifiedAt = values?.contentModificationDate, modifiedAt < startOfWeek {
+                continue
+            }
+
+            guard let contents = try? String(contentsOf: fileURL, encoding: .utf8) else { continue }
+
+            for line in contents.split(whereSeparator: \.isNewline) {
+                guard let data = String(line).data(using: .utf8),
+                      let entry = try? decoder.decode(TranscriptUsageEntry.self, from: data) else {
+                    continue
+                }
+
+                if let uniqueHash = Self.uniqueHash(for: entry),
+                   !processedHashes.insert(uniqueHash).inserted {
+                    continue
+                }
+
+                foundTranscriptEntry = true
+
+                let usage = entry.message.usage
+                let tokenTotal =
+                    max(0, usage.inputTokens) +
+                    max(0, usage.outputTokens) +
+                    max(0, usage.cacheCreationInputTokens ?? 0) +
+                    max(0, usage.cacheReadInputTokens ?? 0)
+
+                if entry.timestamp >= startOfToday {
+                    todayTokens += tokenTotal
+                    todayMessages += 1
+                }
+
+                if entry.timestamp >= startOfWeek {
+                    weekTokens += tokenTotal
+                    weekMessages += 1
+                }
+            }
+        }
+
+        guard foundTranscriptEntry else { return nil }
 
         return TokenStats(
             todayTokens: todayTokens,
@@ -143,6 +241,31 @@ final class StatsService: StatsServiceProtocol {
         formatter.dateFormat = "yyyy-MM-dd"
         return formatter
     }
+
+    private static func uniqueHash(for entry: TranscriptUsageEntry) -> String? {
+        guard let messageID = entry.message.id, let requestID = entry.requestId else {
+            return nil
+        }
+
+        return "\(messageID):\(requestID)"
+    }
+
+    private static func decodeISO8601Date(from decoder: Decoder) throws -> Date {
+        let container = try decoder.singleValueContainer()
+        let value = try container.decode(String.self)
+
+        if let date = fractionalISO8601Formatter.date(from: value) ?? ISO8601DateFormatter().date(from: value) {
+            return date
+        }
+
+        throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid ISO8601 date: \(value)")
+    }
+
+    private static let fractionalISO8601Formatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
 }
 
 final class CodexStatsService: StatsServiceProtocol {
@@ -214,5 +337,30 @@ private struct SessionMeta: Decodable {
         case outputTokens = "output_tokens"
         case userMessageCount = "user_message_count"
         case assistantMessageCount = "assistant_message_count"
+    }
+}
+
+private struct TranscriptUsageEntry: Decodable {
+    let timestamp: Date
+    let requestId: String?
+    let message: TranscriptMessage
+}
+
+private struct TranscriptMessage: Decodable {
+    let usage: TranscriptTokenUsage
+    let id: String?
+}
+
+private struct TranscriptTokenUsage: Decodable {
+    let inputTokens: Int
+    let outputTokens: Int
+    let cacheCreationInputTokens: Int?
+    let cacheReadInputTokens: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case inputTokens = "input_tokens"
+        case outputTokens = "output_tokens"
+        case cacheCreationInputTokens = "cache_creation_input_tokens"
+        case cacheReadInputTokens = "cache_read_input_tokens"
     }
 }

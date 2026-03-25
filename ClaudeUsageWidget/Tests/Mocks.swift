@@ -5,9 +5,11 @@ final class MockKeychainService: KeychainServiceProtocol {
     var tokenToReturn: String?
     var errorToThrow: Error?
     var readTokenCallCount = 0
+    var lastReadOnMainThread: Bool?
 
     func readToken() throws -> String {
         readTokenCallCount += 1
+        lastReadOnMainThread = Thread.isMainThread
         if let error = errorToThrow { throw error }
         guard let token = tokenToReturn else { throw KeychainError.notFound }
         return token
@@ -33,9 +35,11 @@ final class MockCodexAuthService: CodexAuthServiceProtocol {
     var credentialsToReturn: CodexAuthCredentials?
     var errorToThrow: Error?
     var readAuthCallCount = 0
+    var lastReadOnMainThread: Bool?
 
     func readAuth() throws -> CodexAuthCredentials {
         readAuthCallCount += 1
+        lastReadOnMainThread = Thread.isMainThread
         if let error = errorToThrow { throw error }
         guard let credentials = credentialsToReturn else {
             throw CodexAuthError.notConfigured
@@ -61,9 +65,11 @@ final class MockCodexAPIService: CodexAPIServiceProtocol {
 
 final class MockStatsService: StatsServiceProtocol {
     var statsToReturn = TokenStats(todayTokens: 0, weekTokens: 0, todayMessages: 0, weekMessages: 0)
+    var lastReadOnMainThread: Bool?
 
     func readStats() -> TokenStats {
-        statsToReturn
+        lastReadOnMainThread = Thread.isMainThread
+        return statsToReturn
     }
 }
 
@@ -71,6 +77,7 @@ final class MockSharedContainerService: SharedContainerServiceProtocol {
     var storedSnapshot: UsageSnapshot?
     var writeError: Error?
     var storedPaceSettings: PaceSettings = .allEnabled
+    var lastReadSnapshotOnMainThread: Bool?
 
     func writeSnapshot(_ snapshot: UsageSnapshot) throws {
         if let error = writeError { throw error }
@@ -78,7 +85,8 @@ final class MockSharedContainerService: SharedContainerServiceProtocol {
     }
 
     func readSnapshot() -> UsageSnapshot? {
-        storedSnapshot
+        lastReadSnapshotOnMainThread = Thread.isMainThread
+        return storedSnapshot
     }
 
     func writePaceSettings(_ settings: PaceSettings) throws {

@@ -65,6 +65,38 @@ final class UsageManagerTests: XCTestCase {
     }
 
     @MainActor
+    func testRefreshMovesBlockingReadsOffMainThread() async {
+        mockContainer.storedSnapshot = nil
+        mockContainer.lastReadSnapshotOnMainThread = nil
+        mockKeychain.tokenToReturn = "test-token"
+        mockAPI.responseToReturn = UsageApiResponse(
+            fiveHour: UsageWindow(utilization: 20.0, resetsAt: "2026-03-21T18:00:00Z"),
+            sevenDay: nil,
+            sevenDaySonnet: nil,
+            sevenDayOpus: nil
+        )
+        mockCodexAuth.credentialsToReturn = CodexAuthCredentials(accessToken: "codex-token", accountID: "account-123")
+        mockCodexAPI.responseToReturn = CodexUsageResponse(
+            rateLimit: CodexRateLimitEnvelope(
+                allowed: true,
+                limitReached: false,
+                primaryWindow: CodexRateWindow(usedPercent: 15, limitWindowSeconds: 18000, resetAfterSeconds: 4180, resetAt: 1_774_388_998),
+                secondaryWindow: nil
+            ),
+            codeReviewRateLimit: nil,
+            additionalRateLimits: nil
+        )
+
+        await manager.refresh()
+
+        XCTAssertEqual(mockContainer.lastReadSnapshotOnMainThread, false)
+        XCTAssertEqual(mockStats.lastReadOnMainThread, false)
+        XCTAssertEqual(mockCodexStats.lastReadOnMainThread, false)
+        XCTAssertEqual(mockKeychain.lastReadOnMainThread, false)
+        XCTAssertEqual(mockCodexAuth.lastReadOnMainThread, false)
+    }
+
+    @MainActor
     func testFetchSuccessUpdatesSnapshot() async {
         mockKeychain.tokenToReturn = "test-token"
         mockAPI.responseToReturn = UsageApiResponse(

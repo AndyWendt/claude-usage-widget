@@ -1,3 +1,4 @@
+import Dispatch
 import Foundation
 import WidgetKit
 
@@ -82,9 +83,10 @@ final class UsageManager: ObservableObject {
         isLoading = true
         defer { isLoading = false }
 
-        let existing = snapshot ?? containerService.readSnapshot()
-        let claudeStats = statsService.readStats()
-        let codexStats = codexStatsService.readStats()
+        let prepared = await loadRefreshPreparation()
+        let existing = prepared.existing
+        let claudeStats = prepared.claudeStats
+        let codexStats = prepared.codexStats
         debug.log("Stats: todayTokens=\(claudeStats.todayTokens), weekTokens=\(claudeStats.weekTokens)", source: "App")
         debug.log("Codex stats: todayTokens=\(codexStats.todayTokens), weekTokens=\(codexStats.weekTokens)", source: "App")
 
@@ -107,7 +109,6 @@ final class UsageManager: ObservableObject {
     }
 
     private func handleError(_ msg: String, stats: TokenStats, source: String, existing: UsageSnapshot?) -> ClaudeRefreshResult {
-        let debug = DebugLogger.shared
         if let existing, existing.hasUsageData {
             return ClaudeRefreshResult(snapshot: existing.withError(msg, tokenStats: stats), shouldPersist: true)
         } else {
@@ -171,7 +172,10 @@ final class UsageManager: ObservableObject {
                 token = cached
                 debug.log("Using cached token (\(token.prefix(8))...)", source: "App")
             } else {
-                token = try keychainService.readToken()
+                let keychainService = UnsafeSendableBox(value: self.keychainService)
+                token = try await runBlockingThrowing {
+                    try keychainService.value.readToken()
+                }
                 cachedToken = token
                 debug.log("Read token from keychain (\(token.prefix(8))...)", source: "App")
             }
@@ -200,7 +204,10 @@ final class UsageManager: ObservableObject {
         let debug = DebugLogger.shared
 
         do {
-            let credentials = try codexAuthService.readAuth()
+            let codexAuthService = UnsafeSendableBox(value: self.codexAuthService)
+            let credentials = try await runBlockingThrowing {
+                try codexAuthService.value.readAuth()
+            }
             let response = try await codexAPIService.fetchUsage(credentials: credentials)
             let newSnapshot = response.toProviderSnapshot(tokenStats: stats)
             debug.log("Codex API success: fiveHour=\(newSnapshot.fiveHour?.percent ?? -1)%, sevenDay=\(newSnapshot.sevenDay?.percent ?? -1)%", source: "App")
@@ -231,6 +238,40 @@ final class UsageManager: ObservableObject {
             error: claude.error
         )
     }
+
+    private func loadRefreshPreparation() async -> RefreshPreparation {
+        let currentSnapshot = UnsafeSendableBox(value: snapshot)
+        let containerService = UnsafeSendableBox(value: self.containerService)
+        let statsService = UnsafeSendableBox(value: self.statsService)
+        let codexStatsService = UnsafeSendableBox(value: self.codexStatsService)
+        return await runBlocking {
+            RefreshPreparation(
+                existing: currentSnapshot.value ?? containerService.value.readSnapshot(),
+                claudeStats: statsService.value.readStats(),
+                codexStats: codexStatsService.value.readStats()
+            )
+        }
+    }
+
+    private func runBlocking<T>(_ work: @escaping @Sendable () -> T) async -> T {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                continuation.resume(returning: work())
+            }
+        }
+    }
+
+    private func runBlockingThrowing<T>(_ work: @escaping @Sendable () throws -> T) async throws -> T {
+        try await withCheckedThrowingContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    continuation.resume(returning: try work())
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
 }
 
 private struct ClaudeRefreshResult {
@@ -241,4 +282,14 @@ private struct ClaudeRefreshResult {
 private struct CodexRefreshResult {
     let snapshot: ProviderUsageSnapshot?
     let shouldPersist: Bool
+}
+
+private struct RefreshPreparation {
+    let existing: UsageSnapshot?
+    let claudeStats: TokenStats
+    let codexStats: TokenStats
+}
+
+private struct UnsafeSendableBox<Value>: @unchecked Sendable {
+    let value: Value
 }

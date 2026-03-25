@@ -30,32 +30,12 @@ struct MenuBarNavigation {
 }
 
 extension MenuBarPanel {
-    var width: CGFloat {
+    var size: CGSize {
         switch self {
         case .usage, .settings:
-            260
+            CGSize(width: 260, height: 400)
         case .debugger:
-            500
-        }
-    }
-
-    var minimumHeight: CGFloat {
-        switch self {
-        case .usage, .settings:
-            400
-        case .debugger:
-            600
-        }
-    }
-
-    var fixedHeight: CGFloat? {
-        switch self {
-        case .usage:
-            nil
-        case .settings:
-            400
-        case .debugger:
-            600
+            CGSize(width: 500, height: 600)
         }
     }
 }

@@ -17,7 +17,7 @@ struct PopoverView: View {
                 emptyView
             }
         }
-        .frame(maxWidth: .infinity, alignment: .top)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(AnthropicColors.charcoal.opacity(0.95))
     }
 
@@ -74,15 +74,17 @@ struct PopoverView: View {
     }
 
     private func contentView(_ snapshot: UsageSnapshot) -> some View {
-        VStack(spacing: 10) {
-            if snapshot.hasCodexData {
-                comparisonContent(snapshot)
-            } else {
-                legacyContent(snapshot)
+        ScrollView {
+            VStack(spacing: 10) {
+                if snapshot.hasCodexData {
+                    comparisonContent(snapshot)
+                } else {
+                    legacyContent(snapshot)
+                }
             }
+            .padding(.horizontal, 14)
+            .padding(.bottom, 12)
         }
-        .padding(.horizontal, 14)
-        .padding(.bottom, 12)
     }
 
     @ViewBuilder

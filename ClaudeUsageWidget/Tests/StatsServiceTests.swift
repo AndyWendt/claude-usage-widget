@@ -247,6 +247,67 @@ final class StatsServiceTests: XCTestCase {
         XCTAssertEqual(stats.weekMessages, 3)
     }
 
+    func testReadStatsReusesCachedTranscriptStatsWhenTranscriptFingerprintIsUnchanged() throws {
+        let tmpDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let projectsDir = tmpDir.appendingPathComponent("projects")
+        let projectSessionDir = projectsDir
+            .appendingPathComponent("demo-project")
+            .appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: projectSessionDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tmpDir) }
+
+        let transcriptURL = projectSessionDir.appendingPathComponent("usage.jsonl")
+        try Self.writeTranscriptEntries(
+            to: transcriptURL,
+            entries: [
+                .init(
+                    timestamp: Self.isoDate(daysAgo: 0, fractionalSeconds: true),
+                    requestId: "req-1",
+                    messageId: "msg-1",
+                    inputTokens: 10,
+                    outputTokens: 20,
+                    cacheCreationInputTokens: 30,
+                    cacheReadInputTokens: 40
+                )
+            ]
+        )
+
+        let service = StatsService(
+            statsFilePath: tmpDir.appendingPathComponent("missing-cache.json").path,
+            sessionMetaDirectoryPath: tmpDir.appendingPathComponent("missing-session-meta").path,
+            projectsDirectoryPath: projectsDir.path
+        )
+
+        let originalStats = service.readStats()
+        XCTAssertEqual(originalStats.todayTokens, 100)
+
+        let originalAttributes = try FileManager.default.attributesOfItem(atPath: transcriptURL.path)
+        let originalModificationDate = try XCTUnwrap(originalAttributes[.modificationDate] as? Date)
+        let originalSize = try XCTUnwrap(originalAttributes[.size] as? NSNumber)
+
+        try Self.writeTranscriptEntries(
+            to: transcriptURL,
+            entries: [
+                .init(
+                    timestamp: Self.isoDate(daysAgo: 0, fractionalSeconds: true),
+                    requestId: "req-1",
+                    messageId: "msg-1",
+                    inputTokens: 90,
+                    outputTokens: 80,
+                    cacheCreationInputTokens: 70,
+                    cacheReadInputTokens: 60
+                )
+            ]
+        )
+
+        let rewrittenAttributes = try FileManager.default.attributesOfItem(atPath: transcriptURL.path)
+        XCTAssertEqual(rewrittenAttributes[.size] as? NSNumber, originalSize)
+        try FileManager.default.setAttributes([.modificationDate: originalModificationDate], ofItemAtPath: transcriptURL.path)
+
+        let cachedStats = service.readStats()
+        XCTAssertEqual(cachedStats.todayTokens, 100)
+    }
+
     func testReadStatsFallsBackToCacheWhenTranscriptDirectoryHasNoValidEntries() throws {
         let tmpDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let projectsDir = tmpDir.appendingPathComponent("projects")

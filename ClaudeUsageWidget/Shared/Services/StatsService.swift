@@ -5,6 +5,8 @@ final class StatsService: StatsServiceProtocol {
     private let statsFilePath: String
     private let sessionMetaDirectoryPath: String
     private let projectsDirectoryPath: String
+    private let transcriptCacheLock = NSLock()
+    private var cachedTranscriptState: CachedTranscriptState?
 
     init(statsFilePath: String? = nil, sessionMetaDirectoryPath: String? = nil, projectsDirectoryPath: String? = nil) {
         let home = FileManager.default.homeDirectoryForCurrentUser
@@ -97,15 +99,42 @@ final class StatsService: StatsServiceProtocol {
 
         guard let enumerator = fileManager.enumerator(
             at: projectsURL,
-            includingPropertiesForKeys: [.isRegularFileKey, .contentModificationDateKey],
+            includingPropertiesForKeys: [.isRegularFileKey, .contentModificationDateKey, .fileSizeKey],
             options: [.skipsHiddenFiles]
         ) else {
             return nil
         }
 
+        var transcriptFiles: [TranscriptFile] = []
+        var fingerprint = Hasher()
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .custom { decoder in
             try Self.decodeISO8601Date(from: decoder)
+        }
+
+        for case let fileURL as URL in enumerator {
+            guard fileURL.pathExtension == "jsonl" else { continue }
+
+            let values = try? fileURL.resourceValues(forKeys: [.isRegularFileKey, .contentModificationDateKey, .fileSizeKey])
+            guard values?.isRegularFile == true else { continue }
+
+            if let modifiedAt = values?.contentModificationDate, modifiedAt < startOfWeek {
+                continue
+            }
+
+            let modifiedAt = values?.contentModificationDate ?? .distantPast
+            let fileSize = values?.fileSize ?? 0
+            transcriptFiles.append(TranscriptFile(url: fileURL))
+            fingerprint.combine(fileURL.path)
+            fingerprint.combine(fileSize)
+            fingerprint.combine(Int(modifiedAt.timeIntervalSinceReferenceDate))
+        }
+
+        fingerprint.combine(transcriptFiles.count)
+        let fingerprintValue = fingerprint.finalize()
+
+        if let cachedEntry = cachedTranscriptEntry(for: fingerprintValue) {
+            return cachedEntry.stats
         }
 
         var todayTokens = 0
@@ -115,17 +144,8 @@ final class StatsService: StatsServiceProtocol {
         var processedHashes = Set<String>()
         var foundTranscriptEntry = false
 
-        for case let fileURL as URL in enumerator {
-            guard fileURL.pathExtension == "jsonl" else { continue }
-
-            let values = try? fileURL.resourceValues(forKeys: [.isRegularFileKey, .contentModificationDateKey])
-            guard values?.isRegularFile == true else { continue }
-
-            if let modifiedAt = values?.contentModificationDate, modifiedAt < startOfWeek {
-                continue
-            }
-
-            guard let contents = try? String(contentsOf: fileURL, encoding: .utf8) else { continue }
+        for transcriptFile in transcriptFiles {
+            guard let contents = try? String(contentsOf: transcriptFile.url, encoding: .utf8) else { continue }
 
             for line in contents.split(whereSeparator: \.isNewline) {
                 guard let data = String(line).data(using: .utf8),
@@ -159,16 +179,43 @@ final class StatsService: StatsServiceProtocol {
             }
         }
 
-        guard foundTranscriptEntry else { return nil }
-
-        return TokenStats(
+        let stats = foundTranscriptEntry ? TokenStats(
             todayTokens: todayTokens,
             weekTokens: weekTokens,
             todayMessages: todayMessages,
             weekMessages: weekMessages
-        )
+        ) : nil
+
+        cacheTranscriptStats(stats, fingerprint: fingerprintValue)
+        return stats
     }
 
+    private func cachedTranscriptEntry(for fingerprint: Int) -> CachedTranscriptState? {
+        transcriptCacheLock.lock()
+        defer { transcriptCacheLock.unlock() }
+        guard let cachedTranscriptState, cachedTranscriptState.fingerprint == fingerprint else {
+            return nil
+        }
+        return cachedTranscriptState
+    }
+
+    private func cacheTranscriptStats(_ stats: TokenStats?, fingerprint: Int) {
+        transcriptCacheLock.lock()
+        cachedTranscriptState = CachedTranscriptState(fingerprint: fingerprint, stats: stats)
+        transcriptCacheLock.unlock()
+    }
+}
+
+private struct CachedTranscriptState {
+    let fingerprint: Int
+    let stats: TokenStats?
+}
+
+private struct TranscriptFile {
+    let url: URL
+}
+
+extension StatsService {
     private func readSessionMetaStats() -> TokenStats? {
         let fileManager = FileManager.default
         guard let fileNames = try? fileManager.contentsOfDirectory(atPath: sessionMetaDirectoryPath) else {

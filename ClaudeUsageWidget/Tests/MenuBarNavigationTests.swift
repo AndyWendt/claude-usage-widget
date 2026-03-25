@@ -61,19 +61,22 @@ final class MenuBarNavigationTests: XCTestCase {
         XCTAssertEqual(navigation.panel, .settings)
     }
 
-    func testUsagePanelSizeMatchesCompactPopover() {
-        XCTAssertEqual(MenuBarPanel.usage.size.width, 260)
-        XCTAssertEqual(MenuBarPanel.usage.size.height, 400)
+    func testUsagePanelUsesIntrinsicHeight() {
+        XCTAssertEqual(MenuBarPanel.usage.width, 260)
+        XCTAssertEqual(MenuBarPanel.usage.minimumHeight, 400)
+        XCTAssertNil(MenuBarPanel.usage.fixedHeight)
     }
 
     func testSettingsPanelSizeMatchesCompactPopover() {
-        XCTAssertEqual(MenuBarPanel.settings.size.width, 260)
-        XCTAssertEqual(MenuBarPanel.settings.size.height, 400)
+        XCTAssertEqual(MenuBarPanel.settings.width, 260)
+        XCTAssertEqual(MenuBarPanel.settings.minimumHeight, 400)
+        XCTAssertEqual(MenuBarPanel.settings.fixedHeight, 400)
     }
 
     func testDebuggerPanelSizeMatchesExpandedPopover() {
-        XCTAssertEqual(MenuBarPanel.debugger.size.width, 500)
-        XCTAssertEqual(MenuBarPanel.debugger.size.height, 600)
+        XCTAssertEqual(MenuBarPanel.debugger.width, 500)
+        XCTAssertEqual(MenuBarPanel.debugger.minimumHeight, 600)
+        XCTAssertEqual(MenuBarPanel.debugger.fixedHeight, 600)
     }
 
     func testActiveSceneDoesNotDismissMenuBarWindow() {

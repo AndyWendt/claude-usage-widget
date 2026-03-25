@@ -31,7 +31,9 @@ struct MenuBarContentView: View {
 
     var body: some View {
         currentPanel
-        .frame(width: navigation.panel.size.width, height: navigation.panel.size.height)
+        .fixedSize(horizontal: false, vertical: navigation.panel.fixedHeight == nil)
+        .frame(width: navigation.panel.width)
+        .frame(minHeight: navigation.panel.minimumHeight, maxHeight: navigation.panel.fixedHeight)
         .background(AnthropicColors.charcoal.opacity(0.95))
         .animation(.easeInOut(duration: 0.15), value: navigation.panel)
         .task {

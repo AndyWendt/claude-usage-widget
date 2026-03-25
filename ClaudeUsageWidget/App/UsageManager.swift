@@ -48,7 +48,11 @@ final class UsageManager: ObservableObject {
         self.widgetReloader = widgetReloader
         self.paceSettings = containerService.readPaceSettings()
         self.snapshot = containerService.readSnapshot()
-        self.iconTier = MenuBarIconTier.from(percent: snapshot?.maxUsagePercent ?? 0)
+        if let percent = snapshot?.maxUsagePercent {
+            self.iconTier = MenuBarIconTier.from(percent: percent)
+        } else {
+            self.iconTier = .idle
+        }
     }
 
     func updatePaceSettings(_ settings: PaceSettings) {

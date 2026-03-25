@@ -3,16 +3,13 @@ import SwiftUI
 struct PopoverView: View {
     @ObservedObject var manager: UsageManager
     let onRefresh: () async -> Void
-    @State private var showDebugLogs = false
-    @State private var debugLogText = ""
+    let onOpenSettings: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
             headerView
 
-            if showDebugLogs {
-                debugLogView
-            } else if manager.isLoading && manager.snapshot == nil {
+            if manager.isLoading && manager.snapshot == nil {
                 loadingView
             } else if let snapshot = manager.snapshot {
                 contentView(snapshot)
@@ -20,7 +17,7 @@ struct PopoverView: View {
                 emptyView
             }
         }
-        .frame(width: showDebugLogs ? 500 : 260, height: showDebugLogs ? 600 : 400)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(AnthropicColors.charcoal.opacity(0.95))
     }
 
@@ -30,15 +27,10 @@ struct PopoverView: View {
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(AnthropicColors.tan)
             Spacer()
-            Button(action: {
-                showDebugLogs.toggle()
-                if showDebugLogs {
-                    debugLogText = DebugLogger.shared.readLogs()
-                }
-            }) {
-                Image(systemName: showDebugLogs ? "ladybug.fill" : "ladybug")
+            Button(action: onOpenSettings) {
+                Image(systemName: "gearshape")
                     .font(.system(size: 11))
-                    .foregroundStyle(showDebugLogs ? AnthropicColors.coral : AnthropicColors.tan.opacity(0.5))
+                    .foregroundStyle(AnthropicColors.tan.opacity(0.75))
             }
             .buttonStyle(.plain)
             .frame(width: 24, height: 24)
@@ -201,44 +193,6 @@ struct PopoverView: View {
                 .font(.system(size: 9))
         }
         .foregroundStyle(AnthropicColors.creamMuted)
-    }
-
-    private var debugLogView: some View {
-        VStack(spacing: 8) {
-            HStack {
-                Button("Refresh Logs") {
-                    debugLogText = DebugLogger.shared.readLogs()
-                }
-                .font(.system(size: 10))
-                Button("Run Diagnostics") {
-                    DebugLogger.shared.dumpContainerDiagnostics(source: "App-Manual")
-                    debugLogText = DebugLogger.shared.readLogs()
-                }
-                .font(.system(size: 10))
-                Button("Clear") {
-                    DebugLogger.shared.clearLogs()
-                    debugLogText = ""
-                }
-                .font(.system(size: 10))
-                Spacer()
-                Button("Copy") {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(debugLogText, forType: .string)
-                }
-                .font(.system(size: 10))
-            }
-            .padding(.horizontal, 10)
-
-            ScrollView {
-                Text(debugLogText.isEmpty ? "(no logs — tap Refresh or Run Diagnostics)" : debugLogText)
-                    .font(.system(size: 9, design: .monospaced))
-                    .foregroundStyle(AnthropicColors.cream)
-                    .textSelection(.enabled)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(8)
-            }
-        }
-        .padding(.top, 4)
     }
 
     private func claudePaceInfo(for section: CompareUsageSection, paceSettings: PaceSettings) -> PaceInfo? {

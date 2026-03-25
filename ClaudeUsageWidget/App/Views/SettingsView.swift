@@ -7,6 +7,7 @@ struct SettingsView: View {
     @ObservedObject var manager: UsageManager
 
     var onIntervalChanged: ((Int) -> Void)?
+    var onOpenDebugger: (() -> Void)?
 
     private let intervalOptions: [(String, Int)] = [
         ("1 min", 60),
@@ -71,6 +72,16 @@ struct SettingsView: View {
                     .font(.system(size: 11))
                     .toggleStyle(.switch)
                     .controlSize(.mini)
+            }
+
+            Divider()
+
+            if let onOpenDebugger {
+                Button(action: onOpenDebugger) {
+                    Label("Debugger", systemImage: "ladybug")
+                        .frame(maxWidth: .infinity)
+                }
+                .font(.system(size: 11))
             }
 
             Divider()

@@ -25,20 +25,13 @@ struct ClaudeUsageWidgetApp: App {
 struct MenuBarContentView: View {
     @ObservedObject var manager: UsageManager
     @Binding var refreshInterval: Int
+    @State private var navigation = MenuBarNavigation()
 
     var body: some View {
-        VStack(spacing: 0) {
-            PopoverView(manager: manager, onRefresh: { await manager.refresh() })
-
-            Divider()
-                .background(AnthropicColors.tan.opacity(0.2))
-
-            SettingsView(manager: manager, onIntervalChanged: { interval in
-                manager.startTimer(interval: TimeInterval(interval))
-            })
-        }
-        .frame(width: 260)
+        currentPanel
+        .frame(width: navigation.panel.size.width, height: navigation.panel.size.height)
         .background(AnthropicColors.charcoal.opacity(0.95))
+        .animation(.easeInOut(duration: 0.15), value: navigation.panel)
         .task {
             manager.startTimer(interval: TimeInterval(refreshInterval))
             await manager.refresh()
@@ -48,6 +41,29 @@ struct MenuBarContentView: View {
             if url.scheme == "claudeusage" {
                 Task { await manager.refresh() }
             }
+        }
+    }
+
+    @ViewBuilder
+    private var currentPanel: some View {
+        switch navigation.panel {
+        case .usage:
+            PopoverView(
+                manager: manager,
+                onRefresh: { await manager.refresh() },
+                onOpenSettings: { navigation.openSettings() }
+            )
+        case .settings:
+            SettingsPanelView(
+                manager: manager,
+                onBack: { navigation.goBack() },
+                onOpenDebugger: { navigation.openDebugger() },
+                onIntervalChanged: { interval in
+                    manager.startTimer(interval: TimeInterval(interval))
+                }
+            )
+        case .debugger:
+            DebugLogView(onBack: { navigation.goBack() })
         }
     }
 }

@@ -44,6 +44,12 @@ final class TokenStatsTests: XCTestCase {
         XCTAssertEqual(stats.formattedTodayTokens, "750")
         XCTAssertEqual(stats.formattedWeekTokens, "0")
     }
+
+    func testFormattedTokensBillions() {
+        let stats = TokenStats(todayTokens: 2_600_000_000, weekTokens: 1_200_000_000, todayMessages: 3, weekMessages: 10)
+        XCTAssertEqual(stats.formattedTodayTokens, "2.6B")
+        XCTAssertEqual(stats.formattedWeekTokens, "1.2B")
+    }
 }
 
 final class UsageSnapshotTests: XCTestCase {

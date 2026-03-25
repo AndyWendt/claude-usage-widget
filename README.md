@@ -32,7 +32,7 @@ Or open `ClaudeUsageWidget/ClaudeUsageWidget.xcodeproj` in Xcode and build from 
 
 ## How It Works
 
-The menu bar app reads your Claude Code OAuth token from the macOS Keychain and fetches usage data from the Anthropic API. Local token statistics are read from `~/.claude/stats-cache.json`. Usage data is shared with the WidgetKit extension via an App Group container so desktop widgets stay in sync.
+The menu bar app reads your Claude Code OAuth token from the macOS Keychain and fetches usage data from the Anthropic API. Local Claude token statistics are read from raw transcript logs under `~/.claude/projects` so they line up with tools like `ccusage`; older cache files remain as a fallback if transcript parsing is unavailable. Usage data is shared with the WidgetKit extension via an App Group container so desktop widgets stay in sync.
 
 ## Project Structure
 

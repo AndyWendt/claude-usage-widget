@@ -75,4 +75,16 @@ final class MenuBarNavigationTests: XCTestCase {
         XCTAssertEqual(MenuBarPanel.debugger.size.width, 500)
         XCTAssertEqual(MenuBarPanel.debugger.size.height, 600)
     }
+
+    func testActiveSceneDoesNotDismissMenuBarWindow() {
+        XCTAssertFalse(MenuBarClosePolicy.shouldDismiss(for: .active))
+    }
+
+    func testInactiveSceneDismissesMenuBarWindow() {
+        XCTAssertTrue(MenuBarClosePolicy.shouldDismiss(for: .inactive))
+    }
+
+    func testBackgroundSceneDismissesMenuBarWindow() {
+        XCTAssertTrue(MenuBarClosePolicy.shouldDismiss(for: .background))
+    }
 }

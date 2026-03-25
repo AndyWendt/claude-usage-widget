@@ -25,6 +25,8 @@ struct ClaudeUsageWidgetApp: App {
 struct MenuBarContentView: View {
     @ObservedObject var manager: UsageManager
     @Binding var refreshInterval: Int
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
     @State private var navigation = MenuBarNavigation()
 
     var body: some View {
@@ -40,6 +42,11 @@ struct MenuBarContentView: View {
             // Handle claudeusage://open — app is already activated by macOS
             if url.scheme == "claudeusage" {
                 Task { await manager.refresh() }
+            }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if MenuBarClosePolicy.shouldDismiss(for: newPhase) {
+                dismiss()
             }
         }
     }
@@ -64,6 +71,19 @@ struct MenuBarContentView: View {
             )
         case .debugger:
             DebugLogView(onBack: { navigation.goBack() })
+        }
+    }
+}
+
+enum MenuBarClosePolicy {
+    static func shouldDismiss(for scenePhase: ScenePhase) -> Bool {
+        switch scenePhase {
+        case .active:
+            false
+        case .inactive, .background:
+            true
+        @unknown default:
+            true
         }
     }
 }
